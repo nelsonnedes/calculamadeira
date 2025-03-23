@@ -24,116 +24,158 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
+        }
+
+        .header {
+            background-color: #8B0000;
+            color: white;
             padding: 20px;
-        }
-
-        .container {
             text-align: center;
-            max-width: 600px;
-            width: 100%;
         }
 
-        .logo {
-            width: 120px;
-            height: 120px;
-            margin-bottom: 20px;
-        }
-
-        h1 {
-            color: #8B0000;
+        .header h1 {
+            font-size: 1.8rem;
             margin-bottom: 10px;
-            font-size: 2rem;
         }
 
-        p {
-            color: #666;
-            margin-bottom: 30px;
-            line-height: 1.6;
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            flex: 1;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
         }
 
         .start-button {
             background-color: #8B0000;
             color: white;
-            border: none;
             padding: 15px 30px;
+            border: none;
             border-radius: 8px;
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             cursor: pointer;
+            margin: 20px 0;
             transition: background-color 0.3s;
-            text-decoration: none;
-            display: inline-block;
         }
 
         .start-button:hover {
-            background-color: #a00000;
+            background-color: #A00000;
         }
 
         .features {
-            margin-top: 40px;
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 20px;
-            text-align: left;
+            margin-top: 40px;
         }
 
-        .feature {
-            background: white;
+        .feature-card {
+            background-color: white;
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
-        .feature h3 {
+        .feature-card i {
+            font-size: 2rem;
             color: #8B0000;
             margin-bottom: 10px;
         }
 
-        .feature p {
-            color: #666;
-            margin-bottom: 0;
-            font-size: 0.9rem;
+        .feature-card h3 {
+            margin-bottom: 10px;
+            color: #333;
         }
 
-        @media (max-width: 480px) {
-            .logo {
-                width: 100px;
-                height: 100px;
-            }
+        .feature-card p {
+            color: #666;
+            line-height: 1.5;
+        }
 
-            h1 {
+        .footer {
+            background-color: #333;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            margin-top: auto;
+        }
+
+        .footer p {
+            margin-bottom: 10px;
+        }
+
+        .social-links {
+            margin-top: 15px;
+        }
+
+        .social-links a {
+            color: white;
+            text-decoration: none;
+            margin: 0 10px;
+            font-size: 1.2rem;
+        }
+
+        .social-links a:hover {
+            color: #8B0000;
+        }
+
+        @media (max-width: 600px) {
+            .header h1 {
                 font-size: 1.5rem;
             }
-
+            
+            .header p {
+                font-size: 1rem;
+            }
+            
             .features {
                 grid-template-columns: 1fr;
             }
         }
     </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <div class="container">
-        <img src="icons/icon-192x192.png" alt="Logo" class="logo">
+    <header class="header">
         <h1>Calculadora de Madeira</h1>
-        <p>Calcule o volume e custo de madeira serrada de forma rápida e precisa.</p>
+        <p>Calcule volume e custo de madeira serrada de forma rápida e precisa</p>
+    </header>
+
+    <main class="main-content">
         <a href="calc.html" class="start-button">Iniciar Calculadora</a>
 
         <div class="features">
-            <div class="feature">
-                <h3>📱 Instalável</h3>
-                <p>Instale no seu celular e use como um aplicativo nativo.</p>
+            <div class="feature-card">
+                <i class="fas fa-mobile-alt"></i>
+                <h3>Instalável</h3>
+                <p>Instale o aplicativo na tela inicial do seu celular para acesso rápido</p>
             </div>
-            <div class="feature">
-                <h3>💾 Offline</h3>
-                <p>Funciona sem internet e salva seus cálculos.</p>
+            <div class="feature-card">
+                <i class="fas fa-wifi-slash"></i>
+                <h3>Funciona Offline</h3>
+                <p>Use a calculadora mesmo sem internet</p>
             </div>
-            <div class="feature">
-                <h3>📊 Precisão</h3>
-                <p>Cálculos precisos com todas as medidas necessárias.</p>
+            <div class="feature-card">
+                <i class="fas fa-calculator"></i>
+                <h3>Precisão</h3>
+                <p>Cálculos precisos de volume e custo em metros cúbicos</p>
             </div>
         </div>
-    </div>
+    </main>
+
+    <footer class="footer">
+        <p>Desenvolvido com ❤️ para profissionais da madeira</p>
+        <div class="social-links">
+            <a href="#" target="_blank"><i class="fab fa-facebook"></i></a>
+            <a href="#" target="_blank"><i class="fab fa-instagram"></i></a>
+            <a href="#" target="_blank"><i class="fab fa-whatsapp"></i></a>
+        </div>
+    </footer>
 
     <script>
         // Registrar o Service Worker
