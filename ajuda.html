@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ajuda - Calculadora de Madeira</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+        }
+
+        .header {
+            background-color: #8B0000;
+            color: white;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 1.2rem;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .help-container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+
+        .search-box {
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .faq-section {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .faq-item {
+            border-bottom: 1px solid #eee;
+        }
+
+        .faq-question {
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            background-color: white;
+        }
+
+        .faq-question:hover {
+            background-color: #f8f8f8;
+        }
+
+        .faq-answer {
+            padding: 0 15px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            background-color: #f8f8f8;
+        }
+
+        .faq-item.active .faq-answer {
+            padding: 15px;
+            max-height: 500px;
+        }
+
+        .faq-item.active .faq-question {
+            background-color: #f8f8f8;
+        }
+
+        .contact-section {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+
+        .contact-title {
+            color: #8B0000;
+            margin-bottom: 15px;
+        }
+
+        .contact-info {
+            margin-bottom: 20px;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .contact-icon {
+            width: 30px;
+            height: 30px;
+            background-color: #f0f0f0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            color: #8B0000;
+        }
+
+        .contact-text {
+            color: #666;
+        }
+
+        .support-btn {
+            background-color: #8B0000;
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1rem;
+        }
+
+        .support-btn:hover {
+            background-color: #a00000;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="header">
+        <button class="back-btn" onclick="window.location.href='calc.html'">←</button>
+        <h1>Ajuda e Suporte</h1>
+    </div>
+
+    <div class="help-container">
+        <div class="search-box">
+            <input type="text" class="search-input" placeholder="Pesquisar ajuda...">
+        </div>
+
+        <div class="faq-section">
+            <div class="faq-item">
+                <div class="faq-question">
+                    Como calcular o volume de madeira?
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    Para calcular o volume de madeira, siga estes passos:
+                    <ol>
+                        <li>Digite a largura em centímetros</li>
+                        <li>Digite a espessura em centímetros</li>
+                        <li>Digite o comprimento em centímetros</li>
+                        <li>Digite a quantidade de peças</li>
+                        <li>Digite o preço por m²</li>
+                        <li>O volume e custo serão calculados automaticamente</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    Como salvar meus cálculos?
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    Para salvar seus cálculos:
+                    <ol>
+                        <li>Preencha todos os campos necessários</li>
+                        <li>Clique no botão "ADICIONAR À LISTA"</li>
+                        <li>Seus cálculos serão salvos na lista abaixo</li>
+                        <li>Use o botão de compartilhar para exportar a lista</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    Como compartilhar meus cálculos?
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    Para compartilhar seus cálculos:
+                    <ol>
+                        <li>Adicione os itens à sua lista</li>
+                        <li>Clique no botão de compartilhar (⎘)</li>
+                        <li>Escolha o método de compartilhamento</li>
+                        <li>Ou use o botão de copiar (☐) para copiar para a área de transferência</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    Como limpar todos os dados?
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    Para limpar todos os dados:
+                    <ol>
+                        <li>Clique no botão de atualizar (⟳) no topo da tela</li>
+                        <li>Confirme a ação</li>
+                        <li>Todos os campos e a lista serão limpos</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        <div class="contact-section">
+            <h2 class="contact-title">Precisa de mais ajuda?</h2>
+            <div class="contact-info">
+                <div class="contact-item">
+                    <div class="contact-icon">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <div class="contact-text">suporte@calculadoramadeira.com</div>
+                </div>
+                <div class="contact-item">
+                    <div class="contact-icon">
+                        <i class="fas fa-phone"></i>
+                    </div>
+                    <div class="contact-text">(00) 0000-0000</div>
+                </div>
+                <div class="contact-item">
+                    <div class="contact-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="contact-text">Segunda a Sexta, 9h às 18h</div>
+                </div>
+            </div>
+            <button class="support-btn">Entrar em Contato</button>
+        </div>
+    </div>
+
+    <script>
+        // FAQ Accordion
+        document.querySelectorAll('.faq-question').forEach(question => {
+            question.addEventListener('click', function() {
+                const item = this.closest('.faq-item');
+                const isActive = item.classList.contains('active');
+                
+                // Fecha todos os itens
+                document.querySelectorAll('.faq-item').forEach(faqItem => {
+                    faqItem.classList.remove('active');
+                });
+                
+                // Abre o item clicado se não estava ativo
+                if (!isActive) {
+                    item.classList.add('active');
+                }
+            });
+        });
+
+        // Pesquisa
+        document.querySelector('.search-input').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            document.querySelectorAll('.faq-item').forEach(item => {
+                const question = item.querySelector('.faq-question').textContent.toLowerCase();
+                const answer = item.querySelector('.faq-answer').textContent.toLowerCase();
+                
+                if (question.includes(searchTerm) || answer.includes(searchTerm)) {
+                    item.style.display = '';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+
+        // Botão de suporte
+        document.querySelector('.support-btn').addEventListener('click', function() {
+            alert('Em breve você será redirecionado para o formulário de contato.');
+        });
+    </script>
+</body>
+</html> 

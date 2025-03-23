@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#8B0000">
+    <meta name="description" content="Calculadora para volume e custo de madeira serrada">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="CalcMadeira">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+    <title>Volume de Madeira</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+        }
+
+        .header {
+            background-color: #8B0000;
+            color: white;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 1.2rem;
+        }
+
+        .refresh-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        .menu-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .menu-panel {
+            position: fixed;
+            top: 0;
+            left: -300px;
+            width: 300px;
+            height: 100vh;
+            background-color: white;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            z-index: 1000;
+            transition: left 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .menu-panel.active {
+            left: 0;
+        }
+
+        .menu-header {
+            background-color: #8B0000;
+            color: white;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .menu-avatar {
+            width: 50px;
+            height: 50px;
+            background-color: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .menu-user-info {
+            flex: 1;
+        }
+
+        .menu-user-name {
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+
+        .menu-user-email {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .menu-items {
+            flex: 1;
+            padding: 20px 0;
+            overflow-y: auto;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            color: #333;
+            text-decoration: none;
+            transition: background-color 0.2s;
+            gap: 15px;
+        }
+
+        .menu-item:hover {
+            background-color: #f5f5f5;
+        }
+
+        .menu-item i {
+            width: 20px;
+            color: #8B0000;
+        }
+
+        .menu-item.logout {
+            color: #dc3545;
+            cursor: pointer;
+        }
+
+        .menu-item.logout i {
+            color: #dc3545;
+        }
+
+        .menu-item.logout:hover {
+            background-color: #fff5f5;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            display: none;
+            z-index: 999;
+        }
+
+        .overlay.active {
+            display: block;
+        }
+
+        .calculator {
+            padding: 20px;
+            background-color: white;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .input-group {
+            display: flex;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+
+        .input-group label {
+            width: 120px;
+        }
+
+        .input-group input {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .input-group .unit {
+            width: 50px;
+            padding-left: 10px;
+        }
+
+        .results {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f8f8;
+            border-radius: 4px;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            text-align: center;
+        }
+
+        .result-item {
+            background-color: white;
+            padding: 10px;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .result-item h3 {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .result-item p {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .add-button {
+            background-color: #8B0000;
+            color: white;
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 4px;
+            margin-top: 20px;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        .list {
+            margin-top: 20px;
+        }
+
+        .list-header {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            background-color: #f0f0f0;
+            padding: 10px;
+            font-weight: bold;
+        }
+
+        .list-item {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .action-buttons {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 10px;
+            background-color: white;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .action-button {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            background-color: #8B0000;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="overlay" id="overlay"></div>
+    
+    <div class="menu-panel" id="menuPanel">
+        <div class="menu-header">
+            <div class="menu-avatar">👤</div>
+            <div class="menu-user-info">
+                <div class="menu-user-name">Usuário Padrão</div>
+                <div class="menu-user-email">usuario@email.com</div>
+            </div>
+        </div>
+        <div class="menu-items">
+            <a href="perfil.html" class="menu-item">
+                <i class="fas fa-user"></i>
+                <span>Meu Perfil</span>
+            </a>
+            <a href="configuracoes.html" class="menu-item">
+                <i class="fas fa-cog"></i>
+                <span>Configurações</span>
+            </a>
+            <a href="notificacoes.html" class="menu-item">
+                <i class="fas fa-bell"></i>
+                <span>Notificações</span>
+            </a>
+            <a href="ajuda.html" class="menu-item">
+                <i class="fas fa-question-circle"></i>
+                <span>Ajuda</span>
+            </a>
+            <div class="menu-item logout">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Sair</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="header">
+        <button class="menu-btn" id="menuBtn">☰</button>
+        <h1>Volume de madeira serrada</h1>
+        <button class="refresh-btn">⟳</button>
+    </div>
+
+    <div class="calculator">
+        <div class="input-group">
+            <label>Largura</label>
+            <input type="number" id="width" value="12">
+            <span class="unit">cm</span>
+        </div>
+        <div class="input-group">
+            <label>Espessura</label>
+            <input type="number" id="thickness" value="5">
+            <span class="unit">cm</span>
+        </div>
+        <div class="input-group">
+            <label>Comprimento</label>
+            <input type="number" id="length" value="300">
+            <span class="unit">cm</span>
+        </div>
+        <div class="input-group">
+            <label>Quantidade</label>
+            <input type="number" id="quantity" value="12">
+            <span class="unit">Peças</span>
+        </div>
+        <div class="input-group">
+            <label>Preço</label>
+            <input type="number" id="price" value="15000">
+            <span class="unit">Por m²</span>
+        </div>
+
+        <div class="results">
+            <div class="results-grid">
+                <div class="result-item">
+                    <h3>VOLUME</h3>
+                    <p id="volume">0,02m³</p>
+                </div>
+                <div class="result-item">
+                    <h3>VOLUME TOTAL</h3>
+                    <p id="totalVolume">0,22m³</p>
+                </div>
+                <div class="result-item">
+                    <h3>CUSTO</h3>
+                    <p id="cost">3240,00</p>
+                </div>
+            </div>
+        </div>
+
+        <button class="add-button">ADICIONAR À LISTA</button>
+
+        <div class="list">
+            <div class="list-header">
+                <div>TAMANHO</div>
+                <div>PEÇAS</div>
+                <div>VOLUME</div>
+                <div>PREÇO</div>
+            </div>
+            <div id="itemsList"></div>
+        </div>
+    </div>
+
+    <div class="action-buttons">
+        <button class="action-button">+</button>
+        <button class="action-button">⎘</button>
+        <button class="action-button">☐</button>
+    </div>
+
+    <script>
+        // Registrar o Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registrado com sucesso:', registration.scope);
+                    })
+                    .catch(error => {
+                        console.log('Falha ao registrar o ServiceWorker:', error);
+                    });
+            });
+        }
+
+        // Verificar se o app está instalado
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+        });
+
+        // Função para instalar o app
+        async function installApp() {
+            if (!deferredPrompt) return;
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') {
+                console.log('Usuário aceitou a instalação do app');
+            }
+            deferredPrompt = null;
+        }
+
+        function calculate() {
+            const width = parseFloat(document.getElementById('width').value) / 100;
+            const thickness = parseFloat(document.getElementById('thickness').value) / 100;
+            const length = parseFloat(document.getElementById('length').value) / 100;
+            const quantity = parseInt(document.getElementById('quantity').value);
+            const price = parseFloat(document.getElementById('price').value);
+
+            const volume = width * thickness * length;
+            const totalVolume = volume * quantity;
+            const cost = totalVolume * price;
+
+            const formatter = new Intl.NumberFormat('pt-BR', {
+                style: 'currency',
+                currency: 'BRL',
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+
+            document.getElementById('volume').textContent = volume.toFixed(2) + 'm³';
+            document.getElementById('totalVolume').textContent = totalVolume.toFixed(2) + 'm³';
+            document.getElementById('cost').textContent = formatter.format(cost);
+        }
+
+        // Add event listeners to inputs
+        const inputs = ['width', 'thickness', 'length', 'quantity', 'price'];
+        inputs.forEach(id => {
+            document.getElementById(id).addEventListener('input', calculate);
+        });
+
+        // Carregar informações do usuário
+        function loadUserInfo() {
+            const menuInfo = localStorage.getItem('menuInfo');
+            if (menuInfo) {
+                const { name, email } = JSON.parse(menuInfo);
+                document.querySelector('.menu-user-name').textContent = name;
+                document.querySelector('.menu-user-email').textContent = email;
+            }
+        }
+
+        // Atualizar estatísticas do usuário
+        function updateUserStats(volume, cost) {
+            const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+            userData.totalCalculations = (userData.totalCalculations || 0) + 1;
+            userData.totalVolume = (userData.totalVolume || 0) + volume;
+            userData.totalCost = (userData.totalCost || 0) + cost;
+            localStorage.setItem('userData', JSON.stringify(userData));
+        }
+
+        // Carregar informações ao iniciar
+        loadUserInfo();
+
+        // Atualizar a função de adicionar à lista
+        document.querySelector('.add-button').addEventListener('click', function() {
+            const width = document.getElementById('width').value;
+            const thickness = document.getElementById('thickness').value;
+            const length = document.getElementById('length').value;
+            const quantity = document.getElementById('quantity').value;
+            const volume = parseFloat(document.getElementById('volume').textContent);
+            const cost = parseFloat(document.getElementById('cost').textContent.replace('R$', '').replace('.', '').replace(',', '.'));
+
+            if (!width || !thickness || !length || !quantity || !document.getElementById('price').value) {
+                alert('Por favor, preencha todos os campos antes de adicionar à lista.');
+                return;
+            }
+
+            // Atualizar estatísticas do usuário
+            updateUserStats(volume, cost);
+
+            const listItem = document.createElement('div');
+            listItem.className = 'list-item';
+            listItem.innerHTML = `
+                <div>${thickness}x${width}x${length}</div>
+                <div>${quantity}</div>
+                <div>${volume.toFixed(2)}m³</div>
+                <div>${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(cost)}</div>
+                <button class="delete-btn" style="display: none; background: none; border: none; color: #ff0000; cursor: pointer; padding: 5px;">×</button>
+            `;
+
+            // Adicionar botão de exclusão
+            const deleteBtn = listItem.querySelector('.delete-btn');
+            listItem.addEventListener('mouseenter', () => deleteBtn.style.display = 'block');
+            listItem.addEventListener('mouseleave', () => deleteBtn.style.display = 'none');
+            deleteBtn.addEventListener('click', () => {
+                if (confirm('Tem certeza que deseja remover este item?')) {
+                    listItem.remove();
+                    calcularTotal();
+                }
+            });
+
+            document.getElementById('itemsList').appendChild(listItem);
+            calcularTotal();
+
+            // Limpar os campos após adicionar
+            document.getElementById('width').value = '';
+            document.getElementById('thickness').value = '';
+            document.getElementById('length').value = '';
+            document.getElementById('quantity').value = '';
+            document.getElementById('price').value = '';
+            calculate();
+        });
+
+        // Função para calcular o total da lista
+        function calcularTotal() {
+            const items = document.querySelectorAll('.list-item');
+            let totalVolume = 0;
+            let totalCost = 0;
+
+            items.forEach(item => {
+                const volume = parseFloat(item.children[2].textContent);
+                const cost = parseFloat(item.children[3].textContent.replace('R$', '').replace('.', '').replace(',', '.'));
+                totalVolume += volume;
+                totalCost += cost;
+            });
+
+            const formatter = new Intl.NumberFormat('pt-BR', {
+                style: 'currency',
+                currency: 'BRL',
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+
+            // Adicionar ou atualizar linha de total
+            let totalRow = document.querySelector('.total-row');
+            if (!totalRow) {
+                totalRow = document.createElement('div');
+                totalRow.className = 'total-row';
+                totalRow.style.gridTemplateColumns = '2fr 1fr 1fr 1fr';
+                totalRow.style.padding = '10px';
+                totalRow.style.backgroundColor = '#f8f8f8';
+                totalRow.style.fontWeight = 'bold';
+                document.getElementById('itemsList').appendChild(totalRow);
+            }
+            totalRow.innerHTML = `
+                <div>TOTAL</div>
+                <div>${items.length}</div>
+                <div>${totalVolume.toFixed(2)}m³</div>
+                <div>${formatter.format(totalCost)}</div>
+            `;
+        }
+
+        // Botão de atualizar
+        document.querySelector('.refresh-btn').addEventListener('click', function() {
+            if (confirm('Tem certeza que deseja limpar todos os dados?')) {
+                document.getElementById('width').value = '';
+                document.getElementById('thickness').value = '';
+                document.getElementById('length').value = '';
+                document.getElementById('quantity').value = '';
+                document.getElementById('price').value = '';
+                document.getElementById('itemsList').innerHTML = '';
+                calculate();
+            }
+        });
+
+        // Botões de ação
+        document.querySelectorAll('.action-button').forEach(button => {
+            button.addEventListener('click', function() {
+                const action = this.textContent;
+                switch(action) {
+                    case '+':
+                        // Adicionar novo item
+                        document.querySelector('.add-button').click();
+                        break;
+                    case '⎘':
+                        // Compartilhar
+                        compartilharLista();
+                        break;
+                    case '☐':
+                        // Copiar
+                        copiarLista();
+                        break;
+                }
+            });
+        });
+
+        // Função para compartilhar a lista
+        function compartilharLista() {
+            const items = document.querySelectorAll('.list-item');
+            if (items.length === 0) {
+                alert('Não há itens para compartilhar.');
+                return;
+            }
+
+            let texto = 'Lista de Madeira Serrada:\n\n';
+            items.forEach(item => {
+                texto += `Tamanho: ${item.children[0].textContent}\n`;
+                texto += `Peças: ${item.children[1].textContent}\n`;
+                texto += `Volume: ${item.children[2].textContent}\n`;
+                texto += `Preço: ${item.children[3].textContent}\n\n`;
+            });
+
+            const totalRow = document.querySelector('.total-row');
+            if (totalRow) {
+                texto += `TOTAL:\n`;
+                texto += `Peças: ${totalRow.children[1].textContent}\n`;
+                texto += `Volume: ${totalRow.children[2].textContent}\n`;
+                texto += `Preço: ${totalRow.children[3].textContent}\n`;
+            }
+
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Lista de Madeira Serrada',
+                    text: texto
+                }).catch(console.error);
+            } else {
+                copiarParaAreaTransferencia(texto);
+                alert('Lista copiada para a área de transferência!');
+            }
+        }
+
+        // Função para copiar a lista
+        function copiarLista() {
+            const items = document.querySelectorAll('.list-item');
+            if (items.length === 0) {
+                alert('Não há itens para copiar.');
+                return;
+            }
+
+            let texto = 'Lista de Madeira Serrada:\n\n';
+            items.forEach(item => {
+                texto += `Tamanho: ${item.children[0].textContent}\n`;
+                texto += `Peças: ${item.children[1].textContent}\n`;
+                texto += `Volume: ${item.children[2].textContent}\n`;
+                texto += `Preço: ${item.children[3].textContent}\n\n`;
+            });
+
+            const totalRow = document.querySelector('.total-row');
+            if (totalRow) {
+                texto += `TOTAL:\n`;
+                texto += `Peças: ${totalRow.children[1].textContent}\n`;
+                texto += `Volume: ${totalRow.children[2].textContent}\n`;
+                texto += `Preço: ${totalRow.children[3].textContent}\n`;
+            }
+
+            copiarParaAreaTransferencia(texto);
+            alert('Lista copiada para a área de transferência!');
+        }
+
+        // Função auxiliar para copiar texto
+        function copiarParaAreaTransferencia(texto) {
+            const textarea = document.createElement('textarea');
+            textarea.value = texto;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+        }
+
+        // Initialize calculation
+        calculate();
+
+        // Menu functionality
+        const menuBtn = document.getElementById('menuBtn');
+        const menuPanel = document.getElementById('menuPanel');
+        const overlay = document.getElementById('overlay');
+
+        function toggleMenu() {
+            menuPanel.classList.toggle('active');
+            overlay.classList.toggle('active');
+            document.body.style.overflow = menuPanel.classList.contains('active') ? 'hidden' : '';
+        }
+
+        menuBtn.addEventListener('click', toggleMenu);
+        overlay.addEventListener('click', toggleMenu);
+
+        // Fechar menu ao clicar em um link
+        document.querySelectorAll('.menu-item').forEach(item => {
+            if (item.tagName === 'A') {
+                item.addEventListener('click', () => {
+                    toggleMenu();
+                });
+            }
+        });
+
+        // Logout functionality
+        document.querySelector('.menu-item.logout').addEventListener('click', () => {
+            if (confirm('Tem certeza que deseja sair?')) {
+                // Aqui você pode adicionar a lógica de logout
+                window.location.href = 'index.html';
+            }
+        });
+    </script>
+</body>
+</html> 

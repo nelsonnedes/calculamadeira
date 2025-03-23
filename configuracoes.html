@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurações - Calculadora de Madeira</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+        }
+
+        .header {
+            background-color: #8B0000;
+            color: white;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 1.2rem;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .settings-container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .settings-section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            color: #8B0000;
+            margin-bottom: 15px;
+            padding-bottom: 5px;
+            border-bottom: 2px solid #8B0000;
+        }
+
+        .setting-item {
+            margin-bottom: 20px;
+        }
+
+        .setting-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        .setting-description {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+
+        .setting-input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .setting-select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+            background-color: white;
+        }
+
+        .setting-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .setting-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #8B0000;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        .save-btn {
+            background-color: #8B0000;
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1rem;
+            margin-top: 20px;
+        }
+
+        .save-btn:hover {
+            background-color: #a00000;
+        }
+
+        .theme-option {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+
+        .theme-option:hover {
+            background-color: #f5f5f5;
+        }
+
+        .theme-option.selected {
+            border-color: #8B0000;
+            background-color: #fff5f5;
+        }
+
+        .theme-color {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button class="back-btn" onclick="window.location.href='calc.html'">←</button>
+        <h1>Configurações</h1>
+    </div>
+
+    <div class="settings-container">
+        <div class="settings-section">
+            <h2 class="section-title">Preferências Gerais</h2>
+            <div class="setting-item">
+                <label class="setting-label">Idioma</label>
+                <select class="setting-select">
+                    <option value="pt">Português</option>
+                    <option value="en">English</option>
+                    <option value="es">Español</option>
+                </select>
+            </div>
+            <div class="setting-item">
+                <label class="setting-label">Tema</label>
+                <div class="theme-option selected">
+                    <div class="theme-color" style="background-color: #8B0000;"></div>
+                    <span>Vermelho (Padrão)</span>
+                </div>
+                <div class="theme-option">
+                    <div class="theme-color" style="background-color: #006400;"></div>
+                    <span>Verde</span>
+                </div>
+                <div class="theme-option">
+                    <div class="theme-color" style="background-color: #00008B;"></div>
+                    <span>Azul</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="settings-section">
+            <h2 class="section-title">Unidades de Medida</h2>
+            <div class="setting-item">
+                <label class="setting-label">Unidade de Comprimento</label>
+                <select class="setting-select">
+                    <option value="cm">Centímetros (cm)</option>
+                    <option value="m">Metros (m)</option>
+                    <option value="mm">Milímetros (mm)</option>
+                </select>
+            </div>
+            <div class="setting-item">
+                <label class="setting-label">Unidade de Volume</label>
+                <select class="setting-select">
+                    <option value="m3">Metros Cúbicos (m³)</option>
+                    <option value="cm3">Centímetros Cúbicos (cm³)</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="settings-section">
+            <h2 class="section-title">Notificações</h2>
+            <div class="setting-item">
+                <label class="setting-label">Notificações Push</label>
+                <div class="setting-description">Receber notificações sobre atualizações e novidades</div>
+                <label class="setting-switch">
+                    <input type="checkbox" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="setting-item">
+                <label class="setting-label">Lembretes</label>
+                <div class="setting-description">Receber lembretes sobre cálculos pendentes</div>
+                <label class="setting-switch">
+                    <input type="checkbox" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+
+        <div class="settings-section">
+            <h2 class="section-title">Backup e Sincronização</h2>
+            <div class="setting-item">
+                <label class="setting-label">Backup Automático</label>
+                <div class="setting-description">Fazer backup automático dos seus cálculos</div>
+                <label class="setting-switch">
+                    <input type="checkbox" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="setting-item">
+                <label class="setting-label">Sincronização em Nuvem</label>
+                <div class="setting-description">Sincronizar seus dados entre dispositivos</div>
+                <label class="setting-switch">
+                    <input type="checkbox">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+
+        <button class="save-btn">Salvar Alterações</button>
+    </div>
+
+    <script>
+        // Seleção de tema
+        document.querySelectorAll('.theme-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.theme-option').forEach(opt => opt.classList.remove('selected'));
+                this.classList.add('selected');
+            });
+        });
+
+        // Salvar configurações
+        document.querySelector('.save-btn').addEventListener('click', function() {
+            alert('Configurações salvas com sucesso!');
+            window.location.href = 'calc.html';
+        });
+    </script>
+</body>
+</html> 

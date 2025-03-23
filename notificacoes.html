@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notificações - Calculadora de Madeira</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+        }
+
+        .header {
+            background-color: #8B0000;
+            color: white;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 1.2rem;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .notifications-container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+
+        .notification-item {
+            background-color: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .notification-item.unread {
+            border-left: 4px solid #8B0000;
+        }
+
+        .notification-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            color: #8B0000;
+        }
+
+        .notification-content {
+            flex: 1;
+        }
+
+        .notification-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .notification-message {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+
+        .notification-time {
+            color: #999;
+            font-size: 0.8rem;
+        }
+
+        .notification-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            color: #8B0000;
+            cursor: pointer;
+            font-size: 0.9rem;
+            padding: 5px 10px;
+        }
+
+        .action-btn:hover {
+            text-decoration: underline;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            color: #ddd;
+            margin-bottom: 15px;
+        }
+
+        .empty-state-message {
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .mark-all-read {
+            background-color: #8B0000;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .mark-all-read:hover {
+            background-color: #a00000;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="header">
+        <button class="back-btn" onclick="window.location.href='calc.html'">←</button>
+        <h1>Notificações</h1>
+    </div>
+
+    <div class="notifications-container">
+        <button class="mark-all-read">Marcar Todas como Lidas</button>
+
+        <div class="notification-item unread">
+            <div class="notification-icon">
+                <i class="fas fa-calculator"></i>
+            </div>
+            <div class="notification-content">
+                <div class="notification-title">Novo Cálculo Salvo</div>
+                <div class="notification-message">Seu cálculo de volume de madeira foi salvo com sucesso.</div>
+                <div class="notification-time">Há 5 minutos</div>
+                <div class="notification-actions">
+                    <button class="action-btn">Ver Detalhes</button>
+                    <button class="action-btn">Marcar como Lida</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="notification-item unread">
+            <div class="notification-icon">
+                <i class="fas fa-bell"></i>
+            </div>
+            <div class="notification-content">
+                <div class="notification-title">Lembrete de Cálculo</div>
+                <div class="notification-message">Você tem um cálculo pendente para completar.</div>
+                <div class="notification-time">Há 1 hora</div>
+                <div class="notification-actions">
+                    <button class="action-btn">Continuar</button>
+                    <button class="action-btn">Marcar como Lida</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="notification-item">
+            <div class="notification-icon">
+                <i class="fas fa-info-circle"></i>
+            </div>
+            <div class="notification-content">
+                <div class="notification-title">Atualização do App</div>
+                <div class="notification-message">Nova versão disponível com melhorias na interface.</div>
+                <div class="notification-time">Há 2 dias</div>
+                <div class="notification-actions">
+                    <button class="action-btn">Atualizar</button>
+                    <button class="action-btn">Mais Informações</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="notification-item">
+            <div class="notification-icon">
+                <i class="fas fa-share-alt"></i>
+            </div>
+            <div class="notification-content">
+                <div class="notification-title">Lista Compartilhada</div>
+                <div class="notification-message">Sua lista de madeira foi compartilhada com sucesso.</div>
+                <div class="notification-time">Há 3 dias</div>
+                <div class="notification-actions">
+                    <button class="action-btn">Ver Detalhes</button>
+                    <button class="action-btn">Compartilhar Novamente</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Marcar todas como lidas
+        document.querySelector('.mark-all-read').addEventListener('click', function() {
+            document.querySelectorAll('.notification-item').forEach(item => {
+                item.classList.remove('unread');
+            });
+            alert('Todas as notificações foram marcadas como lidas!');
+        });
+
+        // Marcar individual como lida
+        document.querySelectorAll('.action-btn').forEach(btn => {
+            if (btn.textContent === 'Marcar como Lida') {
+                btn.addEventListener('click', function() {
+                    this.closest('.notification-item').classList.remove('unread');
+                    alert('Notificação marcada como lida!');
+                });
+            }
+        });
+    </script>
+</body>
+</html> 
