@@ -317,6 +317,63 @@
             font-size: 1.2rem;
             cursor: pointer;
         }
+
+        /* Feedback styles */
+        .feedback {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            z-index: 1000;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .feedback.success {
+            background-color: #4CAF50;
+        }
+
+        .feedback.error {
+            background-color: #f44336;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Responsive improvements */
+        @media (max-width: 480px) {
+            .input-group {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .input-group label {
+                margin-bottom: 5px;
+            }
+            
+            .input-group input {
+                width: 100%;
+            }
+            
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .list-header, .list-item, .total-row {
+                grid-template-columns: 1fr 1fr 1fr 1fr 0.5fr;
+                font-size: 0.9em;
+            }
+        }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
@@ -356,51 +413,51 @@
     </div>
 
     <div class="header">
-        <button class="menu-btn" id="menuBtn">☰</button>
+        <button class="menu-btn" id="menuBtn" aria-label="Abrir menu">☰</button>
         <h1>Volume de madeira serrada</h1>
-        <button class="refresh-btn">⟳</button>
+        <button class="refresh-btn" aria-label="Limpar dados">⟳</button>
     </div>
 
     <div class="calculator">
         <div class="input-group">
             <label>Largura</label>
-            <input type="number" id="width" value="12">
+            <input type="number" id="width" placeholder="12">
             <span class="unit">cm</span>
         </div>
         <div class="input-group">
             <label>Espessura</label>
-            <input type="number" id="thickness" value="5">
+            <input type="number" id="thickness" placeholder="5">
             <span class="unit">cm</span>
         </div>
         <div class="input-group">
             <label>Comprimento</label>
-            <input type="number" id="length" value="300">
+            <input type="number" id="length" placeholder="300">
             <span class="unit">cm</span>
         </div>
         <div class="input-group">
             <label>Quantidade</label>
-            <input type="number" id="quantity" value="12">
+            <input type="number" id="quantity" placeholder="12">
             <span class="unit">Peças</span>
         </div>
         <div class="input-group">
             <label>Preço</label>
-            <input type="number" id="price" value="15000">
-            <span class="unit">Por m²</span>
+            <input type="text" id="price" placeholder="R$ 0,00" data-type="currency">
+            <span class="unit">R$/m³</span>
         </div>
 
         <div class="results">
             <div class="results-grid">
                 <div class="result-item">
                     <h3>VOLUME</h3>
-                    <p id="volume">0,02m³</p>
+                    <p id="volume">0,000m³</p>
                 </div>
                 <div class="result-item">
                     <h3>VOLUME TOTAL</h3>
-                    <p id="totalVolume">0,22m³</p>
+                    <p id="totalVolume">0,000m³</p>
                 </div>
                 <div class="result-item">
                     <h3>CUSTO</h3>
-                    <p id="cost">3240,00</p>
+                    <p id="cost">R$ 0,00</p>
                 </div>
             </div>
         </div>
@@ -459,33 +516,225 @@
             deferredPrompt = null;
         }
 
-        function calculate() {
-            const width = parseFloat(document.getElementById('width').value) / 100;
-            const thickness = parseFloat(document.getElementById('thickness').value) / 100;
-            const length = parseFloat(document.getElementById('length').value) / 100;
-            const quantity = parseInt(document.getElementById('quantity').value);
-            const price = parseFloat(document.getElementById('price').value);
-
-            const volume = width * thickness * length;
-            const totalVolume = volume * quantity;
-            const cost = totalVolume * price;
-
-            const formatter = new Intl.NumberFormat('pt-BR', {
+        // Formatters
+        const formatters = {
+            currency: new Intl.NumberFormat('pt-BR', {
                 style: 'currency',
                 currency: 'BRL',
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2
-            });
+            }),
+            volume: (value) => value.toFixed(3).replace('.', ',') + 'm³'
+        };
 
-            document.getElementById('volume').textContent = volume.toFixed(3) + 'm³';
-            document.getElementById('totalVolume').textContent = totalVolume.toFixed(3) + 'm³';
-            document.getElementById('cost').textContent = formatter.format(cost);
+        // Utility functions
+        function sanitizeInput(input) {
+            return input.replace(/[^0-9,.]/g, '');
         }
 
-        // Add event listeners to inputs
-        const inputs = ['width', 'thickness', 'length', 'quantity', 'price'];
-        inputs.forEach(id => {
-            document.getElementById(id).addEventListener('input', calculate);
+        function validateData(data) {
+            return {
+                ...data,
+                volume: Math.max(0, parseFloat(data.volume) || 0),
+                cost: Math.max(0, parseFloat(data.cost) || 0)
+            };
+        }
+
+        function showFeedback(message, type = 'success') {
+            const feedback = document.createElement('div');
+            feedback.className = `feedback ${type}`;
+            feedback.textContent = message;
+            document.body.appendChild(feedback);
+            setTimeout(() => feedback.remove(), 3000);
+        }
+
+        function validateInputs() {
+            const width = parseFloat(document.getElementById('width').value);
+            const thickness = parseFloat(document.getElementById('thickness').value);
+            const length = parseFloat(document.getElementById('length').value);
+            const quantity = parseInt(document.getElementById('quantity').value);
+            const price = parseFloat(document.getElementById('price').value.replace('R$', '').replace('.', '').replace(',', '.'));
+
+            if (isNaN(width) || width <= 0) {
+                showFeedback('Por favor, insira uma largura válida.', 'error');
+                return false;
+            }
+            if (isNaN(thickness) || thickness <= 0) {
+                showFeedback('Por favor, insira uma espessura válida.', 'error');
+                return false;
+            }
+            if (isNaN(length) || length <= 0) {
+                showFeedback('Por favor, insira um comprimento válido.', 'error');
+                return false;
+            }
+            if (isNaN(quantity) || quantity <= 0) {
+                showFeedback('Por favor, insira uma quantidade válida.', 'error');
+                return false;
+            }
+            if (isNaN(price) || price <= 0) {
+                showFeedback('Por favor, insira um preço válido.', 'error');
+                return false;
+            }
+            return true;
+        }
+
+        // Debounce function
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // Storage functions
+        function saveList() {
+            const items = Array.from(document.querySelectorAll('.list-item')).map(item => ({
+                size: item.children[0].textContent,
+                quantity: item.children[1].textContent,
+                volume: item.children[2].textContent,
+                price: item.children[3].textContent
+            }));
+            localStorage.setItem('woodList', JSON.stringify(items));
+        }
+
+        function loadList() {
+            const items = JSON.parse(localStorage.getItem('woodList') || '[]');
+            items.forEach(item => {
+                const listItem = document.createElement('div');
+                listItem.className = 'list-item';
+                listItem.innerHTML = `
+                    <div>${item.size}</div>
+                    <div>${item.quantity}</div>
+                    <div>${item.volume}</div>
+                    <div>${item.price}</div>
+                    <button class="delete-btn" aria-label="Excluir item">×</button>
+                `;
+
+                // Adicionar evento de exclusão
+                const deleteBtn = listItem.querySelector('.delete-btn');
+                deleteBtn.addEventListener('click', function(e) {
+                    e.stopPropagation(); // Prevenir propagação do evento
+                    if (confirm('Tem certeza que deseja remover este item?')) {
+                        listItem.remove();
+                        saveList();
+                        calcularTotal();
+                        showFeedback('Item removido com sucesso!');
+                    }
+                });
+
+                document.getElementById('itemsList').appendChild(listItem);
+            });
+            calcularTotal();
+        }
+
+        // Calculate function with error handling
+        function calculate() {
+            try {
+                if (!validateInputs()) return;
+
+                const width = parseFloat(document.getElementById('width').value);
+                const thickness = parseFloat(document.getElementById('thickness').value);
+                const length = parseFloat(document.getElementById('length').value);
+                const quantity = parseInt(document.getElementById('quantity').value);
+                const price = parseFloat(document.getElementById('price').value.replace('R$', '').replace('.', '').replace(',', '.'));
+
+                const volume = Math.max(0, (width / 100) * (thickness / 100) * (length / 100));
+                const totalVolume = volume * quantity;
+                const cost = totalVolume * price;
+
+                document.getElementById('volume').textContent = formatters.volume(volume);
+                document.getElementById('totalVolume').textContent = formatters.volume(totalVolume);
+                document.getElementById('cost').textContent = formatters.currency.format(cost);
+            } catch (error) {
+                console.error('Erro no cálculo:', error);
+                showFeedback('Ocorreu um erro ao calcular. Por favor, verifique os valores inseridos.', 'error');
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize price input
+            const priceInput = document.getElementById('price');
+            priceInput.value = 'R$ 0,00';
+
+            // Load saved list
+            loadList();
+
+            // Add event listeners with debounce
+            const inputs = ['width', 'thickness', 'length', 'quantity'];
+            inputs.forEach(id => {
+                document.getElementById(id).addEventListener('input', debounce(calculate, 300));
+            });
+
+            // Price input formatting
+            priceInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                value = (parseInt(value, 10) / 100).toFixed(2);
+                value = value.replace('.', ',');
+                e.target.value = `R$ ${value}`;
+                calculate();
+            });
+
+            // Add to list with validation
+            document.querySelector('.add-button').addEventListener('click', function() {
+                if (!validateInputs()) return;
+
+                const width = document.getElementById('width').value;
+                const thickness = document.getElementById('thickness').value;
+                const length = document.getElementById('length').value;
+                const quantity = document.getElementById('quantity').value;
+                const volume = parseFloat(document.getElementById('volume').textContent.replace(',', '.'));
+                const cost = parseFloat(document.getElementById('cost').textContent.replace('R$', '').replace('.', '').replace(',', '.'));
+
+                const listItem = document.createElement('div');
+                listItem.className = 'list-item';
+                listItem.innerHTML = `
+                    <div>${thickness}x${width}x${length}</div>
+                    <div>${quantity}</div>
+                    <div>${formatters.volume(volume)}</div>
+                    <div>${formatters.currency.format(cost)}</div>
+                    <button class="delete-btn" aria-label="Excluir item">×</button>
+                `;
+
+                // Add delete button functionality
+                const deleteBtn = listItem.querySelector('.delete-btn');
+                deleteBtn.addEventListener('click', function(e) {
+                    e.stopPropagation(); // Prevenir propagação do evento
+                    if (confirm('Tem certeza que deseja remover este item?')) {
+                        listItem.remove();
+                        saveList();
+                        calcularTotal();
+                        showFeedback('Item removido com sucesso!');
+                    }
+                });
+
+                document.getElementById('itemsList').appendChild(listItem);
+                saveList();
+                calcularTotal();
+                showFeedback('Item adicionado com sucesso!');
+
+                // Clear inputs
+                ['width', 'thickness', 'length', 'quantity'].forEach(id => {
+                    document.getElementById(id).value = '';
+                });
+                priceInput.value = 'R$ 0,00';
+                calculate();
+            });
+
+            // Refresh button with confirmation
+            document.querySelector('.refresh-btn').addEventListener('click', function() {
+                if (confirm('Tem certeza que deseja limpar todos os dados?')) {
+                    localStorage.clear();
+                    document.getElementById('itemsList').innerHTML = '';
+                    calcularTotal();
+                    showFeedback('Dados limpos com sucesso!');
+                }
+            });
         });
 
         // Carregar informações do usuário
@@ -509,70 +758,6 @@
 
         // Carregar informações ao iniciar
         loadUserInfo();
-
-        // Atualizar a função de adicionar à lista
-        document.querySelector('.add-button').addEventListener('click', function() {
-            const width = document.getElementById('width').value;
-            const thickness = document.getElementById('thickness').value;
-            const length = document.getElementById('length').value;
-            const quantity = document.getElementById('quantity').value;
-            const volume = parseFloat(document.getElementById('volume').textContent);
-            const cost = parseFloat(document.getElementById('cost').textContent.replace('R$', '').replace('.', '').replace(',', '.'));
-
-            if (!width || !thickness || !length || !quantity || !document.getElementById('price').value) {
-                alert('Por favor, preencha todos os campos antes de adicionar à lista.');
-                return;
-            }
-
-            // Atualizar estatísticas do usuário
-            updateUserStats(volume, cost);
-
-            // Criar cabeçalho da tabela se não existir
-            if (!document.querySelector('.list-header')) {
-                const header = document.createElement('div');
-                header.className = 'list-header';
-                header.innerHTML = `
-                    <div>TAMANHO</div>
-                    <div>PEÇAS</div>
-                    <div>VOLUME</div>
-                    <div>PREÇO</div>
-                    <div></div>
-                `;
-                document.getElementById('itemsList').appendChild(header);
-            }
-
-            const listItem = document.createElement('div');
-            listItem.className = 'list-item';
-            listItem.innerHTML = `
-                <div>${thickness}x${width}x${length}</div>
-                <div>${quantity}</div>
-                <div>${volume.toFixed(3)}m³</div>
-                <div>${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(cost)}</div>
-                <button class="delete-btn">×</button>
-            `;
-
-            // Adicionar botão de exclusão
-            const deleteBtn = listItem.querySelector('.delete-btn');
-            listItem.addEventListener('mouseenter', () => deleteBtn.style.display = 'block');
-            listItem.addEventListener('mouseleave', () => deleteBtn.style.display = 'none');
-            deleteBtn.addEventListener('click', () => {
-                if (confirm('Tem certeza que deseja remover este item?')) {
-                    listItem.remove();
-                    calcularTotal();
-                }
-            });
-
-            document.getElementById('itemsList').appendChild(listItem);
-            calcularTotal();
-
-            // Limpar os campos após adicionar
-            document.getElementById('width').value = '';
-            document.getElementById('thickness').value = '';
-            document.getElementById('length').value = '';
-            document.getElementById('quantity').value = '';
-            document.getElementById('price').value = '';
-            calculate();
-        });
 
         // Atualizar a função calcularTotal
         function calcularTotal() {
@@ -600,25 +785,12 @@
             totalRow.innerHTML = `
                 <div>TOTAL</div>
                 <div>${totalPieces}</div>
-                <div>${totalVolume.toFixed(3)}m³</div>
+                <div>${totalVolume.toFixed(3).replace('.', ',')}m³</div>
                 <div>${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalCost)}</div>
                 <div></div>
             `;
             document.getElementById('itemsList').appendChild(totalRow);
         }
-
-        // Botão de atualizar
-        document.querySelector('.refresh-btn').addEventListener('click', function() {
-            if (confirm('Tem certeza que deseja limpar todos os dados?')) {
-                document.getElementById('width').value = '';
-                document.getElementById('thickness').value = '';
-                document.getElementById('length').value = '';
-                document.getElementById('quantity').value = '';
-                document.getElementById('price').value = '';
-                document.getElementById('itemsList').innerHTML = '';
-                calculate();
-            }
-        });
 
         // Botões de ação
         document.querySelectorAll('.action-button').forEach(button => {
@@ -631,7 +803,7 @@
                         break;
                     case '⎘':
                         // Compartilhar
-                        compartilharLista();
+                        shareList();
                         break;
                     case '☐':
                         // Copiar
@@ -641,39 +813,185 @@
             });
         });
 
-        // Função para compartilhar a lista
-        function compartilharLista() {
+        // Função para compartilhar
+        function shareList() {
             const items = document.querySelectorAll('.list-item');
             if (items.length === 0) {
-                alert('Não há itens para compartilhar.');
+                showFeedback('Não há itens para compartilhar.', 'error');
                 return;
             }
 
-            let texto = 'Lista de Madeira Serrada:\n\n';
-            items.forEach(item => {
-                texto += `Tamanho: ${item.children[0].textContent}\n`;
-                texto += `Peças: ${item.children[1].textContent}\n`;
-                texto += `Volume: ${item.children[2].textContent}\n`;
-                texto += `Preço: ${item.children[3].textContent}\n\n`;
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Configurar tamanho do canvas
+            canvas.width = 800;
+            canvas.height = 1000;
+            
+            // Fundo branco
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Cabeçalho com gradiente
+            const gradient = ctx.createLinearGradient(0, 0, 0, 100);
+            gradient.addColorStop(0, '#8B0000');
+            gradient.addColorStop(1, '#A00000');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, 100);
+            
+            // Carregar dados do perfil
+            const profileData = JSON.parse(localStorage.getItem('profileData') || '{}');
+            
+            // Configurar fonte para o cabeçalho
+            ctx.font = 'bold 24px Arial';
+            ctx.fillStyle = 'white';
+            
+            // Desenhar dados do usuário
+            ctx.fillText(profileData.name || 'Usuário', 120, 40);
+            ctx.font = '16px Arial';
+            ctx.fillStyle = 'rgba(255,255,255,0.9)';
+            ctx.fillText(profileData.company || 'Empresa', 120, 65);
+            ctx.fillText(profileData.phone || 'Telefone não informado', 120, 85);
+            
+            // Título do relatório
+            ctx.font = 'bold 28px Arial';
+            ctx.fillStyle = '#8B0000';
+            ctx.fillText('Relatório de Cálculos de Madeira', 30, 150);
+            
+            // Data e hora
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('pt-BR');
+            const timeStr = now.toLocaleTimeString('pt-BR');
+            
+            ctx.font = '14px Arial';
+            ctx.fillStyle = '#666';
+            ctx.fillText(`Gerado em ${dateStr} às ${timeStr}`, 30, 180);
+            
+            // Linha separadora
+            ctx.strokeStyle = '#ddd';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(30, 200);
+            ctx.lineTo(770, 200);
+            ctx.stroke();
+            
+            // Cabeçalho da tabela
+            const headers = ['TAMANHO', 'PEÇAS', 'VOLUME', 'PREÇO'];
+            const columnWidths = [250, 100, 150, 150];
+            
+            // Fundo do cabeçalho da tabela
+            ctx.fillStyle = '#f8f8f8';
+            ctx.fillRect(30, 220, 740, 40);
+            
+            // Texto do cabeçalho
+            ctx.fillStyle = '#8B0000';
+            ctx.font = 'bold 14px Arial';
+            let x = 30;
+            headers.forEach((header, index) => {
+                ctx.fillText(header, x + 10, 245);
+                x += columnWidths[index];
             });
-
+            
+            // Dados da tabela
+            ctx.fillStyle = '#333';
+            ctx.font = '14px Arial';
+            let y = 280;
+            
+            // Alternar cores das linhas
+            items.forEach((item, index) => {
+                // Fundo alternado
+                ctx.fillStyle = index % 2 === 0 ? '#ffffff' : '#f8f8f8';
+                ctx.fillRect(30, y - 25, 740, 30);
+                
+                // Texto
+                ctx.fillStyle = '#333';
+                x = 30;
+                for (let i = 0; i < 4; i++) {
+                    ctx.fillText(item.children[i].textContent, x + 10, y);
+                    x += columnWidths[i];
+                }
+                y += 30;
+            });
+            
+            // Linha de total
             const totalRow = document.querySelector('.total-row');
             if (totalRow) {
-                texto += `TOTAL:\n`;
-                texto += `Peças: ${totalRow.children[1].textContent}\n`;
-                texto += `Volume: ${totalRow.children[2].textContent}\n`;
-                texto += `Preço: ${totalRow.children[3].textContent}\n`;
+                y += 10;
+                ctx.strokeStyle = '#ddd';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(30, y);
+                ctx.lineTo(770, y);
+                ctx.stroke();
+                
+                y += 30;
+                // Fundo do total
+                ctx.fillStyle = '#f0f0f0';
+                ctx.fillRect(30, y - 25, 740, 30);
+                
+                // Texto do total
+                ctx.fillStyle = '#8B0000';
+                ctx.font = 'bold 14px Arial';
+                x = 30;
+                for (let i = 0; i < 4; i++) {
+                    ctx.fillText(totalRow.children[i].textContent, x + 10, y);
+                    x += columnWidths[i];
+                }
             }
+            
+            // Rodapé
+            y += 50;
+            ctx.strokeStyle = '#ddd';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(30, y);
+            ctx.lineTo(770, y);
+            ctx.stroke();
+            
+            ctx.fillStyle = '#666';
+            ctx.font = '12px Arial';
+            ctx.fillText('Calculadora de Madeira - Relatório Gerado Automaticamente', 30, y + 20);
+            
+            try {
+                // Converter canvas para blob e compartilhar
+                canvas.toBlob(function(blob) {
+                    if (!blob) {
+                        showFeedback('Erro ao gerar a imagem.', 'error');
+                        return;
+                    }
 
-            if (navigator.share) {
-                navigator.share({
-                    title: 'Lista de Madeira Serrada',
-                    text: texto
-                }).catch(console.error);
-            } else {
-                copiarParaAreaTransferencia(texto);
-                alert('Lista copiada para a área de transferência!');
+                    const file = new File([blob], 'relatorio_madeira.png', { type: 'image/png' });
+                    
+                    if (navigator.share) {
+                        navigator.share({
+                            title: 'Relatório de Madeira',
+                            text: 'Relatório detalhado de cálculos de madeira',
+                            files: [file]
+                        }).catch(error => {
+                            console.error('Erro ao compartilhar:', error);
+                            downloadImage(blob);
+                        });
+                    } else {
+                        downloadImage(blob);
+                    }
+                }, 'image/png');
+            } catch (error) {
+                console.error('Erro ao gerar relatório:', error);
+                showFeedback('Erro ao gerar o relatório. Tente novamente.', 'error');
             }
+        }
+
+        // Função auxiliar para download da imagem
+        function downloadImage(blob) {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'relatorio_madeira.png';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showFeedback('Relatório baixado com sucesso!');
         }
 
         // Função para copiar a lista
@@ -713,9 +1031,6 @@
             document.execCommand('copy');
             document.body.removeChild(textarea);
         }
-
-        // Initialize calculation
-        calculate();
 
         // Menu functionality
         const menuBtn = document.getElementById('menuBtn');
