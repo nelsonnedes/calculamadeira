@@ -1,22 +1,29 @@
 const CACHE_NAME = 'calc-madeira-v1';
 const urlsToCache = [
-    '/',
-    '/index.html',
-    '/calc.html',
-    '/perfil.html',
-    '/configuracoes.html',
-    '/notificacoes.html',
-    '/ajuda.html',
-    '/manifest.json',
-    '/css/styles.css',
-    '/js/app.js',
-    'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css'
+    '/calculamadeira/',
+    '/calculamadeira/index.html',
+    '/calculamadeira/calc.html',
+    '/calculamadeira/perfil.html',
+    '/calculamadeira/configuracoes.html',
+    '/calculamadeira/notificacoes.html',
+    '/calculamadeira/ajuda.html',
+    '/calculamadeira/manifest.json',
+    '/calculamadeira/logo.png',
+    '/calculamadeira/icons/icon-72x72.png',
+    '/calculamadeira/icons/icon-96x96.png',
+    '/calculamadeira/icons/icon-128x128.png',
+    '/calculamadeira/icons/icon-144x144.png',
+    '/calculamadeira/icons/icon-152x152.png',
+    '/calculamadeira/icons/icon-192x192.png',
+    '/calculamadeira/icons/icon-384x384.png',
+    '/calculamadeira/icons/icon-512x512.png'
 ];
 
 self.addEventListener('install', event => {
     event.waitUntil(
         caches.open(CACHE_NAME)
             .then(cache => {
+                console.log('Cache aberto');
                 return cache.addAll(urlsToCache);
             })
     );
