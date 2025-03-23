@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#8B0000">
+    <meta name="description" content="Calculadora para volume e custo de madeira serrada">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="CalcMadeira">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+    <title>Calculadora de Madeira</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .logo {
+            width: 120px;
+            height: 120px;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: #8B0000;
+            margin-bottom: 10px;
+            font-size: 2rem;
+        }
+
+        p {
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .start-button {
+            background-color: #8B0000;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .start-button:hover {
+            background-color: #a00000;
+        }
+
+        .features {
+            margin-top: 40px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            text-align: left;
+        }
+
+        .feature {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .feature h3 {
+            color: #8B0000;
+            margin-bottom: 10px;
+        }
+
+        .feature p {
+            color: #666;
+            margin-bottom: 0;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 480px) {
+            .logo {
+                width: 100px;
+                height: 100px;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .features {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img src="icons/icon-192x192.png" alt="Logo" class="logo">
+        <h1>Calculadora de Madeira</h1>
+        <p>Calcule o volume e custo de madeira serrada de forma rápida e precisa.</p>
+        <a href="calc.html" class="start-button">Iniciar Calculadora</a>
+
+        <div class="features">
+            <div class="feature">
+                <h3>📱 Instalável</h3>
+                <p>Instale no seu celular e use como um aplicativo nativo.</p>
+            </div>
+            <div class="feature">
+                <h3>💾 Offline</h3>
+                <p>Funciona sem internet e salva seus cálculos.</p>
+            </div>
+            <div class="feature">
+                <h3>📊 Precisão</h3>
+                <p>Cálculos precisos com todas as medidas necessárias.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Registrar o Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registrado com sucesso:', registration.scope);
+                    })
+                    .catch(error => {
+                        console.log('Falha ao registrar o ServiceWorker:', error);
+                    });
+            });
+        }
+
+        // Verificar se o app está instalado
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+        });
+
+        // Função para instalar o app
+        async function installApp() {
+            if (!deferredPrompt) return;
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') {
+                console.log('Usuário aceitou a instalação do app');
+            }
+            deferredPrompt = null;
+        }
+    </script>
+</body>
+</html> 
