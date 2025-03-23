@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+    <!-- Fundo -->
+    <rect width="512" height="512" fill="#8B0000" rx="128"/>
+    
+    <!-- Efeito de madeira -->
+    <path d="M0,256 C0,256 64,192 128,192 C192,192 256,256 256,256 C256,256 320,192 384,192 C448,192 512,256 512,256" 
+          stroke="#A00000" 
+          stroke-width="32" 
+          fill="none"/>
+    
+    <!-- Calculadora -->
+    <rect x="96" y="96" width="320" height="320" fill="#FFFFFF" rx="32"/>
+    
+    <!-- Display -->
+    <rect x="128" y="128" width="256" height="64" fill="#E0E0E0" rx="8"/>
+    
+    <!-- Botões -->
+    <g fill="#8B0000">
+        <!-- Linha 1 -->
+        <rect x="128" y="208" width="56" height="56" rx="8"/>
+        <rect x="200" y="208" width="56" height="56" rx="8"/>
+        <rect x="272" y="208" width="56" height="56" rx="8"/>
+        <rect x="344" y="208" width="40" height="56" rx="8"/>
+        
+        <!-- Linha 2 -->
+        <rect x="128" y="280" width="56" height="56" rx="8"/>
+        <rect x="200" y="280" width="56" height="56" rx="8"/>
+        <rect x="272" y="280" width="56" height="56" rx="8"/>
+        <rect x="344" y="280" width="40" height="56" rx="8"/>
+        
+        <!-- Linha 3 -->
+        <rect x="128" y="352" width="56" height="56" rx="8"/>
+        <rect x="200" y="352" width="56" height="56" rx="8"/>
+        <rect x="272" y="352" width="56" height="56" rx="8"/>
+        <rect x="344" y="352" width="40" height="56" rx="8"/>
+    </g>
+</svg> 
