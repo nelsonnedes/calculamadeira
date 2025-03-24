@@ -4,233 +4,369 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Notificações - Calculadora de Madeira</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#4CAF50">
+    <link rel="apple-touch-icon" href="icon-192x192.png">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: Arial, sans-serif;
-        }
-
-        body {
-            background-color: #f5f5f5;
-        }
-
-        .header {
-            background-color: #8B0000;
-            color: white;
-            padding: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .header h1 {
-            font-size: 1.2rem;
-        }
-
-        .back-btn {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 1.5rem;
-            cursor: pointer;
-        }
-
         .notifications-container {
-            max-width: 600px;
+            max-width: 800px;
             margin: 20px auto;
             padding: 20px;
         }
 
         .notification-item {
-            background-color: white;
+            background: white;
             border-radius: 8px;
             padding: 15px;
             margin-bottom: 15px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             display: flex;
             align-items: flex-start;
+            position: relative;
         }
 
         .notification-item.unread {
-            border-left: 4px solid #8B0000;
+            border-left: 4px solid #4CAF50;
         }
 
         .notification-icon {
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background-color: #f0f0f0;
+            background: #e8f5e9;
             display: flex;
             align-items: center;
             justify-content: center;
             margin-right: 15px;
-            color: #8B0000;
+            flex-shrink: 0;
+        }
+
+        .notification-icon i {
+            color: #4CAF50;
+            font-size: 20px;
         }
 
         .notification-content {
-            flex: 1;
+            flex-grow: 1;
         }
 
         .notification-title {
-            font-weight: bold;
+            font-weight: 500;
             margin-bottom: 5px;
+            color: #333;
         }
 
         .notification-message {
             color: #666;
-            font-size: 0.9rem;
-            margin-bottom: 5px;
+            font-size: 0.9em;
+            margin-bottom: 10px;
         }
 
         .notification-time {
             color: #999;
-            font-size: 0.8rem;
+            font-size: 0.8em;
         }
 
         .notification-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 10px;
+            position: absolute;
+            top: 10px;
+            right: 10px;
         }
 
-        .action-btn {
+        .notification-actions button {
             background: none;
             border: none;
-            color: #8B0000;
+            color: #999;
             cursor: pointer;
-            font-size: 0.9rem;
-            padding: 5px 10px;
+            padding: 5px;
+            font-size: 1.2em;
         }
 
-        .action-btn:hover {
-            text-decoration: underline;
+        .notification-actions button:hover {
+            color: #4CAF50;
         }
 
         .empty-state {
             text-align: center;
             padding: 40px 20px;
-            background-color: white;
+            background: white;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
-        .empty-state-icon {
-            font-size: 3rem;
-            color: #ddd;
-            margin-bottom: 15px;
+        .empty-state i {
+            font-size: 48px;
+            color: #ccc;
+            margin-bottom: 20px;
         }
 
-        .empty-state-message {
+        .empty-state p {
             color: #666;
             margin-bottom: 20px;
         }
 
-        .mark-all-read {
-            background-color: #8B0000;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
+        .notification-filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            background: white;
+            color: #666;
             cursor: pointer;
-            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn.active {
+            background: #4CAF50;
+            color: white;
+            border-color: #4CAF50;
+        }
+
+        .filter-btn:hover {
+            border-color: #4CAF50;
+            color: #4CAF50;
+        }
+
+        .filter-btn.active:hover {
+            color: white;
+        }
+
+        .mark-all-read {
+            text-align: right;
             margin-bottom: 20px;
         }
 
-        .mark-all-read:hover {
-            background-color: #a00000;
+        .mark-all-read button {
+            background: none;
+            border: none;
+            color: #4CAF50;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+
+        .mark-all-read button:hover {
+            text-decoration: underline;
         }
     </style>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <div class="header">
-        <button class="back-btn" onclick="window.location.href='calc.html'">←</button>
-        <h1>Notificações</h1>
-    </div>
+    <div class="container">
+        <header>
+            <h1>Notificações</h1>
+            <nav>
+                <a href="calc.html">Calculadora</a>
+                <a href="perfil.html">Perfil</a>
+                <a href="configuracoes.html">Configurações</a>
+                <a href="notificacoes.html" class="active">Notificações</a>
+                <a href="ajuda.html">Ajuda</a>
+            </nav>
+        </header>
 
-    <div class="notifications-container">
-        <button class="mark-all-read">Marcar Todas como Lidas</button>
+        <main class="notifications-container">
+            <div class="notification-filters">
+                <button class="filter-btn active" data-filter="all">Todas</button>
+                <button class="filter-btn" data-filter="unread">Não lidas</button>
+                <button class="filter-btn" data-filter="system">Sistema</button>
+                <button class="filter-btn" data-filter="updates">Atualizações</button>
+            </div>
 
-        <div class="notification-item unread">
-            <div class="notification-icon">
-                <i class="fas fa-calculator"></i>
+            <div class="mark-all-read">
+                <button id="markAllRead">Marcar todas como lidas</button>
             </div>
-            <div class="notification-content">
-                <div class="notification-title">Novo Cálculo Salvo</div>
-                <div class="notification-message">Seu cálculo de volume de madeira foi salvo com sucesso.</div>
-                <div class="notification-time">Há 5 minutos</div>
-                <div class="notification-actions">
-                    <button class="action-btn">Ver Detalhes</button>
-                    <button class="action-btn">Marcar como Lida</button>
-                </div>
-            </div>
-        </div>
 
-        <div class="notification-item unread">
-            <div class="notification-icon">
-                <i class="fas fa-bell"></i>
+            <div id="notificationsList">
+                <!-- As notificações serão inseridas aqui via JavaScript -->
             </div>
-            <div class="notification-content">
-                <div class="notification-title">Lembrete de Cálculo</div>
-                <div class="notification-message">Você tem um cálculo pendente para completar.</div>
-                <div class="notification-time">Há 1 hora</div>
-                <div class="notification-actions">
-                    <button class="action-btn">Continuar</button>
-                    <button class="action-btn">Marcar como Lida</button>
-                </div>
-            </div>
-        </div>
 
-        <div class="notification-item">
-            <div class="notification-icon">
-                <i class="fas fa-info-circle"></i>
+            <div id="emptyState" class="empty-state" style="display: none;">
+                <i class="fas fa-bell-slash"></i>
+                <p>Nenhuma notificação encontrada</p>
             </div>
-            <div class="notification-content">
-                <div class="notification-title">Atualização do App</div>
-                <div class="notification-message">Nova versão disponível com melhorias na interface.</div>
-                <div class="notification-time">Há 2 dias</div>
-                <div class="notification-actions">
-                    <button class="action-btn">Atualizar</button>
-                    <button class="action-btn">Mais Informações</button>
-                </div>
-            </div>
-        </div>
-
-        <div class="notification-item">
-            <div class="notification-icon">
-                <i class="fas fa-share-alt"></i>
-            </div>
-            <div class="notification-content">
-                <div class="notification-title">Lista Compartilhada</div>
-                <div class="notification-message">Sua lista de madeira foi compartilhada com sucesso.</div>
-                <div class="notification-time">Há 3 dias</div>
-                <div class="notification-actions">
-                    <button class="action-btn">Ver Detalhes</button>
-                    <button class="action-btn">Compartilhar Novamente</button>
-                </div>
-            </div>
-        </div>
+        </main>
     </div>
 
     <script>
-        // Marcar todas como lidas
-        document.querySelector('.mark-all-read').addEventListener('click', function() {
-            document.querySelectorAll('.notification-item').forEach(item => {
-                item.classList.remove('unread');
-            });
-            alert('Todas as notificações foram marcadas como lidas!');
-        });
+        // Tipos de notificações
+        const NOTIFICATION_TYPES = {
+            SYSTEM: 'system',
+            UPDATE: 'update',
+            CALCULATION: 'calculation',
+            PROFILE: 'profile'
+        };
 
-        // Marcar individual como lida
-        document.querySelectorAll('.action-btn').forEach(btn => {
-            if (btn.textContent === 'Marcar como Lida') {
-                btn.addEventListener('click', function() {
-                    this.closest('.notification-item').classList.remove('unread');
-                    alert('Notificação marcada como lida!');
+        // Exemplo de notificações (em um sistema real, isso viria do backend)
+        const sampleNotifications = [
+            {
+                id: 1,
+                type: NOTIFICATION_TYPES.SYSTEM,
+                title: 'Bem-vindo!',
+                message: 'Obrigado por usar a Calculadora de Madeira. Comece a calcular agora!',
+                time: new Date(Date.now() - 1000 * 60 * 5), // 5 minutos atrás
+                read: false
+            },
+            {
+                id: 2,
+                type: NOTIFICATION_TYPES.UPDATE,
+                title: 'Nova versão disponível',
+                message: 'Uma nova versão da Calculadora de Madeira está disponível com melhorias de performance.',
+                time: new Date(Date.now() - 1000 * 60 * 60), // 1 hora atrás
+                read: true
+            },
+            {
+                id: 3,
+                type: NOTIFICATION_TYPES.CALCULATION,
+                title: 'Cálculo salvo',
+                message: 'Seu último cálculo foi salvo com sucesso.',
+                time: new Date(Date.now() - 1000 * 60 * 60 * 24), // 1 dia atrás
+                read: false
+            }
+        ];
+
+        // Carregar notificações
+        function loadNotifications() {
+            const notifications = JSON.parse(localStorage.getItem('notifications') || JSON.stringify(sampleNotifications));
+            displayNotifications(notifications);
+        }
+
+        // Exibir notificações
+        function displayNotifications(notifications, filter = 'all') {
+            const container = document.getElementById('notificationsList');
+            const emptyState = document.getElementById('emptyState');
+            
+            // Filtrar notificações
+            let filteredNotifications = notifications;
+            if (filter !== 'all') {
+                filteredNotifications = notifications.filter(n => {
+                    if (filter === 'unread') return !n.read;
+                    if (filter === 'system') return n.type === NOTIFICATION_TYPES.SYSTEM;
+                    if (filter === 'updates') return n.type === NOTIFICATION_TYPES.UPDATE;
+                    return true;
                 });
             }
+
+            // Limpar container
+            container.innerHTML = '';
+
+            // Exibir notificações
+            filteredNotifications.forEach(notification => {
+                const notificationElement = createNotificationElement(notification);
+                container.appendChild(notificationElement);
+            });
+
+            // Mostrar estado vazio se necessário
+            emptyState.style.display = filteredNotifications.length === 0 ? 'block' : 'none';
+        }
+
+        // Criar elemento de notificação
+        function createNotificationElement(notification) {
+            const div = document.createElement('div');
+            div.className = `notification-item ${notification.read ? '' : 'unread'}`;
+            div.dataset.id = notification.id;
+
+            const icon = getNotificationIcon(notification.type);
+            const time = formatTime(notification.time);
+
+            div.innerHTML = `
+                <div class="notification-icon">
+                    <i class="fas ${icon}"></i>
+                </div>
+                <div class="notification-content">
+                    <div class="notification-title">${notification.title}</div>
+                    <div class="notification-message">${notification.message}</div>
+                    <div class="notification-time">${time}</div>
+                </div>
+                <div class="notification-actions">
+                    <button class="mark-read" title="Marcar como lida">
+                        <i class="fas fa-check"></i>
+                    </button>
+                    <button class="delete-notification" title="Excluir">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `;
+
+            // Adicionar event listeners
+            div.querySelector('.mark-read').addEventListener('click', () => markAsRead(notification.id));
+            div.querySelector('.delete-notification').addEventListener('click', () => deleteNotification(notification.id));
+
+            return div;
+        }
+
+        // Obter ícone baseado no tipo de notificação
+        function getNotificationIcon(type) {
+            const icons = {
+                [NOTIFICATION_TYPES.SYSTEM]: 'fa-info-circle',
+                [NOTIFICATION_TYPES.UPDATE]: 'fa-sync',
+                [NOTIFICATION_TYPES.CALCULATION]: 'fa-calculator',
+                [NOTIFICATION_TYPES.PROFILE]: 'fa-user'
+            };
+            return icons[type] || 'fa-bell';
+        }
+
+        // Formatar tempo
+        function formatTime(date) {
+            const now = new Date();
+            const diff = now - date;
+            
+            if (diff < 60000) return 'Agora mesmo';
+            if (diff < 3600000) return `${Math.floor(diff / 60000)} minutos atrás`;
+            if (diff < 86400000) return `${Math.floor(diff / 3600000)} horas atrás`;
+            if (diff < 2592000000) return `${Math.floor(diff / 86400000)} dias atrás`;
+            return date.toLocaleDateString();
+        }
+
+        // Marcar notificação como lida
+        function markAsRead(id) {
+            const notifications = JSON.parse(localStorage.getItem('notifications') || JSON.stringify(sampleNotifications));
+            const notification = notifications.find(n => n.id === id);
+            
+            if (notification) {
+                notification.read = true;
+                localStorage.setItem('notifications', JSON.stringify(notifications));
+                loadNotifications();
+            }
+        }
+
+        // Excluir notificação
+        function deleteNotification(id) {
+            if (confirm('Tem certeza que deseja excluir esta notificação?')) {
+                const notifications = JSON.parse(localStorage.getItem('notifications') || JSON.stringify(sampleNotifications));
+                const filtered = notifications.filter(n => n.id !== id);
+                localStorage.setItem('notifications', JSON.stringify(filtered));
+                loadNotifications();
+            }
+        }
+
+        // Marcar todas como lidas
+        function markAllAsRead() {
+            const notifications = JSON.parse(localStorage.getItem('notifications') || JSON.stringify(sampleNotifications));
+            notifications.forEach(n => n.read = true);
+            localStorage.setItem('notifications', JSON.stringify(notifications));
+            loadNotifications();
+        }
+
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            loadNotifications();
+
+            // Filtros
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    displayNotifications(JSON.parse(localStorage.getItem('notifications') || JSON.stringify(sampleNotifications)), btn.dataset.filter);
+                });
+            });
+
+            // Marcar todas como lidas
+            document.getElementById('markAllRead').addEventListener('click', markAllAsRead);
         });
     </script>
 </body>

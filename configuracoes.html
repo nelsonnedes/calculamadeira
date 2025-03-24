@@ -4,291 +4,393 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Configurações - Calculadora de Madeira</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#8B0000">
+    <link rel="apple-touch-icon" href="icon-192x192.png">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: Arial, sans-serif;
-        }
-
-        body {
-            background-color: #f5f5f5;
-        }
-
-        .header {
-            background-color: #8B0000;
-            color: white;
-            padding: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .header h1 {
-            font-size: 1.2rem;
-        }
-
-        .back-btn {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 1.5rem;
-            cursor: pointer;
-        }
-
         .settings-container {
-            max-width: 600px;
+            max-width: 800px;
             margin: 20px auto;
             padding: 20px;
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
         .settings-section {
-            margin-bottom: 30px;
-        }
-
-        .section-title {
-            font-size: 1.2rem;
-            color: #8B0000;
-            margin-bottom: 15px;
-            padding-bottom: 5px;
-            border-bottom: 2px solid #8B0000;
-        }
-
-        .setting-item {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
             margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
-        .setting-label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
+        .settings-section h2 {
+            color: #8B0000;
+            margin-bottom: 20px;
+            font-size: 1.5em;
         }
 
-        .setting-description {
+        .settings-section h3 {
+            color: #333;
+            margin: 20px 0 10px;
+            font-size: 1.2em;
+        }
+
+        .settings-section p {
             color: #666;
-            font-size: 0.9rem;
-            margin-bottom: 8px;
+            line-height: 1.6;
+            margin-bottom: 15px;
         }
 
-        .setting-input {
-            width: 100%;
+        .settings-section ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0 0 20px 0;
+        }
+
+        .settings-section li {
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .settings-section li:last-child {
+            border-bottom: none;
+        }
+
+        .settings-section li i {
+            color: #8B0000;
+            margin-right: 10px;
+        }
+
+        .settings-section select,
+        .settings-section input {
             padding: 8px;
             border: 1px solid #ddd;
             border-radius: 4px;
-            font-size: 1rem;
+            font-size: 14px;
         }
 
-        .setting-select {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
+        .settings-section select {
+            width: 200px;
+        }
+
+        .settings-section input[type="color"] {
+            width: 50px;
+            height: 30px;
+            padding: 0;
+            border: none;
             border-radius: 4px;
-            font-size: 1rem;
-            background-color: white;
-        }
-
-        .setting-switch {
-            position: relative;
-            display: inline-block;
-            width: 60px;
-            height: 34px;
-        }
-
-        .setting-switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .slider {
-            position: absolute;
             cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            transition: .4s;
-            border-radius: 34px;
         }
 
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 26px;
-            width: 26px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            transition: .4s;
-            border-radius: 50%;
-        }
-
-        input:checked + .slider {
-            background-color: #8B0000;
-        }
-
-        input:checked + .slider:before {
-            transform: translateX(26px);
-        }
-
-        .save-btn {
+        .settings-section button {
             background-color: #8B0000;
             color: white;
             border: none;
-            padding: 15px;
+            padding: 10px 20px;
             border-radius: 4px;
             cursor: pointer;
-            width: 100%;
-            font-size: 1rem;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+
+        .settings-section button:hover {
+            background-color: #A00000;
+        }
+
+        .settings-section button.danger {
+            background-color: #f44336;
+        }
+
+        .settings-section button.danger:hover {
+            background-color: #d32f2f;
+        }
+
+        .danger-zone {
+            background-color: #fff5f5;
+            border: 1px solid #ffcdd2;
+            border-radius: 8px;
+            padding: 20px;
             margin-top: 20px;
         }
 
-        .save-btn:hover {
-            background-color: #a00000;
+        .danger-zone h3 {
+            color: #f44336;
         }
 
-        .theme-option {
-            display: flex;
-            align-items: center;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            margin-bottom: 10px;
-            cursor: pointer;
+        .danger-zone p {
+            color: #666;
+            margin-bottom: 15px;
         }
 
-        .theme-option:hover {
-            background-color: #f5f5f5;
+        .danger-zone button {
+            background-color: #f44336;
         }
 
-        .theme-option.selected {
-            border-color: #8B0000;
-            background-color: #fff5f5;
+        .danger-zone button:hover {
+            background-color: #d32f2f;
         }
 
-        .theme-color {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            margin-right: 10px;
+        .feedback {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 24px;
+            border-radius: 8px;
+            background-color: #4CAF50;
+            color: white;
+            font-size: 16px;
+            z-index: 1000;
+            animation: fadeInOut 3s ease-in-out;
+        }
+
+        .feedback.error {
+            background-color: #f44336;
+        }
+
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translate(-50%, 20px); }
+            10% { opacity: 1; transform: translate(-50%, 0); }
+            90% { opacity: 1; transform: translate(-50%, 0); }
+            100% { opacity: 0; transform: translate(-50%, -20px); }
+        }
+
+        @media (max-width: 600px) {
+            .settings-container {
+                padding: 10px;
+            }
+
+            .settings-section {
+                padding: 15px;
+            }
+
+            .settings-section select {
+                width: 100%;
+            }
+
+            .settings-section li {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <button class="back-btn" onclick="window.location.href='calc.html'">←</button>
-        <h1>Configurações</h1>
+    <div class="container">
+        <header>
+            <h1>Configurações</h1>
+            <nav>
+                <a href="calc.html">Calculadora</a>
+                <a href="perfil.html">Perfil</a>
+                <a href="configuracoes.html" class="active">Configurações</a>
+                <a href="notificacoes.html">Notificações</a>
+                <a href="ajuda.html">Ajuda</a>
+            </nav>
+        </header>
+
+        <main class="settings-container">
+            <div class="settings-section">
+                <h2>Preferências Gerais</h2>
+                <ul>
+                    <li>
+                        <div>
+                            <i class="fas fa-palette"></i>
+                            <span>Tema</span>
+                        </div>
+                        <select id="theme">
+                            <option value="light">Claro</option>
+                            <option value="dark">Escuro</option>
+                        </select>
+                    </li>
+                    <li>
+                        <div>
+                            <i class="fas fa-language"></i>
+                            <span>Idioma</span>
+                        </div>
+                        <select id="language">
+                            <option value="pt-BR">Português</option>
+                            <option value="en">English</option>
+                        </select>
+                    </li>
+                    <li>
+                        <div>
+                            <i class="fas fa-money-bill-wave"></i>
+                            <span>Moeda</span>
+                        </div>
+                        <select id="currency">
+                            <option value="BRL">Real (R$)</option>
+                            <option value="USD">Dólar ($)</option>
+                        </select>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="settings-section">
+                <h2>Personalização</h2>
+                <ul>
+                    <li>
+                        <div>
+                            <i class="fas fa-paint-brush"></i>
+                            <span>Cor Principal</span>
+                        </div>
+                        <input type="color" id="primaryColor" value="#8B0000">
+                    </li>
+                    <li>
+                        <div>
+                            <i class="fas fa-text-height"></i>
+                            <span>Tamanho da Fonte</span>
+                        </div>
+                        <select id="fontSize">
+                            <option value="small">Pequeno</option>
+                            <option value="medium" selected>Médio</option>
+                            <option value="large">Grande</option>
+                        </select>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="settings-section">
+                <h2>Notificações</h2>
+                <ul>
+                    <li>
+                        <div>
+                            <i class="fas fa-envelope"></i>
+                            <span>Notificações por Email</span>
+                        </div>
+                        <select id="emailNotifications">
+                            <option value="all">Todas</option>
+                            <option value="important">Apenas Importantes</option>
+                            <option value="none">Nenhuma</option>
+                        </select>
+                    </li>
+                    <li>
+                        <div>
+                            <i class="fas fa-bell"></i>
+                            <span>Notificações Push</span>
+                        </div>
+                        <select id="pushNotifications">
+                            <option value="enabled">Ativadas</option>
+                            <option value="disabled">Desativadas</option>
+                        </select>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="settings-section">
+                <h2>Backup e Sincronização</h2>
+                <ul>
+                    <li>
+                        <div>
+                            <i class="fas fa-save"></i>
+                            <span>Backup Automático</span>
+                        </div>
+                        <select id="autoBackup">
+                            <option value="daily">Diário</option>
+                            <option value="weekly">Semanal</option>
+                            <option value="monthly">Mensal</option>
+                        </select>
+                    </li>
+                    <li>
+                        <div>
+                            <i class="fas fa-cloud"></i>
+                            <span>Sincronização na Nuvem</span>
+                        </div>
+                        <select id="cloudSync">
+                            <option value="enabled">Ativada</option>
+                            <option value="disabled">Desativada</option>
+                        </select>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="settings-section">
+                <h2>Zona de Perigo</h2>
+                <div class="danger-zone">
+                    <h3>Limpar Todos os Dados</h3>
+                    <p>Esta ação não pode ser desfeita. Todos os seus dados serão permanentemente excluídos.</p>
+                    <button class="danger" onclick="clearAllData()">Limpar Todos os Dados</button>
+                </div>
+            </div>
+        </main>
     </div>
 
-    <div class="settings-container">
-        <div class="settings-section">
-            <h2 class="section-title">Preferências Gerais</h2>
-            <div class="setting-item">
-                <label class="setting-label">Idioma</label>
-                <select class="setting-select">
-                    <option value="pt">Português</option>
-                    <option value="en">English</option>
-                    <option value="es">Español</option>
-                </select>
-            </div>
-            <div class="setting-item">
-                <label class="setting-label">Tema</label>
-                <div class="theme-option selected">
-                    <div class="theme-color" style="background-color: #8B0000;"></div>
-                    <span>Vermelho (Padrão)</span>
-                </div>
-                <div class="theme-option">
-                    <div class="theme-color" style="background-color: #006400;"></div>
-                    <span>Verde</span>
-                </div>
-                <div class="theme-option">
-                    <div class="theme-color" style="background-color: #00008B;"></div>
-                    <span>Azul</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="settings-section">
-            <h2 class="section-title">Unidades de Medida</h2>
-            <div class="setting-item">
-                <label class="setting-label">Unidade de Comprimento</label>
-                <select class="setting-select">
-                    <option value="cm">Centímetros (cm)</option>
-                    <option value="m">Metros (m)</option>
-                    <option value="mm">Milímetros (mm)</option>
-                </select>
-            </div>
-            <div class="setting-item">
-                <label class="setting-label">Unidade de Volume</label>
-                <select class="setting-select">
-                    <option value="m3">Metros Cúbicos (m³)</option>
-                    <option value="cm3">Centímetros Cúbicos (cm³)</option>
-                </select>
-            </div>
-        </div>
-
-        <div class="settings-section">
-            <h2 class="section-title">Notificações</h2>
-            <div class="setting-item">
-                <label class="setting-label">Notificações Push</label>
-                <div class="setting-description">Receber notificações sobre atualizações e novidades</div>
-                <label class="setting-switch">
-                    <input type="checkbox" checked>
-                    <span class="slider"></span>
-                </label>
-            </div>
-            <div class="setting-item">
-                <label class="setting-label">Lembretes</label>
-                <div class="setting-description">Receber lembretes sobre cálculos pendentes</div>
-                <label class="setting-switch">
-                    <input type="checkbox" checked>
-                    <span class="slider"></span>
-                </label>
-            </div>
-        </div>
-
-        <div class="settings-section">
-            <h2 class="section-title">Backup e Sincronização</h2>
-            <div class="setting-item">
-                <label class="setting-label">Backup Automático</label>
-                <div class="setting-description">Fazer backup automático dos seus cálculos</div>
-                <label class="setting-switch">
-                    <input type="checkbox" checked>
-                    <span class="slider"></span>
-                </label>
-            </div>
-            <div class="setting-item">
-                <label class="setting-label">Sincronização em Nuvem</label>
-                <div class="setting-description">Sincronizar seus dados entre dispositivos</div>
-                <label class="setting-switch">
-                    <input type="checkbox">
-                    <span class="slider"></span>
-                </label>
-            </div>
-        </div>
-
-        <button class="save-btn">Salvar Alterações</button>
-    </div>
-
+    <script src="auth.js"></script>
     <script>
-        // Seleção de tema
-        document.querySelectorAll('.theme-option').forEach(option => {
-            option.addEventListener('click', function() {
-                document.querySelectorAll('.theme-option').forEach(opt => opt.classList.remove('selected'));
-                this.classList.add('selected');
-            });
-        });
+        // Verificar autenticação e plano ativo
+        if (!isUserLoggedIn()) {
+            window.location.href = 'index.html';
+        } else if (!isPlanActive()) {
+            window.location.href = 'planos.html';
+        }
+
+        // Carregar configurações salvas
+        function loadSettings() {
+            const settings = JSON.parse(localStorage.getItem('settings') || '{}');
+            
+            // Aplicar configurações aos elementos
+            document.getElementById('theme').value = settings.theme || 'light';
+            document.getElementById('language').value = settings.language || 'pt-BR';
+            document.getElementById('currency').value = settings.currency || 'BRL';
+            document.getElementById('primaryColor').value = settings.primaryColor || '#8B0000';
+            document.getElementById('fontSize').value = settings.fontSize || 'medium';
+            document.getElementById('emailNotifications').value = settings.emailNotifications || 'all';
+            document.getElementById('pushNotifications').value = settings.pushNotifications || 'enabled';
+            document.getElementById('autoBackup').value = settings.autoBackup || 'daily';
+            document.getElementById('cloudSync').value = settings.cloudSync || 'enabled';
+        }
 
         // Salvar configurações
-        document.querySelector('.save-btn').addEventListener('click', function() {
-            alert('Configurações salvas com sucesso!');
-            window.location.href = 'calc.html';
+        function saveSettings() {
+            const settings = {
+                theme: document.getElementById('theme').value,
+                language: document.getElementById('language').value,
+                currency: document.getElementById('currency').value,
+                primaryColor: document.getElementById('primaryColor').value,
+                fontSize: document.getElementById('fontSize').value,
+                emailNotifications: document.getElementById('emailNotifications').value,
+                pushNotifications: document.getElementById('pushNotifications').value,
+                autoBackup: document.getElementById('autoBackup').value,
+                cloudSync: document.getElementById('cloudSync').value
+            };
+
+            localStorage.setItem('settings', JSON.stringify(settings));
+            showFeedback('Configurações salvas com sucesso!');
+        }
+
+        // Limpar todos os dados
+        function clearAllData() {
+            if (confirm('Tem certeza que deseja limpar todos os dados? Esta ação não pode ser desfeita.')) {
+                localStorage.clear();
+                showFeedback('Todos os dados foram limpos.', 'error');
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 2000);
+            }
+        }
+
+        // Mostrar feedback
+        function showFeedback(message, type = 'success') {
+            const feedback = document.createElement('div');
+            feedback.className = `feedback ${type}`;
+            feedback.textContent = message;
+            document.body.appendChild(feedback);
+            
+            setTimeout(() => {
+                feedback.remove();
+            }, 3000);
+        }
+
+        // Aplicar configurações quando mudar
+        document.querySelectorAll('select, input').forEach(element => {
+            element.addEventListener('change', saveSettings);
         });
+
+        // Carregar configurações ao iniciar
+        loadSettings();
     </script>
 </body>
 </html> 
