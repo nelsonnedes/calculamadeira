@@ -255,6 +255,17 @@
             color: #666;
             font-size: 0.9rem;
         }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
     </style>
 </head>
 <body>
@@ -391,16 +402,28 @@
 
         // Função para atualizar estatísticas
         function updateStats() {
-            document.getElementById('totalCalculations').textContent = userData.totalCalculations;
-            document.getElementById('totalVolume').textContent = userData.totalVolume.toFixed(2) + 'm³';
+            // Carregar estatísticas do localStorage
+            const stats = JSON.parse(localStorage.getItem('userStats') || '{"totalCalculations":0,"totalVolume":0,"totalCost":0,"savedLists":0}');
             
-            const formatter = new Intl.NumberFormat('pt-BR', {
-                style: 'currency',
-                currency: 'BRL',
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            });
-            document.getElementById('totalCost').textContent = formatter.format(userData.totalCost);
+            // Atualizar os elementos na página
+            document.querySelector('.stats-grid').innerHTML = `
+                <div class="stat-item">
+                    <div class="stat-value">${stats.totalCalculations || 0}</div>
+                    <div class="stat-label">Cálculos Realizados</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${stats.savedLists || 0}</div>
+                    <div class="stat-label">Listas Salvas</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${(stats.totalVolume || 0).toFixed(3)}m³</div>
+                    <div class="stat-label">Volume Total</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">R$ ${(stats.totalCost || 0).toFixed(2).replace('.', ',')}</div>
+                    <div class="stat-label">Valor Total</div>
+                </div>
+            `;
         }
 
         // Função para habilitar edição
@@ -547,6 +570,20 @@
             updateStats();
         }
 
+        // Função para mostrar feedback
+        function showFeedback(message, type = 'success') {
+            const feedback = document.createElement('div');
+            feedback.className = `feedback ${type}`;
+            feedback.textContent = message;
+            document.body.appendChild(feedback);
+            
+            // Remover feedback após 3 segundos
+            setTimeout(() => {
+                feedback.style.animation = 'slideOut 0.3s ease-in forwards';
+                setTimeout(() => feedback.remove(), 300);
+            }, 3000);
+        }
+
         // Função para salvar dados do perfil
         function saveProfileData() {
             try {
@@ -567,13 +604,20 @@
                 document.getElementById('profileName').textContent = profileData.name;
                 document.getElementById('profileEmail').textContent = profileData.email || 'Sem email cadastrado';
 
+                // Salvar no localStorage
                 localStorage.setItem('profileData', JSON.stringify(profileData));
+                
+                // Atualizar informações do menu
                 localStorage.setItem('menuInfo', JSON.stringify({
                     name: profileData.name,
                     email: profileData.email,
                     avatar: profileData.avatar
                 }));
 
+                // Atualizar estatísticas
+                updateStats();
+
+                // Mostrar feedback de sucesso
                 showFeedback('Perfil atualizado com sucesso!');
             } catch (error) {
                 console.error('Erro ao salvar perfil:', error);
@@ -678,15 +722,6 @@
                 }
             });
         });
-
-        // Feedback
-        function showFeedback(message) {
-            const feedback = document.createElement('div');
-            feedback.className = 'feedback success';
-            feedback.textContent = message;
-            document.body.appendChild(feedback);
-            setTimeout(() => feedback.remove(), 3000);
-        }
 
         // Formatação de campos
         function formatPhone(input) {
