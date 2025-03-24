@@ -10,8 +10,9 @@
     <meta name="apple-mobile-web-app-title" content="CalcMadeira">
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icons/icon-192x192.png">
-    <title>Calculadora de Madeira - Login</title>
+    <title>Calculadora de Madeira</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
     <style>
         :root {
             --primary-color: #4CAF50;
@@ -63,75 +64,87 @@
         }
 
         .auth-container {
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 20px;
             background: white;
-            padding: 30px;
             border-radius: 10px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .auth-header h1 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
         }
 
         .form-group {
-            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
         }
 
         .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            color: #666;
+            font-weight: bold;
+            color: var(--text-color);
         }
 
         .form-group input {
-            width: 100%;
             padding: 10px;
             border: 1px solid var(--border-color);
             border-radius: 5px;
-            font-size: 1em;
+            font-size: 16px;
         }
 
-        .form-group input:focus {
-            outline: none;
-            border-color: var(--primary-color);
-        }
-
-        .btn {
+        .auth-button {
             background: var(--primary-color);
             color: white;
+            padding: 12px;
             border: none;
-            padding: 12px 20px;
             border-radius: 5px;
-            font-size: 1em;
+            font-size: 16px;
             cursor: pointer;
-            width: 100%;
-            transition: background-color 0.3s ease;
+            transition: background-color 0.2s;
         }
 
-        .btn:hover {
+        .auth-button:hover {
             background: var(--secondary-color);
         }
 
-        .toggle-form {
+        .auth-switch {
             text-align: center;
             margin-top: 20px;
         }
 
-        .toggle-form a {
+        .auth-switch a {
             color: var(--primary-color);
             text-decoration: none;
         }
 
-        .toggle-form a:hover {
+        .auth-switch a:hover {
             text-decoration: underline;
         }
 
         .error-message {
-            color: #dc3545;
-            margin-bottom: 15px;
-            display: none;
+            color: var(--error-color);
+            font-size: 14px;
+            margin-top: 5px;
         }
 
         .success-message {
-            color: var(--primary-color);
-            margin-bottom: 15px;
-            display: none;
+            color: var(--success-color);
+            font-size: 14px;
+            margin-top: 5px;
         }
 
         .logo {
@@ -151,47 +164,52 @@
 
     <div class="container">
         <div class="auth-container">
-            <div id="loginForm">
-                <h2 style="margin-bottom: 20px; text-align: center;">Login</h2>
-                <div class="error-message" id="loginError"></div>
+            <div class="auth-header">
+                <h1>Calculadora de Madeira</h1>
+                <p>Faça login ou cadastre-se para começar</p>
+            </div>
+
+            <form id="loginForm" class="auth-form">
                 <div class="form-group">
-                    <label for="loginEmail">Email</label>
+                    <label for="loginEmail">E-mail:</label>
                     <input type="email" id="loginEmail" required>
                 </div>
                 <div class="form-group">
-                    <label for="loginPassword">Senha</label>
+                    <label for="loginPassword">Senha:</label>
                     <input type="password" id="loginPassword" required>
                 </div>
-                <button class="btn" onclick="login()">Entrar</button>
-                <div class="toggle-form">
-                    <a href="#" onclick="toggleForms()">Não tem uma conta? Registre-se</a>
+                <button type="submit" class="auth-button">
+                    <i class="fas fa-sign-in-alt"></i> Entrar
+                </button>
+                <div class="auth-switch">
+                    <p>Não tem uma conta? <a href="#" id="showRegister">Cadastre-se</a></p>
                 </div>
-            </div>
+            </form>
 
-            <div id="registerForm" style="display: none;">
-                <h2 style="margin-bottom: 20px; text-align: center;">Registro</h2>
-                <div class="error-message" id="registerError"></div>
+            <form id="registerForm" class="auth-form" style="display: none;">
                 <div class="form-group">
-                    <label for="registerName">Nome</label>
+                    <label for="registerName">Nome:</label>
                     <input type="text" id="registerName" required>
                 </div>
                 <div class="form-group">
-                    <label for="registerEmail">Email</label>
+                    <label for="registerEmail">E-mail:</label>
                     <input type="email" id="registerEmail" required>
                 </div>
                 <div class="form-group">
-                    <label for="registerPassword">Senha</label>
+                    <label for="registerPassword">Senha:</label>
                     <input type="password" id="registerPassword" required>
                 </div>
                 <div class="form-group">
-                    <label for="confirmPassword">Confirmar Senha</label>
+                    <label for="confirmPassword">Confirmar Senha:</label>
                     <input type="password" id="confirmPassword" required>
                 </div>
-                <button class="btn" onclick="register()">Registrar</button>
-                <div class="toggle-form">
-                    <a href="#" onclick="toggleForms()">Já tem uma conta? Faça login</a>
+                <button type="submit" class="auth-button">
+                    <i class="fas fa-user-plus"></i> Cadastrar
+                </button>
+                <div class="auth-switch">
+                    <p>Já tem uma conta? <a href="#" id="showLogin">Faça login</a></p>
                 </div>
-            </div>
+            </form>
         </div>
     </div>
 
@@ -236,75 +254,87 @@
 
         // Verificar se o usuário já está logado
         if (isUserLoggedIn()) {
-            const user = getCurrentUser();
-            if (isPlanActive()) {
-                window.location.href = 'calc.html';
-            } else {
-                window.location.href = 'planos.html';
-            }
+            window.location.href = 'calc.html';
         }
 
-        function toggleForms() {
-            const loginForm = document.getElementById('loginForm');
-            const registerForm = document.getElementById('registerForm');
-            const loginError = document.getElementById('loginError');
-            const registerError = document.getElementById('registerError');
+        // Elementos do DOM
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+        const showRegister = document.getElementById('showRegister');
+        const showLogin = document.getElementById('showLogin');
 
-            loginForm.style.display = loginForm.style.display === 'none' ? 'block' : 'none';
-            registerForm.style.display = registerForm.style.display === 'none' ? 'block' : 'none';
-            loginError.style.display = 'none';
-            registerError.style.display = 'none';
+        // Alternar entre formulários
+        showRegister.addEventListener('click', (e) => {
+            e.preventDefault();
+            loginForm.style.display = 'none';
+            registerForm.style.display = 'flex';
+        });
+
+        showLogin.addEventListener('click', (e) => {
+            e.preventDefault();
+            registerForm.style.display = 'none';
+            loginForm.style.display = 'flex';
+        });
+
+        // Função para mostrar feedback
+        function showFeedback(message, type = 'success') {
+            const feedback = document.createElement('div');
+            feedback.className = `feedback ${type}`;
+            feedback.textContent = message;
+            document.body.appendChild(feedback);
+
+            setTimeout(() => {
+                feedback.remove();
+            }, 3000);
         }
 
-        function showError(form, message) {
-            const errorElement = document.getElementById(form + 'Error');
-            errorElement.textContent = message;
-            errorElement.style.display = 'block';
-        }
-
-        function login() {
+        // Login
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
 
-            try {
-                const user = loginUser(email, password);
-                user.isLoggedIn = true;
-                const users = JSON.parse(localStorage.getItem(AUTH_KEY) || '[]');
-                const updatedUsers = users.map(u => u.id === user.id ? user : u);
-                localStorage.setItem(AUTH_KEY, JSON.stringify(updatedUsers));
-
-                if (isPlanActive()) {
-                    window.location.href = 'calc.html';
-                } else {
-                    window.location.href = 'planos.html';
-                }
-            } catch (error) {
-                showError('login', error.message);
+            if (loginUser(email, password)) {
+                showFeedback('Login realizado com sucesso!');
+                window.location.href = 'calc.html';
+            } else {
+                showFeedback('E-mail ou senha incorretos', 'error');
             }
-        }
+        });
 
-        function register() {
+        // Registro
+        registerForm.addEventListener('submit', (e) => {
+            e.preventDefault();
             const name = document.getElementById('registerName').value;
             const email = document.getElementById('registerEmail').value;
             const password = document.getElementById('registerPassword').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
 
             if (password !== confirmPassword) {
-                showError('register', 'As senhas não coincidem');
+                showFeedback('As senhas não coincidem', 'error');
                 return;
             }
 
-            try {
-                const user = registerUser(email, password, name);
-                user.isLoggedIn = true;
-                const users = JSON.parse(localStorage.getItem(AUTH_KEY) || '[]');
-                const updatedUsers = users.map(u => u.id === user.id ? user : u);
-                localStorage.setItem(AUTH_KEY, JSON.stringify(updatedUsers));
-                window.location.href = 'calc.html';
-            } catch (error) {
-                showError('register', error.message);
+            if (registerUser(name, email, password)) {
+                showFeedback('Cadastro realizado com sucesso!');
+                loginForm.style.display = 'flex';
+                registerForm.style.display = 'none';
+                document.getElementById('loginEmail').value = email;
+                document.getElementById('loginPassword').value = password;
+            } else {
+                showFeedback('E-mail já cadastrado', 'error');
             }
-        }
+        });
+
+        // Configurar inputs numéricos
+        document.addEventListener('DOMContentLoaded', function() {
+            const numericInputs = document.querySelectorAll('input[type="number"]');
+            numericInputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    if (this.value < 0) this.value = 0;
+                });
+            });
+        });
     </script>
 </body>
 </html> 

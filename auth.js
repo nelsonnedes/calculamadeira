@@ -1,6 +1,7 @@
 // Gerenciamento de autenticação e planos
-const AUTH_KEY = 'calc_madeira_auth';
-const PLAN_KEY = 'calc_madeira_plan';
+const USERS_KEY = 'users';
+const CURRENT_USER_KEY = 'currentUser';
+const PLAN_KEY = 'plan';
 
 // Estrutura de planos
 const PLANS = {
@@ -28,111 +29,149 @@ const PLANS = {
 };
 
 // Funções de autenticação
-function registerUser(email, password, name) {
-    const users = JSON.parse(localStorage.getItem(AUTH_KEY) || '[]');
-    
+function registerUser(name, email, password) {
+    // Carregar usuários existentes
+    let users = JSON.parse(localStorage.getItem(USERS_KEY) || '[]');
+
+    // Verificar se o e-mail já está cadastrado
     if (users.some(user => user.email === email)) {
-        throw new Error('Email já cadastrado');
+        return false;
     }
 
-    const user = {
+    // Criar novo usuário
+    const newUser = {
         id: Date.now().toString(),
-        email,
-        password: btoa(password), // Criptografia básica
-        name,
+        name: name,
+        email: email,
+        password: password, // Em produção, usar hash da senha
+        plan: 'free',
         createdAt: new Date().toISOString(),
-        plan: {
-            type: 'free',
-            startDate: new Date().toISOString(),
-            endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() // 30 dias
-        }
+        lastLogin: null
     };
 
-    users.push(user);
-    localStorage.setItem(AUTH_KEY, JSON.stringify(users));
-    return user;
+    // Adicionar usuário à lista
+    users.push(newUser);
+    localStorage.setItem(USERS_KEY, JSON.stringify(users));
+
+    return true;
 }
 
 function loginUser(email, password) {
-    const users = JSON.parse(localStorage.getItem(AUTH_KEY) || '[]');
-    const user = users.find(u => u.email === email && u.password === btoa(password));
+    // Carregar usuários
+    const users = JSON.parse(localStorage.getItem(USERS_KEY) || '[]');
 
+    // Buscar usuário
+    const user = users.find(u => u.email === email && u.password === password);
     if (!user) {
-        throw new Error('Email ou senha inválidos');
+        return false;
     }
 
-    // Verificar se o plano expirou
-    const now = new Date();
-    const planEndDate = new Date(user.plan.endDate);
-    
-    if (now > planEndDate && user.plan.type === 'free') {
-        user.plan = {
-            type: 'expired',
-            startDate: null,
-            endDate: null
-        };
-        localStorage.setItem(AUTH_KEY, JSON.stringify(users));
-        throw new Error('Seu período de teste expirou. Por favor, escolha um plano.');
-    }
+    // Atualizar último login
+    user.lastLogin = new Date().toISOString();
+    localStorage.setItem(USERS_KEY, JSON.stringify(users));
 
-    return user;
-}
+    // Salvar usuário atual
+    localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(user));
 
-function getCurrentUser() {
-    const users = JSON.parse(localStorage.getItem(AUTH_KEY) || '[]');
-    return users.find(u => u.isLoggedIn);
+    return true;
 }
 
 function logoutUser() {
-    const users = JSON.parse(localStorage.getItem(AUTH_KEY) || '[]');
-    const updatedUsers = users.map(user => ({ ...user, isLoggedIn: false }));
-    localStorage.setItem(AUTH_KEY, JSON.stringify(updatedUsers));
+    // Carregar usuário atual
+    const currentUser = getCurrentUser();
+    if (!currentUser) return;
+
+    // Carregar todos os usuários
+    let users = JSON.parse(localStorage.getItem(USERS_KEY) || '[]');
+
+    // Atualizar último login do usuário
+    const userIndex = users.findIndex(u => u.id === currentUser.id);
+    if (userIndex !== -1) {
+        users[userIndex].lastLogin = currentUser.lastLogin;
+        localStorage.setItem(USERS_KEY, JSON.stringify(users));
+    }
+
+    // Remover usuário atual
+    localStorage.removeItem(CURRENT_USER_KEY);
 }
 
-function updateUserPlan(userId, planType) {
-    const users = JSON.parse(localStorage.getItem(AUTH_KEY) || '[]');
-    const userIndex = users.findIndex(u => u.id === userId);
+function getCurrentUser() {
+    return JSON.parse(localStorage.getItem(CURRENT_USER_KEY));
+}
 
-    if (userIndex === -1) {
-        throw new Error('Usuário não encontrado');
-    }
+function updateUserPlan(planType, duration) {
+    const currentUser = getCurrentUser();
+    if (!currentUser) return false;
 
-    const plan = PLANS[planType.toUpperCase()];
-    if (!plan) {
-        throw new Error('Plano inválido');
-    }
+    // Carregar todos os usuários
+    let users = JSON.parse(localStorage.getItem(USERS_KEY) || '[]');
 
-    users[userIndex].plan = {
-        type: plan.id,
-        startDate: new Date().toISOString(),
-        endDate: new Date(Date.now() + plan.duration * 24 * 60 * 60 * 1000).toISOString()
-    };
+    // Encontrar e atualizar usuário
+    const userIndex = users.findIndex(u => u.id === currentUser.id);
+    if (userIndex === -1) return false;
 
-    localStorage.setItem(AUTH_KEY, JSON.stringify(users));
-    return users[userIndex];
+    // Calcular data de término
+    const now = new Date();
+    const endDate = new Date(now);
+    endDate.setDate(endDate.getDate() + duration);
+
+    // Atualizar plano
+    users[userIndex].plan = planType;
+    users[userIndex].planEndDate = endDate.toISOString();
+
+    // Salvar alterações
+    localStorage.setItem(USERS_KEY, JSON.stringify(users));
+    localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(users[userIndex]));
+    localStorage.setItem(PLAN_KEY, JSON.stringify({
+        type: planType,
+        startDate: now.toISOString(),
+        endDate: endDate.toISOString()
+    }));
+
+    return true;
 }
 
 // Funções de verificação
-function isUserLoggedIn() {
+function isLoggedIn() {
     return !!getCurrentUser();
 }
 
 function isPlanActive() {
-    const user = getCurrentUser();
-    if (!user) return false;
+    const plan = JSON.parse(localStorage.getItem(PLAN_KEY));
+    if (!plan) return false;
 
     const now = new Date();
-    const planEndDate = new Date(user.plan.endDate);
-    return now <= planEndDate;
+    const endDate = new Date(plan.endDate);
+    return now < endDate;
 }
 
-function getPlanDetails() {
-    const user = getCurrentUser();
-    if (!user) return null;
+function getPlanInfo() {
+    const plan = JSON.parse(localStorage.getItem(PLAN_KEY));
+    if (!plan) return null;
+
+    const now = new Date();
+    const endDate = new Date(plan.endDate);
+    const daysLeft = Math.ceil((endDate - now) / (1000 * 60 * 60 * 24));
 
     return {
-        ...PLANS[user.plan.type.toUpperCase()],
-        startDate: user.plan.startDate,
-        endDate: user.plan.endDate
+        type: plan.type,
+        daysLeft: daysLeft,
+        isActive: daysLeft > 0
     };
-} 
+}
+
+function hasPremiumAccess() {
+    const planInfo = getPlanInfo();
+    return planInfo && planInfo.isActive && planInfo.type !== 'free';
+}
+
+// Exportar funções para uso em outros arquivos
+window.registerUser = registerUser;
+window.loginUser = loginUser;
+window.logoutUser = logoutUser;
+window.getCurrentUser = getCurrentUser;
+window.isLoggedIn = isLoggedIn;
+window.isPlanActive = isPlanActive;
+window.updateUserPlan = updateUserPlan;
+window.getPlanInfo = getPlanInfo;
+window.hasPremiumAccess = hasPremiumAccess; 
