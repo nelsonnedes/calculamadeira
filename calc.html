@@ -414,9 +414,11 @@
             <p>Calcule o volume e custo da madeira</p>
         </header>
 
-        <div class="menu-toggle">
+        <button class="menu-toggle">
             <i class="fas fa-bars"></i>
-        </div>
+        </button>
+
+        <div class="menu-overlay"></div>
 
         <div class="menu">
             <div class="menu-header">
@@ -442,7 +444,7 @@
                     <i class="fas fa-crown"></i>
                     Planos
                 </a>
-                <a href="#" class="menu-item" id="logoutBtn">
+                <a href="#" class="menu-item logout">
                     <i class="fas fa-sign-out-alt"></i>
                     Sair
                 </a>
@@ -472,20 +474,20 @@
             </div>
 
             <div class="action-buttons">
-                <button id="addItem" class="btn-primary">
+                <button id="addItem" class="action-button">
                     <i class="fas fa-plus"></i> Adicionar Item
                 </button>
-                <button id="shareList" class="btn-secondary">
-                    <i class="fas fa-share-alt"></i> Compartilhar Lista
+                <button id="shareList" class="action-button">
+                    <i class="fas fa-share-alt"></i> Compartilhar
                 </button>
-                <button id="saveBudget" class="btn-success">
-                    <i class="fas fa-save"></i> Salvar Orçamento
+                <button id="saveBudget" class="action-button">
+                    <i class="fas fa-save"></i> Salvar
                 </button>
-                <button id="loadBudget" class="btn-info">
-                    <i class="fas fa-folder-open"></i> Carregar Orçamento
+                <button id="loadBudget" class="action-button">
+                    <i class="fas fa-folder-open"></i> Carregar
                 </button>
-                <button id="clearList" class="btn-danger">
-                    <i class="fas fa-trash"></i> Limpar Lista
+                <button id="clearList" class="action-button">
+                    <i class="fas fa-trash"></i> Limpar
                 </button>
             </div>
         </div>
@@ -519,6 +521,7 @@
         // Elementos do DOM
         const menuToggle = document.querySelector('.menu-toggle');
         const menu = document.querySelector('.menu');
+        const menuOverlay = document.querySelector('.menu-overlay');
         const closeMenu = document.querySelector('.close-menu');
         const addItemBtn = document.getElementById('addItem');
         const itemList = document.getElementById('itemList');
@@ -527,16 +530,23 @@
         const saveBudgetBtn = document.getElementById('saveBudget');
         const loadBudgetBtn = document.getElementById('loadBudget');
         const clearListBtn = document.getElementById('clearList');
-        const logoutBtn = document.getElementById('logoutBtn');
+        const logoutBtn = document.querySelector('.menu-item.logout');
 
         // Toggle menu
         menuToggle.addEventListener('click', () => {
             menu.classList.add('active');
+            menuOverlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
         });
 
-        closeMenu.addEventListener('click', () => {
+        function closeMenuHandler() {
             menu.classList.remove('active');
-        });
+            menuOverlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        closeMenu.addEventListener('click', closeMenuHandler);
+        menuOverlay.addEventListener('click', closeMenuHandler);
 
         // Função para formatar número como moeda
         function formatCurrency(value) {
@@ -575,13 +585,14 @@
                 <div>${espessura.toFixed(1)} mm</div>
                 <div>${quantidade}</div>
                 <div>${formatCurrency(valor)}</div>
-                <button class="delete-item" onclick="this.parentElement.remove(); calculateTotal();">
+                <button class="delete-btn" onclick="this.parentElement.remove(); calculateTotal();">
                     <i class="fas fa-trash"></i>
                 </button>
             `;
 
             itemList.appendChild(item);
             calculateTotal();
+            showFeedback('Item adicionado com sucesso');
 
             // Limpar campos
             document.getElementById('comprimento').value = '';
