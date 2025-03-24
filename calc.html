@@ -464,6 +464,10 @@
                 <i class="fas fa-user"></i>
                 <span>Meu Perfil</span>
             </a>
+            <a href="orcamentos.html" class="menu-item">
+                <i class="fas fa-file-invoice"></i>
+                <span>Meus Orçamentos</span>
+            </a>
             <a href="configuracoes.html" class="menu-item">
                 <i class="fas fa-cog"></i>
                 <span>Configurações</span>
@@ -554,12 +558,33 @@
     </div>
 
     <div class="action-buttons">
-        <button class="action-button">+</button>
+        <button class="action-button" onclick="saveBudget()">💾</button>
         <button class="action-button">⎘</button>
         <button class="action-button">☐</button>
     </div>
 
+    <script src="auth.js"></script>
     <script>
+        // Verificar autenticação e plano ativo
+        if (!isUserLoggedIn()) {
+            window.location.href = 'index.html';
+        } else if (!isPlanActive()) {
+            window.location.href = 'planos.html';
+        }
+
+        // Adicionar botão de logout no menu
+        document.querySelector('.menu').insertAdjacentHTML('beforeend', `
+            <a href="#" onclick="logout()" class="menu-item">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Sair</span>
+            </a>
+        `);
+
+        function logout() {
+            logoutUser();
+            window.location.href = 'index.html';
+        }
+
         // Registrar o Service Worker
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
@@ -807,6 +832,8 @@
                     showFeedback('Dados limpos com sucesso!');
                 }
             });
+
+            loadBudget();
         });
 
         // Carregar informações do usuário
@@ -1146,14 +1173,6 @@
             }
         });
 
-        // Logout functionality
-        document.querySelector('.menu-item.logout').addEventListener('click', () => {
-            if (confirm('Tem certeza que deseja sair?')) {
-                // Aqui você pode adicionar a lógica de logout
-                window.location.href = 'index.html';
-            }
-        });
-
         // Função para excluir item (touch-friendly)
         function deleteItem(element) {
             if (confirm('Tem certeza que deseja remover este item?')) {
@@ -1162,6 +1181,72 @@
                 calcularTotal();
                 showFeedback('Item removido com sucesso!');
             }
+        }
+
+        // Função para salvar orçamento
+        function saveBudget() {
+            const user = getCurrentUser();
+            if (!user) return;
+
+            const items = Array.from(document.querySelectorAll('.list-item')).map(item => ({
+                size: item.children[0].textContent,
+                quantity: item.children[1].textContent,
+                volume: item.children[2].textContent,
+                price: item.children[3].textContent
+            }));
+
+            if (items.length === 0) {
+                showFeedback('Não há itens para salvar.', 'error');
+                return;
+            }
+
+            const totalRow = document.querySelector('.total-row');
+            const total = totalRow ? totalRow.children[3].textContent : 'R$ 0,00';
+
+            const budget = {
+                id: Date.now().toString(),
+                date: new Date().toISOString(),
+                items: items,
+                total: total
+            };
+
+            // Carregar orçamentos existentes
+            const budgets = JSON.parse(localStorage.getItem(`budgets_${user.id}`) || '[]');
+            budgets.push(budget);
+            localStorage.setItem(`budgets_${user.id}`, JSON.stringify(budgets));
+
+            showFeedback('Orçamento salvo com sucesso!');
+        }
+
+        // Função para carregar orçamento
+        function loadBudget() {
+            const budget = JSON.parse(localStorage.getItem('currentBudget'));
+            if (!budget) return;
+
+            // Limpar lista atual
+            document.getElementById('itemsList').innerHTML = '';
+
+            // Adicionar itens do orçamento
+            budget.items.forEach(item => {
+                const listItem = document.createElement('div');
+                listItem.className = 'list-item';
+                listItem.innerHTML = `
+                    <div>${item.size}</div>
+                    <div>${item.quantity}</div>
+                    <div>${item.volume}</div>
+                    <div>${item.price}</div>
+                    <button class="delete-btn" onclick="deleteItem(this)" aria-label="Excluir item">×</button>
+                `;
+                document.getElementById('itemsList').appendChild(listItem);
+            });
+
+            // Calcular total
+            calcularTotal();
+
+            // Limpar orçamento atual do localStorage
+            localStorage.removeItem('currentBudget');
+
+            showFeedback('Orçamento carregado com sucesso!');
         }
     </script>
 </body>

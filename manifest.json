@@ -1,11 +1,11 @@
 {
     "name": "Calculadora de Madeira",
-    "short_name": "CalcMadeira",
-    "description": "Calculadora para volume e custo de madeira serrada",
-    "start_url": "/calculamadeira/",
+    "short_name": "Calc Madeira",
+    "description": "Calculadora de volume e custo de madeira serrada",
+    "start_url": "/calculamadeira/index.html",
     "display": "standalone",
     "background_color": "#ffffff",
-    "theme_color": "#8B0000",
+    "theme_color": "#4CAF50",
     "icons": [
         {
             "src": "/calculamadeira/icons/icon-72x72.png",
@@ -35,7 +35,8 @@
         {
             "src": "/calculamadeira/icons/icon-192x192.png",
             "sizes": "192x192",
-            "type": "image/png"
+            "type": "image/png",
+            "purpose": "any maskable"
         },
         {
             "src": "/calculamadeira/icons/icon-384x384.png",

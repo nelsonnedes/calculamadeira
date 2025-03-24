@@ -362,7 +362,34 @@
         <button class="edit-btn">Editar Perfil</button>
     </div>
 
+    <script src="auth.js"></script>
     <script>
+        // Verificar autenticação e plano ativo
+        if (!isUserLoggedIn()) {
+            window.location.href = 'index.html';
+        } else if (!isPlanActive()) {
+            window.location.href = 'planos.html';
+        }
+
+        // Adicionar botão de logout no menu
+        document.querySelector('.menu').insertAdjacentHTML('beforeend', `
+            <a href="#" onclick="logout()" class="menu-item">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Sair</span>
+            </a>
+        `);
+
+        function logout() {
+            logoutUser();
+            window.location.href = 'index.html';
+        }
+
+        // Atualizar nome do usuário no cabeçalho
+        const user = getCurrentUser();
+        if (user) {
+            document.querySelector('.user-name').textContent = user.name;
+        }
+
         // Função para carregar dados do perfil
         function loadProfileData() {
             const profileData = JSON.parse(localStorage.getItem('profileData') || '{}');

@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planos - Calculadora de Madeira</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4CAF50;
+            --secondary-color: #45a049;
+            --text-color: #333;
+            --light-gray: #f5f5f5;
+            --border-color: #ddd;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--light-gray);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background-color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .plans-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            padding: 20px;
+        }
+
+        .plan-card {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .plan-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .plan-card.popular {
+            border: 2px solid var(--primary-color);
+            position: relative;
+        }
+
+        .popular-badge {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--primary-color);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+        }
+
+        .plan-name {
+            font-size: 1.5em;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+
+        .plan-price {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .plan-price span {
+            font-size: 0.4em;
+            color: #666;
+        }
+
+        .plan-features {
+            list-style: none;
+            margin-bottom: 30px;
+        }
+
+        .plan-features li {
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .plan-features i {
+            color: var(--primary-color);
+        }
+
+        .btn-select {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            width: 100%;
+        }
+
+        .btn-select:hover {
+            background: var(--secondary-color);
+        }
+
+        .btn-select.disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .plan-duration {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .plans-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Escolha seu Plano</h1>
+        <p>Selecione o plano que melhor se adequa às suas necessidades</p>
+    </div>
+
+    <div class="container">
+        <div class="plans-container">
+            <div class="plan-card">
+                <div class="plan-name">Plano Gratuito</div>
+                <div class="plan-price">R$ 0</div>
+                <div class="plan-duration">30 dias de teste</div>
+                <ul class="plan-features">
+                    <li><i class="fas fa-check"></i> Cálculos básicos</li>
+                    <li><i class="fas fa-check"></i> Relatórios simples</li>
+                    <li><i class="fas fa-check"></i> Suporte por email</li>
+                </ul>
+                <button class="btn-select" onclick="selectPlan('free')">Começar Grátis</button>
+            </div>
+
+            <div class="plan-card popular">
+                <div class="popular-badge">Mais Popular</div>
+                <div class="plan-name">Plano Mensal</div>
+                <div class="plan-price">R$ 10<span>/mês</span></div>
+                <div class="plan-duration">Renovação mensal</div>
+                <ul class="plan-features">
+                    <li><i class="fas fa-check"></i> Cálculos avançados</li>
+                    <li><i class="fas fa-check"></i> Relatórios detalhados</li>
+                    <li><i class="fas fa-check"></i> Suporte prioritário</li>
+                    <li><i class="fas fa-check"></i> Backup automático</li>
+                </ul>
+                <button class="btn-select" onclick="selectPlan('monthly')">Assinar Mensal</button>
+            </div>
+
+            <div class="plan-card">
+                <div class="plan-name">Plano Anual</div>
+                <div class="plan-price">R$ 120<span>/ano</span></div>
+                <div class="plan-duration">Economize 50%</div>
+                <ul class="plan-features">
+                    <li><i class="fas fa-check"></i> Cálculos avançados</li>
+                    <li><i class="fas fa-check"></i> Relatórios detalhados</li>
+                    <li><i class="fas fa-check"></i> Suporte prioritário</li>
+                    <li><i class="fas fa-check"></i> Backup automático</li>
+                    <li><i class="fas fa-check"></i> Desconto de 50%</li>
+                </ul>
+                <button class="btn-select" onclick="selectPlan('yearly')">Assinar Anual</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="auth.js"></script>
+    <script>
+        // Verificar se o usuário está logado
+        if (!isUserLoggedIn()) {
+            window.location.href = 'index.html';
+        }
+
+        // Verificar se o plano está ativo
+        if (isPlanActive()) {
+            window.location.href = 'calc.html';
+        }
+
+        function selectPlan(planType) {
+            try {
+                const user = getCurrentUser();
+                if (!user) {
+                    window.location.href = 'index.html';
+                    return;
+                }
+
+                updateUserPlan(user.id, planType);
+                window.location.href = 'calc.html';
+            } catch (error) {
+                alert(error.message);
+            }
+        }
+    </script>
+</body>
+</html> 

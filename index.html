@@ -10,186 +10,209 @@
     <meta name="apple-mobile-web-app-title" content="CalcMadeira">
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icons/icon-192x192.png">
-    <title>Calculadora de Madeira</title>
+    <title>Calculadora de Madeira - Login</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
+        :root {
+            --primary-color: #4CAF50;
+            --secondary-color: #45a049;
+            --text-color: #333;
+            --light-gray: #f5f5f5;
+            --border-color: #ddd;
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         body {
-            background-color: #f5f5f5;
+            background-color: var(--light-gray);
+            color: var(--text-color);
+            line-height: 1.6;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
         }
 
         .header {
-            background-color: #8B0000;
-            color: white;
+            background-color: white;
             padding: 20px;
             text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
 
         .header h1 {
-            font-size: 1.8rem;
+            color: var(--primary-color);
             margin-bottom: 10px;
         }
 
         .header p {
-            font-size: 1.1rem;
-            opacity: 0.9;
-        }
-
-        .main-content {
-            flex: 1;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            text-align: center;
-        }
-
-        .start-button {
-            background-color: #8B0000;
-            color: white;
-            padding: 15px 30px;
-            border: none;
-            border-radius: 8px;
-            font-size: 1.2rem;
-            cursor: pointer;
-            margin: 20px 0;
-            transition: background-color 0.3s;
-        }
-
-        .start-button:hover {
-            background-color: #A00000;
-        }
-
-        .features {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-top: 40px;
-        }
-
-        .feature-card {
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .feature-card i {
-            font-size: 2rem;
-            color: #8B0000;
-            margin-bottom: 10px;
-        }
-
-        .feature-card h3 {
-            margin-bottom: 10px;
-            color: #333;
-        }
-
-        .feature-card p {
             color: #666;
-            line-height: 1.5;
+            max-width: 600px;
+            margin: 0 auto;
         }
 
-        .footer {
-            background-color: #333;
-            color: white;
+        .container {
+            max-width: 400px;
+            margin: 40px auto;
             padding: 20px;
-            text-align: center;
-            margin-top: auto;
+            flex-grow: 1;
         }
 
-        .footer p {
-            margin-bottom: 10px;
+        .auth-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
         }
 
-        .social-links {
-            margin-top: 15px;
+        .form-group {
+            margin-bottom: 20px;
         }
 
-        .social-links a {
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #666;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            font-size: 1em;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .btn {
+            background: var(--primary-color);
             color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            font-size: 1em;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn:hover {
+            background: var(--secondary-color);
+        }
+
+        .toggle-form {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .toggle-form a {
+            color: var(--primary-color);
             text-decoration: none;
-            margin: 0 10px;
-            font-size: 1.2rem;
         }
 
-        .social-links a:hover {
-            color: #8B0000;
+        .toggle-form a:hover {
+            text-decoration: underline;
         }
 
-        @media (max-width: 600px) {
-            .header h1 {
-                font-size: 1.5rem;
-            }
-            
-            .header p {
-                font-size: 1rem;
-            }
-            
-            .features {
-                grid-template-columns: 1fr;
-            }
+        .error-message {
+            color: #dc3545;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .success-message {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .logo {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 20px;
+            display: block;
         }
     </style>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <header class="header">
+    <div class="header">
+        <img src="logo.png" alt="Logo" class="logo">
         <h1>Calculadora de Madeira</h1>
-        <p>Calcule volume e custo de madeira serrada de forma rápida e precisa</p>
-    </header>
+        <p>Faça login ou crie uma conta para começar</p>
+    </div>
 
-    <main class="main-content">
-        <a href="calc.html" class="start-button">Iniciar Calculadora</a>
+    <div class="container">
+        <div class="auth-container">
+            <div id="loginForm">
+                <h2 style="margin-bottom: 20px; text-align: center;">Login</h2>
+                <div class="error-message" id="loginError"></div>
+                <div class="form-group">
+                    <label for="loginEmail">Email</label>
+                    <input type="email" id="loginEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Senha</label>
+                    <input type="password" id="loginPassword" required>
+                </div>
+                <button class="btn" onclick="login()">Entrar</button>
+                <div class="toggle-form">
+                    <a href="#" onclick="toggleForms()">Não tem uma conta? Registre-se</a>
+                </div>
+            </div>
 
-        <div class="features">
-            <div class="feature-card">
-                <i class="fas fa-mobile-alt"></i>
-                <h3>Instalável</h3>
-                <p>Instale o aplicativo na tela inicial do seu celular para acesso rápido</p>
-            </div>
-            <div class="feature-card">
-                <i class="fas fa-wifi-slash"></i>
-                <h3>Funciona Offline</h3>
-                <p>Use a calculadora mesmo sem internet</p>
-            </div>
-            <div class="feature-card">
-                <i class="fas fa-calculator"></i>
-                <h3>Precisão</h3>
-                <p>Cálculos precisos de volume e custo em metros cúbicos</p>
+            <div id="registerForm" style="display: none;">
+                <h2 style="margin-bottom: 20px; text-align: center;">Registro</h2>
+                <div class="error-message" id="registerError"></div>
+                <div class="form-group">
+                    <label for="registerName">Nome</label>
+                    <input type="text" id="registerName" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerEmail">Email</label>
+                    <input type="email" id="registerEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerPassword">Senha</label>
+                    <input type="password" id="registerPassword" required>
+                </div>
+                <div class="form-group">
+                    <label for="confirmPassword">Confirmar Senha</label>
+                    <input type="password" id="confirmPassword" required>
+                </div>
+                <button class="btn" onclick="register()">Registrar</button>
+                <div class="toggle-form">
+                    <a href="#" onclick="toggleForms()">Já tem uma conta? Faça login</a>
+                </div>
             </div>
         </div>
-    </main>
+    </div>
 
-    <footer class="footer">
-        <p>Desenvolvido com ❤️ para profissionais da madeira</p>
-        <div class="social-links">
-            <a href="#" target="_blank"><i class="fab fa-facebook"></i></a>
-            <a href="#" target="_blank"><i class="fab fa-instagram"></i></a>
-            <a href="#" target="_blank"><i class="fab fa-whatsapp"></i></a>
-        </div>
-    </footer>
-
+    <script src="auth.js"></script>
+    <script src="version.js"></script>
     <script>
         // Registrar o Service Worker
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/calculamadeira/service-worker.js', {
-                    scope: '/calculamadeira/'
-                })
-                .then(registration => {
-                    console.log('ServiceWorker registrado com sucesso:', registration.scope);
-                })
-                .catch(error => {
-                    console.log('Falha ao registrar o ServiceWorker:', error);
-                });
+                navigator.serviceWorker.register('/calculamadeira/service-worker.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registrado com sucesso:', registration.scope);
+                        
+                        // Verificar atualizações periodicamente
+                        setInterval(() => {
+                            registration.update();
+                        }, 1000 * 60 * 60); // Verificar a cada hora
+                    })
+                    .catch(error => {
+                        console.log('Falha ao registrar o ServiceWorker:', error);
+                    });
             });
         }
 
@@ -209,6 +232,78 @@
                 console.log('Usuário aceitou a instalação do app');
             }
             deferredPrompt = null;
+        }
+
+        // Verificar se o usuário já está logado
+        if (isUserLoggedIn()) {
+            const user = getCurrentUser();
+            if (isPlanActive()) {
+                window.location.href = 'calc.html';
+            } else {
+                window.location.href = 'planos.html';
+            }
+        }
+
+        function toggleForms() {
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+            const loginError = document.getElementById('loginError');
+            const registerError = document.getElementById('registerError');
+
+            loginForm.style.display = loginForm.style.display === 'none' ? 'block' : 'none';
+            registerForm.style.display = registerForm.style.display === 'none' ? 'block' : 'none';
+            loginError.style.display = 'none';
+            registerError.style.display = 'none';
+        }
+
+        function showError(form, message) {
+            const errorElement = document.getElementById(form + 'Error');
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+        }
+
+        function login() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            try {
+                const user = loginUser(email, password);
+                user.isLoggedIn = true;
+                const users = JSON.parse(localStorage.getItem(AUTH_KEY) || '[]');
+                const updatedUsers = users.map(u => u.id === user.id ? user : u);
+                localStorage.setItem(AUTH_KEY, JSON.stringify(updatedUsers));
+
+                if (isPlanActive()) {
+                    window.location.href = 'calc.html';
+                } else {
+                    window.location.href = 'planos.html';
+                }
+            } catch (error) {
+                showError('login', error.message);
+            }
+        }
+
+        function register() {
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (password !== confirmPassword) {
+                showError('register', 'As senhas não coincidem');
+                return;
+            }
+
+            try {
+                const user = registerUser(email, password, name);
+                user.isLoggedIn = true;
+                const users = JSON.parse(localStorage.getItem(AUTH_KEY) || '[]');
+                const updatedUsers = users.map(u => u.id === user.id ? user : u);
+                localStorage.setItem(AUTH_KEY, JSON.stringify(updatedUsers));
+                window.location.href = 'calc.html';
+            } catch (error) {
+                showError('register', error.message);
+            }
         }
     </script>
 </body>

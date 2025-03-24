@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orçamentos - Calculadora de Madeira</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4CAF50;
+            --secondary-color: #45a049;
+            --text-color: #333;
+            --light-gray: #f5f5f5;
+            --border-color: #ddd;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--light-gray);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .header {
+            background-color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .budget-list {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .budget-item {
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .budget-item:last-child {
+            border-bottom: none;
+        }
+
+        .budget-item:hover {
+            background-color: var(--light-gray);
+        }
+
+        .budget-info {
+            flex: 1;
+        }
+
+        .budget-date {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .budget-details {
+            display: flex;
+            gap: 20px;
+            font-size: 0.9em;
+        }
+
+        .budget-total {
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .budget-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            padding: 5px;
+            transition: color 0.2s;
+        }
+
+        .action-btn:hover {
+            color: var(--primary-color);
+        }
+
+        .delete-btn:hover {
+            color: #dc3545;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+            gap: 10px;
+        }
+
+        .page-btn {
+            background: white;
+            border: 1px solid var(--border-color);
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .page-btn:hover {
+            background: var(--light-gray);
+        }
+
+        .page-btn.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .page-btn:disabled {
+            background: #f5f5f5;
+            color: #999;
+            cursor: not-allowed;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+        }
+
+        .empty-state i {
+            font-size: 3em;
+            color: #ddd;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 600px) {
+            .budget-details {
+                flex-direction: column;
+                gap: 5px;
+            }
+
+            .budget-actions {
+                flex-direction: column;
+            }
+
+            .page-btn {
+                padding: 6px 12px;
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Meus Orçamentos</h1>
+    </div>
+
+    <div class="container">
+        <div class="budget-list" id="budgetList">
+            <!-- Orçamentos serão inseridos aqui via JavaScript -->
+        </div>
+
+        <div class="pagination" id="pagination">
+            <!-- Paginação será inserida aqui via JavaScript -->
+        </div>
+    </div>
+
+    <script src="auth.js"></script>
+    <script>
+        // Verificar autenticação e plano ativo
+        if (!isUserLoggedIn()) {
+            window.location.href = 'index.html';
+        } else if (!isPlanActive()) {
+            window.location.href = 'planos.html';
+        }
+
+        // Configurações de paginação
+        const ITEMS_PER_PAGE = 10;
+        let currentPage = 1;
+        let budgets = [];
+
+        // Carregar orçamentos do localStorage
+        function loadBudgets() {
+            const user = getCurrentUser();
+            if (!user) return;
+
+            const allBudgets = JSON.parse(localStorage.getItem(`budgets_${user.id}`) || '[]');
+            budgets = allBudgets.sort((a, b) => new Date(b.date) - new Date(a.date));
+            displayBudgets();
+        }
+
+        // Exibir orçamentos na página atual
+        function displayBudgets() {
+            const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+            const endIndex = startIndex + ITEMS_PER_PAGE;
+            const pageBudgets = budgets.slice(startIndex, endIndex);
+            const totalPages = Math.ceil(budgets.length / ITEMS_PER_PAGE);
+
+            const budgetList = document.getElementById('budgetList');
+            budgetList.innerHTML = '';
+
+            if (pageBudgets.length === 0) {
+                budgetList.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-file-invoice"></i>
+                        <p>Nenhum orçamento encontrado</p>
+                    </div>
+                `;
+                return;
+            }
+
+            pageBudgets.forEach(budget => {
+                const date = new Date(budget.date).toLocaleDateString('pt-BR');
+                const time = new Date(budget.date).toLocaleTimeString('pt-BR');
+                
+                const budgetElement = document.createElement('div');
+                budgetElement.className = 'budget-item';
+                budgetElement.innerHTML = `
+                    <div class="budget-info">
+                        <div class="budget-date">${date} às ${time}</div>
+                        <div class="budget-details">
+                            <span>${budget.items.length} itens</span>
+                            <span class="budget-total">Total: ${budget.total}</span>
+                        </div>
+                    </div>
+                    <div class="budget-actions">
+                        <button class="action-btn" onclick="loadBudget('${budget.id}')">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="action-btn delete-btn" onclick="deleteBudget('${budget.id}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                budgetList.appendChild(budgetElement);
+            });
+
+            updatePagination(totalPages);
+        }
+
+        // Atualizar controles de paginação
+        function updatePagination(totalPages) {
+            const pagination = document.getElementById('pagination');
+            pagination.innerHTML = '';
+
+            // Botão anterior
+            const prevBtn = document.createElement('button');
+            prevBtn.className = 'page-btn';
+            prevBtn.textContent = 'Anterior';
+            prevBtn.disabled = currentPage === 1;
+            prevBtn.onclick = () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    displayBudgets();
+                }
+            };
+            pagination.appendChild(prevBtn);
+
+            // Números das páginas
+            for (let i = 1; i <= totalPages; i++) {
+                const pageBtn = document.createElement('button');
+                pageBtn.className = `page-btn ${i === currentPage ? 'active' : ''}`;
+                pageBtn.textContent = i;
+                pageBtn.onclick = () => {
+                    currentPage = i;
+                    displayBudgets();
+                };
+                pagination.appendChild(pageBtn);
+            }
+
+            // Botão próximo
+            const nextBtn = document.createElement('button');
+            nextBtn.className = 'page-btn';
+            nextBtn.textContent = 'Próximo';
+            nextBtn.disabled = currentPage === totalPages;
+            nextBtn.onclick = () => {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    displayBudgets();
+                }
+            };
+            pagination.appendChild(nextBtn);
+        }
+
+        // Carregar orçamento na calculadora
+        function loadBudget(budgetId) {
+            const user = getCurrentUser();
+            if (!user) return;
+
+            const budgets = JSON.parse(localStorage.getItem(`budgets_${user.id}`) || '[]');
+            const budget = budgets.find(b => b.id === budgetId);
+            
+            if (budget) {
+                // Salvar orçamento atual no localStorage
+                localStorage.setItem('currentBudget', JSON.stringify(budget));
+                window.location.href = 'calc.html';
+            }
+        }
+
+        // Excluir orçamento
+        function deleteBudget(budgetId) {
+            if (!confirm('Tem certeza que deseja excluir este orçamento?')) return;
+
+            const user = getCurrentUser();
+            if (!user) return;
+
+            const budgets = JSON.parse(localStorage.getItem(`budgets_${user.id}`) || '[]');
+            const updatedBudgets = budgets.filter(b => b.id !== budgetId);
+            localStorage.setItem(`budgets_${user.id}`, JSON.stringify(updatedBudgets));
+            
+            loadBudgets();
+        }
+
+        // Carregar orçamentos ao iniciar a página
+        document.addEventListener('DOMContentLoaded', loadBudgets);
+    </script>
+</body>
+</html> 
