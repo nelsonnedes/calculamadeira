@@ -363,182 +363,7 @@
     </div>
 
     <script>
-        // Dados do usuário (simulando um banco de dados)
-        let userData = {
-            name: 'Usuário Padrão',
-            email: 'usuario@email.com',
-            phone: '(00) 00000-0000',
-            company: 'Empresa Exemplo',
-            joinDate: '01/01/2024',
-            totalCalculations: 0,
-            totalVolume: 0,
-            totalCost: 0
-        };
-
-        // Elementos do DOM
-        const profileForm = document.getElementById('profileForm');
-        const editButton = document.getElementById('editButton');
-        const saveButton = document.getElementById('saveButton');
-        const cancelButton = document.getElementById('cancelButton');
-        const inputs = document.querySelectorAll('.profile-input');
-
-        // Função para carregar dados do usuário
-        function loadUserData() {
-            // Aqui você pode carregar os dados do localStorage ou de uma API
-            const savedData = localStorage.getItem('userData');
-            if (savedData) {
-                userData = JSON.parse(savedData);
-            }
-
-            // Preencher campos do formulário
-            document.getElementById('userName').value = userData.name;
-            document.getElementById('userEmail').value = userData.email;
-            document.getElementById('userPhone').value = userData.phone;
-            document.getElementById('userCompany').value = userData.company;
-
-            // Atualizar estatísticas
-            updateStats();
-        }
-
-        // Função para atualizar estatísticas
-        function updateStats() {
-            // Carregar estatísticas do localStorage
-            const stats = JSON.parse(localStorage.getItem('userStats') || '{"totalCalculations":0,"totalVolume":0,"totalCost":0,"savedLists":0}');
-            
-            // Atualizar os elementos na página
-            document.querySelector('.stats-grid').innerHTML = `
-                <div class="stat-item">
-                    <div class="stat-value">${stats.totalCalculations || 0}</div>
-                    <div class="stat-label">Cálculos Realizados</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value">${stats.savedLists || 0}</div>
-                    <div class="stat-label">Listas Salvas</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value">${(stats.totalVolume || 0).toFixed(3)}m³</div>
-                    <div class="stat-label">Volume Total</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value">R$ ${(stats.totalCost || 0).toFixed(2).replace('.', ',')}</div>
-                    <div class="stat-label">Valor Total</div>
-                </div>
-            `;
-        }
-
-        // Função para habilitar edição
-        function enableEdit() {
-            inputs.forEach(input => input.disabled = false);
-            editButton.style.display = 'none';
-            saveButton.style.display = 'block';
-            cancelButton.style.display = 'block';
-        }
-
-        // Função para salvar alterações
-        function saveChanges() {
-            // Validar campos
-            const name = document.getElementById('userName').value.trim();
-            const email = document.getElementById('userEmail').value.trim();
-            const phone = document.getElementById('userPhone').value.trim();
-            const company = document.getElementById('userCompany').value.trim();
-
-            if (!name || !email || !phone || !company) {
-                alert('Por favor, preencha todos os campos obrigatórios.');
-                return;
-            }
-
-            // Validar email
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(email)) {
-                alert('Por favor, insira um email válido.');
-                return;
-            }
-
-            // Atualizar dados do usuário
-            userData.name = name;
-            userData.email = email;
-            userData.phone = phone;
-            userData.company = company;
-
-            // Salvar no localStorage
-            localStorage.setItem('userData', JSON.stringify(userData));
-
-            // Desabilitar edição
-            inputs.forEach(input => input.disabled = true);
-            editButton.style.display = 'block';
-            saveButton.style.display = 'none';
-            cancelButton.style.display = 'none';
-
-            // Atualizar informações no menu
-            updateMenuInfo();
-
-            alert('Perfil atualizado com sucesso!');
-        }
-
-        // Função para cancelar edição
-        function cancelEdit() {
-            // Restaurar valores originais
-            document.getElementById('userName').value = userData.name;
-            document.getElementById('userEmail').value = userData.email;
-            document.getElementById('userPhone').value = userData.phone;
-            document.getElementById('userCompany').value = userData.company;
-
-            // Desabilitar edição
-            inputs.forEach(input => input.disabled = true);
-            editButton.style.display = 'block';
-            saveButton.style.display = 'none';
-            cancelButton.style.display = 'none';
-        }
-
-        // Função para atualizar informações no menu
-        function updateMenuInfo() {
-            // Atualizar informações no menu da página principal
-            const menuInfo = {
-                name: userData.name,
-                email: userData.email
-            };
-            localStorage.setItem('menuInfo', JSON.stringify(menuInfo));
-        }
-
-        // Event Listeners
-        editButton.addEventListener('click', enableEdit);
-        saveButton.addEventListener('click', saveChanges);
-        cancelButton.addEventListener('click', cancelEdit);
-
-        // Carregar dados ao iniciar a página
-        loadUserData();
-
-        // Menu functionality
-        const menuBtn = document.getElementById('menuBtn');
-        const menuPanel = document.getElementById('menuPanel');
-        const overlay = document.getElementById('overlay');
-
-        function toggleMenu() {
-            menuPanel.classList.toggle('active');
-            overlay.classList.toggle('active');
-            document.body.style.overflow = menuPanel.classList.contains('active') ? 'hidden' : '';
-        }
-
-        menuBtn.addEventListener('click', toggleMenu);
-        overlay.addEventListener('click', toggleMenu);
-
-        // Fechar menu ao clicar em um link
-        document.querySelectorAll('.menu-item').forEach(item => {
-            if (item.tagName === 'A') {
-                item.addEventListener('click', () => {
-                    toggleMenu();
-                });
-            }
-        });
-
-        // Logout functionality
-        document.querySelector('.menu-item.logout').addEventListener('click', () => {
-            if (confirm('Tem certeza que deseja sair?')) {
-                window.location.href = 'index.html';
-            }
-        });
-
-        // Carregar dados do perfil
+        // Função para carregar dados do perfil
         function loadProfileData() {
             const profileData = JSON.parse(localStorage.getItem('profileData') || '{}');
             
@@ -568,6 +393,32 @@
 
             // Atualizar estatísticas
             updateStats();
+        }
+
+        // Função para atualizar estatísticas
+        function updateStats() {
+            // Carregar estatísticas do localStorage
+            const stats = JSON.parse(localStorage.getItem('userStats') || '{"totalCalculations":0,"totalVolume":0,"totalCost":0,"savedLists":0}');
+            
+            // Atualizar os elementos na página
+            document.querySelector('.stats-grid').innerHTML = `
+                <div class="stat-item">
+                    <div class="stat-value">${stats.totalCalculations || 0}</div>
+                    <div class="stat-label">Cálculos Realizados</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${stats.savedLists || 0}</div>
+                    <div class="stat-label">Listas Salvas</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${(stats.totalVolume || 0).toFixed(3)}m³</div>
+                    <div class="stat-label">Volume Total</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">R$ ${(stats.totalCost || 0).toFixed(2).replace('.', ',')}</div>
+                    <div class="stat-label">Valor Total</div>
+                </div>
+            `;
         }
 
         // Função para mostrar feedback
@@ -614,60 +465,11 @@
                     avatar: profileData.avatar
                 }));
 
-                // Atualizar estatísticas
-                updateStats();
-
-                // Mostrar feedback de sucesso
                 showFeedback('Perfil atualizado com sucesso!');
             } catch (error) {
                 console.error('Erro ao salvar perfil:', error);
                 showFeedback('Erro ao salvar o perfil. Tente novamente.', 'error');
             }
-        }
-
-        // Função para processar a imagem do avatar
-        function processAvatarImage(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const img = new Image();
-                    img.onload = function() {
-                        const canvas = document.createElement('canvas');
-                        const ctx = canvas.getContext('2d');
-                        
-                        // Definir tamanho máximo
-                        const maxSize = 200;
-                        let width = img.width;
-                        let height = img.height;
-                        
-                        // Calcular proporções
-                        if (width > height) {
-                            if (width > maxSize) {
-                                height *= maxSize / width;
-                                width = maxSize;
-                            }
-                        } else {
-                            if (height > maxSize) {
-                                width *= maxSize / height;
-                                height = maxSize;
-                            }
-                        }
-                        
-                        canvas.width = width;
-                        canvas.height = height;
-                        
-                        // Desenhar imagem redimensionada
-                        ctx.drawImage(img, 0, 0, width, height);
-                        
-                        // Converter para base64
-                        resolve(canvas.toDataURL('image/jpeg', 0.8));
-                    };
-                    img.onerror = reject;
-                    img.src = e.target.result;
-                };
-                reader.onerror = reject;
-                reader.readAsDataURL(file);
-            });
         }
 
         // Event Listeners
@@ -688,9 +490,7 @@
             });
 
             // Botão Salvar
-            document.getElementById('saveProfile').addEventListener('click', function() {
-                saveProfileData();
-            });
+            document.getElementById('saveProfile').addEventListener('click', saveProfileData);
 
             // Botão Cancelar
             document.getElementById('cancelEdit').addEventListener('click', function() {
@@ -761,6 +561,51 @@
                 value = `${value.slice(0,5)}-${value.slice(5)}`;
             }
             input.value = value;
+        }
+
+        // Função para processar a imagem do avatar
+        function processAvatarImage(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        
+                        // Definir tamanho máximo
+                        const maxSize = 200;
+                        let width = img.width;
+                        let height = img.height;
+                        
+                        // Calcular proporções
+                        if (width > height) {
+                            if (width > maxSize) {
+                                height *= maxSize / width;
+                                width = maxSize;
+                            }
+                        } else {
+                            if (height > maxSize) {
+                                width *= maxSize / height;
+                                height = maxSize;
+                            }
+                        }
+                        
+                        canvas.width = width;
+                        canvas.height = height;
+                        
+                        // Desenhar imagem redimensionada
+                        ctx.drawImage(img, 0, 0, width, height);
+                        
+                        // Converter para base64
+                        resolve(canvas.toDataURL('image/jpeg', 0.8));
+                    };
+                    img.onerror = reject;
+                    img.src = e.target.result;
+                };
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
         }
     </script>
 </body>
