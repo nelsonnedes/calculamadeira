@@ -374,6 +374,77 @@
                 font-size: 0.9em;
             }
         }
+
+        /* Estilos para mobile */
+        @media (max-width: 600px) {
+            .input-group input,
+            .input-group select {
+                font-size: 16px; /* Evita zoom no iOS */
+                padding: 12px;
+                width: 100%;
+            }
+
+            .delete-btn {
+                width: 44px; /* Área de toque mínima recomendada */
+                height: 44px;
+                font-size: 24px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: #ff4444;
+                color: white;
+                border: none;
+                border-radius: 8px;
+                touch-action: manipulation;
+            }
+
+            .list-item {
+                padding: 15px 10px;
+                position: relative;
+            }
+
+            .total-row {
+                background-color: #f8f8f8;
+                font-weight: bold;
+                padding: 15px 10px;
+                margin-top: 10px;
+                border-top: 2px solid #ddd;
+            }
+
+            /* Melhorar visualização da tabela em mobile */
+            .list-header, .list-item, .total-row {
+                display: grid;
+                grid-template-columns: 2fr 1fr 1.5fr 1.5fr 44px;
+                gap: 10px;
+                align-items: center;
+            }
+        }
+
+        /* Feedback visual */
+        .feedback {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 24px;
+            border-radius: 8px;
+            background-color: #4CAF50;
+            color: white;
+            font-size: 16px;
+            z-index: 1000;
+            animation: fadeInOut 3s ease-in-out;
+        }
+
+        .feedback.error {
+            background-color: #f44336;
+        }
+
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translate(-50%, 20px); }
+            10% { opacity: 1; transform: translate(-50%, 0); }
+            90% { opacity: 1; transform: translate(-50%, 0); }
+            100% { opacity: 0; transform: translate(-50%, -20px); }
+        }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
@@ -440,9 +511,13 @@
             <span class="unit">Peças</span>
         </div>
         <div class="input-group">
-            <label>Preço</label>
-            <input type="text" id="price" placeholder="R$ 0,00" data-type="currency">
-            <span class="unit">R$/m³</span>
+            <label for="price">Preço por m³:</label>
+            <input type="text" 
+                   id="price" 
+                   inputmode="decimal" 
+                   pattern="[0-9]*" 
+                   class="currency-input" 
+                   placeholder="R$ 0,00">
         </div>
 
         <div class="results">
@@ -698,27 +773,15 @@
                     <div>${quantity}</div>
                     <div>${formatters.volume(volume)}</div>
                     <div>${formatters.currency.format(cost)}</div>
-                    <button class="delete-btn" aria-label="Excluir item">×</button>
+                    <button class="delete-btn" onclick="deleteItem(this)" aria-label="Excluir item">×</button>
                 `;
-
-                // Add delete button functionality
-                const deleteBtn = listItem.querySelector('.delete-btn');
-                deleteBtn.addEventListener('click', function(e) {
-                    e.stopPropagation(); // Prevenir propagação do evento
-                    if (confirm('Tem certeza que deseja remover este item?')) {
-                        listItem.remove();
-                        saveList();
-                        calcularTotal();
-                        showFeedback('Item removido com sucesso!');
-                    }
-                });
 
                 document.getElementById('itemsList').appendChild(listItem);
                 saveList();
                 calcularTotal();
                 showFeedback('Item adicionado com sucesso!');
 
-                // Clear inputs
+                // Limpar inputs
                 ['width', 'thickness', 'length', 'quantity'].forEach(id => {
                     document.getElementById(id).value = '';
                 });
@@ -762,34 +825,37 @@
         // Atualizar a função calcularTotal
         function calcularTotal() {
             const items = document.querySelectorAll('.list-item');
+            let totalPieces = 0;
             let totalVolume = 0;
             let totalCost = 0;
-            let totalPieces = 0;
 
             items.forEach(item => {
-                const volume = parseFloat(item.children[2].textContent);
-                const cost = parseFloat(item.children[3].textContent.replace('R$', '').replace('.', '').replace(',', '.'));
                 const pieces = parseInt(item.children[1].textContent);
+                const volume = parseFloat(item.children[2].textContent.replace(',', '.'));
+                const cost = parseFloat(item.children[3].textContent.replace('R$', '').replace('.', '').replace(',', '.'));
+
+                totalPieces += pieces;
                 totalVolume += volume;
                 totalCost += cost;
-                totalPieces += pieces;
             });
 
-            // Remover linha de total anterior se existir
+            // Remover total anterior se existir
             const oldTotal = document.querySelector('.total-row');
             if (oldTotal) oldTotal.remove();
 
-            // Criar nova linha de total
-            const totalRow = document.createElement('div');
-            totalRow.className = 'total-row';
-            totalRow.innerHTML = `
-                <div>TOTAL</div>
-                <div>${totalPieces}</div>
-                <div>${totalVolume.toFixed(3).replace('.', ',')}m³</div>
-                <div>${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalCost)}</div>
-                <div></div>
-            `;
-            document.getElementById('itemsList').appendChild(totalRow);
+            // Adicionar nova linha de total
+            if (items.length > 0) {
+                const totalRow = document.createElement('div');
+                totalRow.className = 'total-row';
+                totalRow.innerHTML = `
+                    <div>TOTAL</div>
+                    <div>${totalPieces}</div>
+                    <div>${formatters.volume(totalVolume)}</div>
+                    <div>${formatters.currency.format(totalCost)}</div>
+                    <div></div>
+                `;
+                document.getElementById('itemsList').appendChild(totalRow);
+            }
         }
 
         // Botões de ação
@@ -1062,6 +1128,16 @@
                 window.location.href = 'index.html';
             }
         });
+
+        // Função para excluir item (touch-friendly)
+        function deleteItem(element) {
+            if (confirm('Tem certeza que deseja remover este item?')) {
+                element.closest('.list-item').remove();
+                saveList();
+                calcularTotal();
+                showFeedback('Item removido com sucesso!');
+            }
+        }
     </script>
 </body>
 </html> 
