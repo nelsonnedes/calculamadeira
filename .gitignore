@@ -24,6 +24,8 @@ package-lock.json
 # Arquivos de build
 dist/
 build/
+*.min.js
+*.min.css
 
 # Arquivos de ambiente
 .env
@@ -37,4 +39,7 @@ yarn-error.log*
 
 # Cache
 .cache/
-.temp/ 
+.temp/
+
+# Outros
+yarn.lock 

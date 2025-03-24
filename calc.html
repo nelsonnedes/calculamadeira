@@ -380,9 +380,25 @@
 
         /* Estilos para mobile */
         @media (max-width: 600px) {
-            .input-group input,
-            .input-group select {
+            .input-group input[type="number"],
+            .input-group input[type="text"] {
                 font-size: 16px; /* Evita zoom no iOS */
+                padding: 12px;
+                width: 100%;
+                -webkit-appearance: none; /* Remove setas no iOS */
+                appearance: none;
+            }
+
+            /* Remove setas do input number */
+            .input-group input[type="number"]::-webkit-inner-spin-button,
+            .input-group input[type="number"]::-webkit-outer-spin-button {
+                -webkit-appearance: none;
+                margin: 0;
+            }
+
+            /* Ajuste para o input de preço */
+            .currency-input {
+                font-size: 16px;
                 padding: 12px;
                 width: 100%;
             }
@@ -495,30 +511,53 @@
     <div class="calculator">
         <div class="input-group">
             <label>Largura</label>
-            <input type="number" id="width" placeholder="cm">
+            <input type="number" 
+                   id="width" 
+                   placeholder="cm"
+                   inputmode="decimal"
+                   pattern="[0-9]*"
+                   step="0.1"
+                   min="0">
             <span class="unit">cm</span>
         </div>
         <div class="input-group">
             <label>Espessura</label>
-            <input type="number" id="thickness" placeholder="cm">
+            <input type="number" 
+                   id="thickness" 
+                   placeholder="cm"
+                   inputmode="decimal"
+                   pattern="[0-9]*"
+                   step="0.1"
+                   min="0">
             <span class="unit">cm</span>
         </div>
         <div class="input-group">
             <label>Comprimento</label>
-            <input type="number" id="length" placeholder="cm">
+            <input type="number" 
+                   id="length" 
+                   placeholder="cm"
+                   inputmode="decimal"
+                   pattern="[0-9]*"
+                   step="0.1"
+                   min="0">
             <span class="unit">cm</span>
         </div>
         <div class="input-group">
             <label>Quantidade</label>
-            <input type="number" id="quantity" placeholder="0">
+            <input type="number" 
+                   id="quantity" 
+                   placeholder="0"
+                   inputmode="numeric"
+                   pattern="[0-9]*"
+                   min="1">
             <span class="unit">Peças</span>
         </div>
         <div class="input-group">
             <label for="price">Preço por m³:</label>
             <input type="text" 
                    id="price" 
-                   inputmode="decimal" 
-                   pattern="[0-9]*" 
+                   inputmode="decimal"
+                   pattern="[0-9]*"
                    class="currency-input" 
                    placeholder="R$ 0,00">
         </div>
@@ -933,10 +972,11 @@
             ctx.fillStyle = 'white';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
-            // Carregar dados do perfil
-            const profileData = JSON.parse(localStorage.getItem('profileData') || '{}');
+            // Carregar dados do usuário
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            const companyLogo = localStorage.getItem('companyLogo');
             
-            // Carregar e desenhar o logo do perfil
+            // Carregar e desenhar o logo da empresa
             const logo = new Image();
             logo.onload = function() {
                 // Desenhar logo
@@ -945,14 +985,13 @@
                 
                 // Configurar fonte para o cabeçalho
                 ctx.font = 'bold 24px Arial';
-                ctx.fillStyle = 'white';
+                ctx.fillStyle = '#333';
                 
                 // Desenhar dados da empresa
-                ctx.fillText(profileData.company || 'Empresa', 120, 45);
+                ctx.fillText(user.company || 'Nome da Empresa', 120, 45);
                 ctx.font = '16px Arial';
-                ctx.fillStyle = 'rgba(255,255,255,0.9)';
-                ctx.fillText(profileData.phone || 'Telefone não informado', 120, 70);
-                ctx.fillText(profileData.address || 'Endereço não informado', 120, 90);
+                ctx.fillStyle = '#666';
+                ctx.fillText(user.phone || 'Telefone não informado', 120, 70);
                 
                 // Título do relatório
                 ctx.font = 'bold 28px Arial';
@@ -1082,9 +1121,9 @@
                 }
             };
             
-            // Carregar a logo do perfil
-            if (profileData.logo) {
-                logo.src = profileData.logo;
+            // Carregar a logo da empresa
+            if (companyLogo) {
+                logo.src = companyLogo;
             } else {
                 // Se não houver logo, continuar sem ela
                 logo.onload();
@@ -1188,18 +1227,16 @@
             let relatorio = `
                 <div class="relatorio">
                     <div class="relatorio-header">
-                        ${companyLogo ? `<img src="${companyLogo}" alt="Logo da Empresa" class="company-logo">` : ''}
-                        <h2>Relatório de Cálculo</h2>
-                    </div>
-                    <div class="relatorio-info">
-                        <p><strong>Data:</strong> ${new Date().toLocaleDateString()}</p>
-                        <p><strong>Cliente:</strong> ${user.name || 'Não informado'}</p>
-                        <p><strong>Empresa:</strong> ${user.company || 'Não informada'}</p>
-                        <p><strong>Telefone:</strong> ${user.phone || 'Não informado'}</p>
-                        <p><strong>E-mail:</strong> ${user.email || 'Não informado'}</p>
+                        <div class="header-left">
+                            ${companyLogo ? `<img src="${companyLogo}" alt="Logo da Empresa" class="company-logo">` : ''}
+                        </div>
+                        <div class="header-right">
+                            <h2>${user.company || 'Nome da Empresa'}</h2>
+                            <p>${user.phone || 'Telefone não informado'}</p>
+                        </div>
                     </div>
                     <div class="relatorio-items">
-                        <h3>Itens Calculados</h3>
+                        <h3>Relatório de Cálculo</h3>
                         <table>
                             <thead>
                                 <tr>
@@ -1245,27 +1282,49 @@
                 .relatorio-header {
                     display: flex;
                     align-items: center;
-                    margin-bottom: 20px;
+                    justify-content: space-between;
+                    margin-bottom: 30px;
                     padding-bottom: 20px;
                     border-bottom: 1px solid #eee;
+                }
+
+                .header-left {
+                    flex: 0 0 auto;
+                }
+
+                .header-right {
+                    flex: 1;
+                    text-align: right;
+                    padding-left: 20px;
+                }
+
+                .header-right h2 {
+                    color: #333;
+                    margin: 0 0 5px 0;
+                    font-size: 24px;
+                }
+
+                .header-right p {
+                    color: #666;
+                    margin: 0;
+                    font-size: 16px;
                 }
 
                 .company-logo {
                     max-width: 150px;
                     height: auto;
-                    margin-right: 20px;
-                }
-
-                .relatorio-info {
-                    margin-bottom: 20px;
-                }
-
-                .relatorio-info p {
-                    margin: 5px 0;
+                    display: block;
                 }
 
                 .relatorio-items {
                     margin-bottom: 20px;
+                }
+
+                .relatorio-items h3 {
+                    color: #333;
+                    margin-bottom: 20px;
+                    font-size: 20px;
+                    text-align: center;
                 }
 
                 .relatorio-items table {
@@ -1276,7 +1335,7 @@
 
                 .relatorio-items th,
                 .relatorio-items td {
-                    padding: 8px;
+                    padding: 12px;
                     text-align: left;
                     border-bottom: 1px solid #eee;
                 }
@@ -1284,6 +1343,11 @@
                 .relatorio-items th {
                     background-color: #f5f5f5;
                     font-weight: 500;
+                    color: #333;
+                }
+
+                .relatorio-items tr:hover {
+                    background-color: #f9f9f9;
                 }
 
                 .relatorio-total {
@@ -1291,10 +1355,24 @@
                     padding-top: 20px;
                     border-top: 1px solid #eee;
                     font-size: 1.1em;
+                    text-align: right;
                 }
 
                 .relatorio-total p {
                     margin: 5px 0;
+                    color: #333;
+                }
+
+                @media print {
+                    .relatorio {
+                        box-shadow: none;
+                        margin: 0;
+                        padding: 20px;
+                    }
+
+                    .relatorio-items tr:hover {
+                        background-color: transparent;
+                    }
                 }
             `;
             document.head.appendChild(style);
@@ -1319,6 +1397,39 @@
             printWindow.focus();
             printWindow.print();
         }
+
+        // Adicionar validação para campos numéricos
+        function validateNumericInput(input) {
+            // Remove caracteres não numéricos
+            input.value = input.value.replace(/[^0-9,.]/g, '');
+            
+            // Garante que não comece com vírgula ou ponto
+            if (input.value.startsWith(',') || input.value.startsWith('.')) {
+                input.value = input.value.substring(1);
+            }
+            
+            // Garante que não tenha mais de uma vírgula ou ponto
+            const decimalCount = (input.value.match(/[,.]/g) || []).length;
+            if (decimalCount > 1) {
+                input.value = input.value.replace(/[,.]/g, function(match, index, original) {
+                    return index === original.indexOf(match) ? match : '';
+                });
+            }
+        }
+
+        // Adicionar eventos de validação para os campos numéricos
+        document.querySelectorAll('.input-group input[type="number"]').forEach(input => {
+            input.addEventListener('input', function() {
+                validateNumericInput(this);
+            });
+            
+            // Prevenir entrada de caracteres não numéricos
+            input.addEventListener('keypress', function(e) {
+                if (!/[0-9,.]/.test(e.key)) {
+                    e.preventDefault();
+                }
+            });
+        });
     </script>
 </body>
 </html> 
