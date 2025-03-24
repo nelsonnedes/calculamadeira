@@ -154,6 +154,7 @@
             <div id="loginForm">
                 <h2 style="margin-bottom: 20px; text-align: center;">Login</h2>
                 <div class="error-message" id="loginError"></div>
+                <div class="success-message" id="loginSuccess"></div>
                 <div class="form-group">
                     <label for="loginEmail">Email</label>
                     <input type="email" id="loginEmail" required>
@@ -165,6 +166,36 @@
                 <button class="btn" onclick="login()">Entrar</button>
                 <div class="toggle-form">
                     <a href="#" onclick="toggleForms()">Não tem uma conta? Registre-se</a>
+                    <br>
+                    <a href="#" onclick="showResetPassword()" style="margin-top: 10px; display: inline-block;">Esqueci minha senha</a>
+                </div>
+            </div>
+
+            <div id="resetPasswordForm" style="display: none;">
+                <h2 style="margin-bottom: 20px; text-align: center;">Recuperar Senha</h2>
+                <div class="error-message" id="resetError"></div>
+                <div class="success-message" id="resetSuccess"></div>
+                <div class="form-group">
+                    <label for="resetEmail">Email</label>
+                    <input type="email" id="resetEmail" required>
+                </div>
+                <div id="resetCodeSection" style="display: none;">
+                    <div class="form-group">
+                        <label for="resetCode">Código de Verificação</label>
+                        <input type="text" id="resetCode" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="newPassword">Nova Senha</label>
+                        <input type="password" id="newPassword" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmNewPassword">Confirmar Nova Senha</label>
+                        <input type="password" id="confirmNewPassword" required>
+                    </div>
+                </div>
+                <button class="btn" id="resetButton" onclick="requestPasswordReset()">Enviar Código</button>
+                <div class="toggle-form">
+                    <a href="#" onclick="showLogin()">Voltar ao Login</a>
                 </div>
             </div>
 
@@ -266,6 +297,67 @@
                 window.location.href = 'calc.html';
             } catch (error) {
                 showError('register', error.message);
+            }
+        }
+
+        function showResetPassword() {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('registerForm').style.display = 'none';
+            document.getElementById('resetPasswordForm').style.display = 'block';
+            document.getElementById('resetCodeSection').style.display = 'none';
+            document.getElementById('resetButton').textContent = 'Enviar Código';
+            document.getElementById('resetButton').onclick = requestPasswordReset;
+        }
+
+        function showLogin() {
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('registerForm').style.display = 'none';
+            document.getElementById('resetPasswordForm').style.display = 'none';
+        }
+
+        function requestPasswordReset() {
+            const email = document.getElementById('resetEmail').value;
+            const users = JSON.parse(localStorage.getItem(AUTH_KEY) || '[]');
+            const user = users.find(u => u.email === email);
+
+            if (!user) {
+                showError('reset', 'Email não encontrado');
+                return;
+            }
+
+            const resetCode = generateResetCode();
+            saveResetCode(email, resetCode);
+
+            // Em um ambiente real, você enviaria o código por email
+            // Aqui vamos apenas mostrar o código para teste
+            document.getElementById('resetSuccess').textContent = 'Código de verificação: ' + resetCode;
+            document.getElementById('resetSuccess').style.display = 'block';
+            
+            document.getElementById('resetCodeSection').style.display = 'block';
+            document.getElementById('resetButton').textContent = 'Redefinir Senha';
+            document.getElementById('resetButton').onclick = confirmPasswordReset;
+        }
+
+        function confirmPasswordReset() {
+            const email = document.getElementById('resetEmail').value;
+            const code = document.getElementById('resetCode').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmNewPassword').value;
+
+            if (newPassword !== confirmPassword) {
+                showError('reset', 'As senhas não coincidem');
+                return;
+            }
+
+            try {
+                resetPassword(email, code, newPassword);
+                document.getElementById('resetSuccess').textContent = 'Senha alterada com sucesso!';
+                document.getElementById('resetSuccess').style.display = 'block';
+                setTimeout(() => {
+                    showLogin();
+                }, 2000);
+            } catch (error) {
+                showError('reset', error.message);
             }
         }
     </script>

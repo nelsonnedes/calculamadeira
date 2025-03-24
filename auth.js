@@ -1,6 +1,7 @@
 // Gerenciamento de autenticação e planos
 const AUTH_KEY = 'calc_madeira_auth';
 const PLAN_KEY = 'calc_madeira_plan';
+const RESET_CODES_KEY = 'calc_madeira_reset_codes';
 
 // Estrutura de planos
 const PLANS = {
@@ -135,4 +136,71 @@ function getPlanDetails() {
         startDate: user.plan.startDate,
         endDate: user.plan.endDate
     };
+}
+
+// Funções de recuperação de senha
+function generateResetCode() {
+    return Math.floor(100000 + Math.random() * 900000).toString();
+}
+
+function saveResetCode(email, code) {
+    const resetCodes = JSON.parse(localStorage.getItem(RESET_CODES_KEY) || '{}');
+    resetCodes[email] = {
+        code,
+        timestamp: Date.now(),
+        attempts: 0
+    };
+    localStorage.setItem(RESET_CODES_KEY, JSON.stringify(resetCodes));
+}
+
+function verifyResetCode(email, code) {
+    const resetCodes = JSON.parse(localStorage.getItem(RESET_CODES_KEY) || '{}');
+    const resetInfo = resetCodes[email];
+    
+    if (!resetInfo) {
+        throw new Error('Código de verificação expirado ou inválido');
+    }
+
+    // Verificar se o código expirou (30 minutos)
+    if (Date.now() - resetInfo.timestamp > 30 * 60 * 1000) {
+        delete resetCodes[email];
+        localStorage.setItem(RESET_CODES_KEY, JSON.stringify(resetCodes));
+        throw new Error('Código de verificação expirado');
+    }
+
+    // Verificar tentativas máximas (3 tentativas)
+    if (resetInfo.attempts >= 3) {
+        delete resetCodes[email];
+        localStorage.setItem(RESET_CODES_KEY, JSON.stringify(resetCodes));
+        throw new Error('Número máximo de tentativas excedido');
+    }
+
+    // Verificar código
+    if (resetInfo.code !== code) {
+        resetInfo.attempts++;
+        localStorage.setItem(RESET_CODES_KEY, JSON.stringify(resetCodes));
+        throw new Error('Código de verificação incorreto');
+    }
+
+    // Código correto - limpar dados de reset
+    delete resetCodes[email];
+    localStorage.setItem(RESET_CODES_KEY, JSON.stringify(resetCodes));
+    return true;
+}
+
+function resetPassword(email, code, newPassword) {
+    if (!verifyResetCode(email, code)) {
+        throw new Error('Código de verificação inválido');
+    }
+
+    const users = JSON.parse(localStorage.getItem(AUTH_KEY) || '[]');
+    const userIndex = users.findIndex(u => u.email === email);
+
+    if (userIndex === -1) {
+        throw new Error('Usuário não encontrado');
+    }
+
+    users[userIndex].password = btoa(newPassword);
+    localStorage.setItem(AUTH_KEY, JSON.stringify(users));
+    return true;
 } 
