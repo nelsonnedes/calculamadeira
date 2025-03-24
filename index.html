@@ -141,6 +141,40 @@
             margin: 0 auto 20px;
             display: block;
         }
+
+        /* Estilos específicos para mobile */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+                margin: 20px auto;
+            }
+
+            .auth-container {
+                padding: 20px;
+            }
+
+            .form-group input {
+                font-size: 16px; /* Previne zoom automático no iOS */
+                padding: 12px; /* Área de toque maior para mobile */
+                -webkit-appearance: none; /* Remove estilo padrão no iOS */
+                border-radius: 4px;
+            }
+
+            .btn {
+                padding: 15px; /* Área de toque maior para botões */
+                font-size: 16px;
+                margin: 10px 0;
+            }
+
+            .toggle-form {
+                margin-top: 15px;
+            }
+
+            .toggle-form a {
+                display: inline-block;
+                padding: 10px 0;
+            }
+        }
     </style>
 </head>
 <body>
@@ -158,11 +192,19 @@
                 <div class="success-message" id="loginSuccess"></div>
                 <div class="form-group">
                     <label for="loginEmail">Email</label>
-                    <input type="email" id="loginEmail" required>
+                    <input type="email" 
+                           id="loginEmail" 
+                           inputmode="email" 
+                           autocomplete="email"
+                           required>
                 </div>
                 <div class="form-group">
                     <label for="loginPassword">Senha</label>
-                    <input type="password" id="loginPassword" required>
+                    <input type="password" 
+                           id="loginPassword" 
+                           inputmode="text"
+                           autocomplete="current-password"
+                           required>
                 </div>
                 <button class="btn" onclick="login()">Entrar</button>
                 <div class="toggle-form">
@@ -178,16 +220,29 @@
                 <div class="success-message" id="resetSuccess"></div>
                 <div class="form-group">
                     <label for="resetEmail">Email</label>
-                    <input type="email" id="resetEmail" required>
+                    <input type="email" 
+                           id="resetEmail" 
+                           inputmode="email"
+                           autocomplete="email"
+                           required>
                 </div>
                 <div id="resetCodeSection" style="display: none;">
                     <div class="form-group">
                         <label for="resetCode">Código de Verificação</label>
-                        <input type="text" id="resetCode" required>
+                        <input type="text" 
+                               id="resetCode" 
+                               inputmode="numeric"
+                               pattern="[0-9]*"
+                               maxlength="6"
+                               required>
                     </div>
                     <div class="form-group">
                         <label for="newPassword">Nova Senha</label>
-                        <input type="password" id="newPassword" required>
+                        <input type="password" 
+                               id="newPassword" 
+                               inputmode="text"
+                               autocomplete="new-password"
+                               required>
                     </div>
                     <div class="form-group">
                         <label for="confirmNewPassword">Confirmar Nova Senha</label>
@@ -205,19 +260,35 @@
                 <div class="error-message" id="registerError"></div>
                 <div class="form-group">
                     <label for="registerName">Nome</label>
-                    <input type="text" id="registerName" required>
+                    <input type="text" 
+                           id="registerName" 
+                           inputmode="text"
+                           autocomplete="name"
+                           required>
                 </div>
                 <div class="form-group">
                     <label for="registerEmail">Email</label>
-                    <input type="email" id="registerEmail" required>
+                    <input type="email" 
+                           id="registerEmail" 
+                           inputmode="email"
+                           autocomplete="email"
+                           required>
                 </div>
                 <div class="form-group">
                     <label for="registerPassword">Senha</label>
-                    <input type="password" id="registerPassword" required>
+                    <input type="password" 
+                           id="registerPassword" 
+                           inputmode="text"
+                           autocomplete="new-password"
+                           required>
                 </div>
                 <div class="form-group">
                     <label for="confirmPassword">Confirmar Senha</label>
-                    <input type="password" id="confirmPassword" required>
+                    <input type="password" 
+                           id="confirmPassword" 
+                           inputmode="text"
+                           autocomplete="new-password"
+                           required>
                 </div>
                 <button class="btn" onclick="register()">Registrar</button>
                 <div class="toggle-form">
