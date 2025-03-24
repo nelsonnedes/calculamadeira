@@ -20,15 +20,13 @@ body {
 
 /* Header e Navegação */
 header {
-    background-color: white;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    padding: 15px 20px;
-    position: sticky;
-    top: 0;
-    z-index: 1000;
+    background-color: #8B0000;
+    color: white;
+    padding: 1rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .logo {
@@ -38,31 +36,27 @@ header {
 
 .logo img {
     height: 40px;
-    width: auto;
 }
 
 nav {
     display: flex;
-    gap: 20px;
+    gap: 1rem;
 }
 
 nav a {
-    color: #666;
+    color: white;
     text-decoration: none;
-    font-weight: 500;
-    transition: color 0.3s;
-    padding: 8px 12px;
+    padding: 0.5rem 1rem;
     border-radius: 4px;
+    transition: background-color 0.3s;
 }
 
 nav a:hover {
-    color: #4CAF50;
-    background-color: #f5f5f5;
+    background-color: rgba(255,255,255,0.1);
 }
 
 nav a.active {
-    color: #4CAF50;
-    background-color: #e8f5e9;
+    background-color: rgba(255,255,255,0.2);
 }
 
 /* Menu do Usuário */
@@ -73,16 +67,10 @@ nav a.active {
 .menu-button {
     background: none;
     border: none;
-    font-size: 1.5em;
-    color: #666;
+    color: white;
+    font-size: 1.5rem;
     cursor: pointer;
-    padding: 8px;
-    border-radius: 4px;
-    transition: background-color 0.3s;
-}
-
-.menu-button:hover {
-    background-color: #f5f5f5;
+    padding: 0.5rem;
 }
 
 .menu-panel {
@@ -92,9 +80,9 @@ nav a.active {
     width: 300px;
     height: 100vh;
     background-color: white;
-    box-shadow: -2px 0 4px rgba(0,0,0,0.1);
+    box-shadow: -2px 0 5px rgba(0,0,0,0.1);
     transition: right 0.3s ease;
-    z-index: 1001;
+    z-index: 1000;
 }
 
 .menu-panel.active {
@@ -102,14 +90,13 @@ nav a.active {
 }
 
 .menu-header {
-    padding: 20px;
-    border-bottom: 1px solid #eee;
+    background-color: #8B0000;
+    padding: 1rem;
     text-align: center;
 }
 
 .menu-logo {
     height: 40px;
-    width: auto;
 }
 
 .menu-items {
@@ -118,26 +105,24 @@ nav a.active {
     margin: 0;
 }
 
-.menu-items li {
-    border-bottom: 1px solid #eee;
-}
-
-.menu-items a {
+.menu-items li a {
     display: flex;
     align-items: center;
-    padding: 15px 20px;
+    padding: 1rem;
     color: #333;
     text-decoration: none;
     transition: background-color 0.3s;
+    gap: 0.5rem;
 }
 
-.menu-items a:hover {
+.menu-items li a:hover {
     background-color: #f5f5f5;
 }
 
-.menu-items i {
-    margin-right: 10px;
-    color: #4CAF50;
+.menu-items li a i {
+    color: #8B0000;
+    width: 20px;
+    text-align: center;
 }
 
 .menu-overlay {
@@ -147,31 +132,38 @@ nav a.active {
     width: 100%;
     height: 100%;
     background-color: rgba(0,0,0,0.5);
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.3s, visibility 0.3s;
-    z-index: 1000;
+    display: none;
+    z-index: 999;
 }
 
 .menu-overlay.active {
-    opacity: 1;
-    visibility: visible;
+    display: block;
 }
 
 /* Botões */
-.btn-primary {
-    background-color: #4CAF50;
+.button {
+    background-color: #8B0000;
     color: white;
     border: none;
-    padding: 10px 20px;
+    padding: 0.8rem 1.5rem;
     border-radius: 4px;
     cursor: pointer;
-    font-size: 16px;
     transition: background-color 0.3s;
 }
 
-.btn-primary:hover {
-    background-color: #45a049;
+.button:hover {
+    background-color: #660000;
+}
+
+.button.secondary {
+    background-color: transparent;
+    border: 1px solid #8B0000;
+    color: #8B0000;
+}
+
+.button.secondary:hover {
+    background-color: #8B0000;
+    color: white;
 }
 
 /* Feedback */
@@ -204,6 +196,10 @@ nav a.active {
 @media (max-width: 768px) {
     nav {
         display: none;
+    }
+
+    .menu-button {
+        display: block;
     }
 
     .menu-panel {
@@ -255,62 +251,26 @@ header h1 {
 
 /* Formulários */
 .form-group {
-    margin-bottom: 20px;
+    margin-bottom: 1rem;
 }
 
 .form-group label {
     display: block;
-    margin-bottom: 8px;
-    color: var(--text-color);
-    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: #333;
 }
 
-.form-group input,
-.form-group select,
-.form-group textarea {
+.form-group input {
     width: 100%;
-    padding: 10px;
-    border: 1px solid var(--border-color);
+    padding: 0.8rem;
+    border: 1px solid #ddd;
     border-radius: 4px;
-    font-size: 16px;
-    transition: border-color 0.3s ease;
+    transition: border-color 0.3s;
 }
 
-.form-group input:focus,
-.form-group select:focus,
-.form-group textarea:focus {
+.form-group input:focus {
+    border-color: #8B0000;
     outline: none;
-    border-color: var(--primary-color);
-}
-
-/* Botões */
-.btn {
-    display: inline-block;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 16px;
-    transition: all 0.3s ease;
-}
-
-.btn-secondary {
-    background-color: var(--white);
-    color: var(--primary-color);
-    border: 1px solid var(--primary-color);
-}
-
-.btn-secondary:hover {
-    background-color: var(--primary-light);
-}
-
-.btn-danger {
-    background-color: var(--error-color);
-    color: var(--white);
-}
-
-.btn-danger:hover {
-    background-color: #cc0000;
 }
 
 /* Feedback */
