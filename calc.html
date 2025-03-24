@@ -630,23 +630,23 @@
             const quantity = parseInt(document.getElementById('quantity').value);
             const price = parseFloat(document.getElementById('price').value.replace('R$', '').replace('.', '').replace(',', '.'));
 
-            if (isNaN(width) || width <= 0) {
+            if (!width || width <= 0) {
                 showFeedback('Por favor, insira uma largura válida.', 'error');
                 return false;
             }
-            if (isNaN(thickness) || thickness <= 0) {
+            if (!thickness || thickness <= 0) {
                 showFeedback('Por favor, insira uma espessura válida.', 'error');
                 return false;
             }
-            if (isNaN(length) || length <= 0) {
+            if (!length || length <= 0) {
                 showFeedback('Por favor, insira um comprimento válido.', 'error');
                 return false;
             }
-            if (isNaN(quantity) || quantity <= 0) {
+            if (!quantity || quantity <= 0) {
                 showFeedback('Por favor, insira uma quantidade válida.', 'error');
                 return false;
             }
-            if (isNaN(price) || price <= 0) {
+            if (!price || price <= 0) {
                 showFeedback('Por favor, insira um preço válido.', 'error');
                 return false;
             }
@@ -757,36 +757,45 @@
 
             // Add to list with validation
             document.querySelector('.add-button').addEventListener('click', function() {
-                if (!validateInputs()) return;
+                try {
+                    if (!validateInputs()) return;
 
-                const width = document.getElementById('width').value;
-                const thickness = document.getElementById('thickness').value;
-                const length = document.getElementById('length').value;
-                const quantity = document.getElementById('quantity').value;
-                const volume = parseFloat(document.getElementById('volume').textContent.replace(',', '.'));
-                const cost = parseFloat(document.getElementById('cost').textContent.replace('R$', '').replace('.', '').replace(',', '.'));
+                    const width = document.getElementById('width').value;
+                    const thickness = document.getElementById('thickness').value;
+                    const length = document.getElementById('length').value;
+                    const quantity = document.getElementById('quantity').value;
+                    const volume = document.getElementById('volume').textContent;
+                    const cost = document.getElementById('cost').textContent;
 
-                const listItem = document.createElement('div');
-                listItem.className = 'list-item';
-                listItem.innerHTML = `
-                    <div>${thickness}x${width}x${length}</div>
-                    <div>${quantity}</div>
-                    <div>${formatters.volume(volume)}</div>
-                    <div>${formatters.currency.format(cost)}</div>
-                    <button class="delete-btn" onclick="deleteItem(this)" aria-label="Excluir item">×</button>
-                `;
+                    const listItem = document.createElement('div');
+                    listItem.className = 'list-item';
+                    listItem.innerHTML = `
+                        <div>${thickness}x${width}x${length}</div>
+                        <div>${quantity}</div>
+                        <div>${volume}</div>
+                        <div>${cost}</div>
+                        <button class="delete-btn" onclick="deleteItem(this)" aria-label="Excluir item">×</button>
+                    `;
 
-                document.getElementById('itemsList').appendChild(listItem);
-                saveList();
-                calcularTotal();
-                showFeedback('Item adicionado com sucesso!');
+                    document.getElementById('itemsList').appendChild(listItem);
+                    saveList();
+                    calcularTotal();
+                    showFeedback('Item adicionado com sucesso!');
 
-                // Limpar inputs
-                ['width', 'thickness', 'length', 'quantity'].forEach(id => {
-                    document.getElementById(id).value = '';
-                });
-                priceInput.value = 'R$ 0,00';
-                calculate();
+                    // Limpar inputs
+                    ['width', 'thickness', 'length', 'quantity'].forEach(id => {
+                        document.getElementById(id).value = '';
+                    });
+                    document.getElementById('price').value = 'R$ 0,00';
+                    
+                    // Limpar resultados
+                    document.getElementById('volume').textContent = '0,000m³';
+                    document.getElementById('totalVolume').textContent = '0,000m³';
+                    document.getElementById('cost').textContent = 'R$ 0,00';
+                } catch (error) {
+                    console.error('Erro ao adicionar item:', error);
+                    showFeedback('Erro ao adicionar item. Tente novamente.', 'error');
+                }
             });
 
             // Refresh button with confirmation

@@ -549,27 +549,36 @@
 
         // Função para salvar dados do perfil
         function saveProfileData() {
-            const profileData = {
-                name: document.getElementById('userName').value,
-                email: document.getElementById('userEmail').value,
-                phone: document.getElementById('userPhone').value,
-                company: document.getElementById('userCompany').value,
-                cnpj: document.getElementById('userCNPJ').value,
-                address: document.getElementById('userAddress').value,
-                city: document.getElementById('userCity').value,
-                state: document.getElementById('userState').value,
-                cep: document.getElementById('userCEP').value,
-                avatar: document.getElementById('avatarImage').src || ''
-            };
+            try {
+                const profileData = {
+                    name: document.getElementById('userName').value || 'Usuário',
+                    email: document.getElementById('userEmail').value || '',
+                    phone: document.getElementById('userPhone').value || '',
+                    company: document.getElementById('userCompany').value || '',
+                    cnpj: document.getElementById('userCNPJ').value || '',
+                    address: document.getElementById('userAddress').value || '',
+                    city: document.getElementById('userCity').value || '',
+                    state: document.getElementById('userState').value || '',
+                    cep: document.getElementById('userCEP').value || '',
+                    avatar: document.getElementById('avatarImage').src || ''
+                };
 
-            localStorage.setItem('profileData', JSON.stringify(profileData));
-            localStorage.setItem('menuInfo', JSON.stringify({
-                name: profileData.name,
-                email: profileData.email,
-                avatar: profileData.avatar
-            }));
+                // Atualizar nome e email no cabeçalho
+                document.getElementById('profileName').textContent = profileData.name;
+                document.getElementById('profileEmail').textContent = profileData.email || 'Sem email cadastrado';
 
-            showFeedback('Perfil atualizado com sucesso!');
+                localStorage.setItem('profileData', JSON.stringify(profileData));
+                localStorage.setItem('menuInfo', JSON.stringify({
+                    name: profileData.name,
+                    email: profileData.email,
+                    avatar: profileData.avatar
+                }));
+
+                showFeedback('Perfil atualizado com sucesso!');
+            } catch (error) {
+                console.error('Erro ao salvar perfil:', error);
+                showFeedback('Erro ao salvar o perfil. Tente novamente.', 'error');
+            }
         }
 
         // Função para processar a imagem do avatar
