@@ -464,6 +464,66 @@
             90% { opacity: 1; transform: translate(-50%, 0); }
             100% { opacity: 0; transform: translate(-50%, -20px); }
         }
+
+        .list-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: flex-end;
+            padding: 10px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .list-controls .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            min-width: 150px;
+            justify-content: center;
+        }
+
+        .list-controls .btn i {
+            font-size: 16px;
+        }
+
+        .list-controls .btn-danger {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .list-controls .btn-danger:hover {
+            background-color: #d32f2f;
+        }
+
+        .list-controls .btn-primary {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .list-controls .btn-primary:hover {
+            background-color: #45a049;
+        }
+
+        @media (max-width: 600px) {
+            .list-controls {
+                flex-direction: column;
+                padding: 15px;
+            }
+
+            .list-controls .btn {
+                width: 100%;
+                padding: 15px;
+                font-size: 16px;
+            }
+        }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
@@ -592,6 +652,15 @@
                 </div>
                 <div id="itemsList"></div>
             </div>
+        </div>
+
+        <div class="list-controls">
+            <button onclick="clearList()" class="btn btn-danger">
+                <i class="fas fa-trash"></i> Limpar Lista
+            </button>
+            <button onclick="generateReport()" class="btn btn-primary">
+                <i class="fas fa-file-alt"></i> Gerar Relatório
+            </button>
         </div>
     </div>
 
@@ -1220,216 +1289,134 @@
             }
         }
 
-        function gerarRelatorio() {
-            const user = JSON.parse(localStorage.getItem('user') || '{}');
-            const companyLogo = localStorage.getItem('companyLogo');
-            
-            let relatorio = `
-                <div class="relatorio">
-                    <div class="relatorio-header">
-                        <div class="header-left">
-                            ${companyLogo ? `<img src="${companyLogo}" alt="Logo da Empresa" class="company-logo">` : ''}
-                        </div>
-                        <div class="header-right">
-                            <h2>${user.company || 'Nome da Empresa'}</h2>
-                            <p>${user.phone || 'Telefone não informado'}</p>
-                        </div>
-                    </div>
-                    <div class="relatorio-items">
-                        <h3>Relatório de Cálculo</h3>
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Item</th>
-                                    <th>Dimensões</th>
-                                    <th>Quantidade</th>
-                                    <th>Volume (m³)</th>
-                                    <th>Preço (R$)</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${itens.map(item => `
-                                    <tr>
-                                        <td>${item.descricao}</td>
-                                        <td>${item.largura}m x ${item.altura}m x ${item.comprimento}m</td>
-                                        <td>${item.quantidade}</td>
-                                        <td>${item.volume.toFixed(3)}</td>
-                                        <td>${item.preco.toFixed(2)}</td>
-                                    </tr>
-                                `).join('')}
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="relatorio-total">
-                        <p><strong>Volume Total:</strong> ${volumeTotal.toFixed(3)} m³</p>
-                        <p><strong>Valor Total:</strong> R$ ${valorTotal.toFixed(2)}</p>
-                    </div>
-                </div>
-            `;
+        function generateReport() {
+            const items = document.querySelectorAll('.list-item');
+            if (items.length === 0) {
+                showFeedback('Adicione itens à lista antes de gerar o relatório', 'error');
+                return;
+            }
 
-            // Adicionar estilos específicos para o relatório
-            const style = document.createElement('style');
-            style.textContent = `
-                .relatorio {
-                    max-width: 800px;
-                    margin: 20px auto;
-                    padding: 20px;
-                    background: white;
-                    border-radius: 8px;
-                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-                }
+            const reportWindow = window.open('', '_blank');
+            const companyName = localStorage.getItem('companyName') || 'Minha Empresa';
+            const companyPhone = localStorage.getItem('companyPhone') || '';
+            const companyLogo = localStorage.getItem('companyLogo') || '';
 
-                .relatorio-header {
-                    display: flex;
-                    align-items: center;
-                    justify-content: space-between;
-                    margin-bottom: 30px;
-                    padding-bottom: 20px;
-                    border-bottom: 1px solid #eee;
-                }
-
-                .header-left {
-                    flex: 0 0 auto;
-                }
-
-                .header-right {
-                    flex: 1;
-                    text-align: right;
-                    padding-left: 20px;
-                }
-
-                .header-right h2 {
-                    color: #333;
-                    margin: 0 0 5px 0;
-                    font-size: 24px;
-                }
-
-                .header-right p {
-                    color: #666;
-                    margin: 0;
-                    font-size: 16px;
-                }
-
-                .company-logo {
-                    max-width: 150px;
-                    height: auto;
-                    display: block;
-                }
-
-                .relatorio-items {
-                    margin-bottom: 20px;
-                }
-
-                .relatorio-items h3 {
-                    color: #333;
-                    margin-bottom: 20px;
-                    font-size: 20px;
-                    text-align: center;
-                }
-
-                .relatorio-items table {
-                    width: 100%;
-                    border-collapse: collapse;
-                    margin-top: 10px;
-                }
-
-                .relatorio-items th,
-                .relatorio-items td {
-                    padding: 12px;
-                    text-align: left;
-                    border-bottom: 1px solid #eee;
-                }
-
-                .relatorio-items th {
-                    background-color: #f5f5f5;
-                    font-weight: 500;
-                    color: #333;
-                }
-
-                .relatorio-items tr:hover {
-                    background-color: #f9f9f9;
-                }
-
-                .relatorio-total {
-                    margin-top: 20px;
-                    padding-top: 20px;
-                    border-top: 1px solid #eee;
-                    font-size: 1.1em;
-                    text-align: right;
-                }
-
-                .relatorio-total p {
-                    margin: 5px 0;
-                    color: #333;
-                }
-
-                @media print {
-                    .relatorio {
-                        box-shadow: none;
-                        margin: 0;
-                        padding: 20px;
-                    }
-
-                    .relatorio-items tr:hover {
-                        background-color: transparent;
-                    }
-                }
-            `;
-            document.head.appendChild(style);
-
-            // Criar janela de impressão
-            const printWindow = window.open('', '_blank');
-            printWindow.document.write(`
+            const reportContent = `
                 <!DOCTYPE html>
                 <html>
                 <head>
-                    <title>Relatório de Cálculo</title>
+                    <title>Relatório de Cálculos</title>
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
                     <style>
-                        ${style.textContent}
+                        body {
+                            font-family: Arial, sans-serif;
+                            margin: 20px;
+                            color: #333;
+                        }
+                        .header {
+                            text-align: center;
+                            margin-bottom: 30px;
+                        }
+                        .logo {
+                            max-width: 150px;
+                            margin-bottom: 10px;
+                        }
+                        .company-info {
+                            margin-bottom: 20px;
+                        }
+                        table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin: 20px 0;
+                        }
+                        th, td {
+                            border: 1px solid #ddd;
+                            padding: 8px;
+                            text-align: left;
+                        }
+                        th {
+                            background-color: #4CAF50;
+                            color: white;
+                        }
+                        .totals {
+                            margin-top: 20px;
+                            text-align: right;
+                        }
+                        .footer {
+                            margin-top: 30px;
+                            text-align: center;
+                            font-size: 0.9em;
+                            color: #666;
+                        }
+                        @media print {
+                            body {
+                                margin: 0;
+                                padding: 20px;
+                            }
+                            .no-print {
+                                display: none;
+                            }
+                        }
                     </style>
                 </head>
                 <body>
-                    ${relatorio}
+                    <div class="header">
+                        ${companyLogo ? `<img src="${companyLogo}" alt="Logo" class="logo">` : ''}
+                        <h1>${companyName}</h1>
+                        ${companyPhone ? `<p>${companyPhone}</p>` : ''}
+                    </div>
+                    
+                    <div class="company-info">
+                        <p><strong>Data:</strong> ${new Date().toLocaleDateString()}</p>
+                        <p><strong>Hora:</strong> ${new Date().toLocaleTimeString()}</p>
+                    </div>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Dimensões</th>
+                                <th>Quantidade</th>
+                                <th>Volume (m³)</th>
+                                <th>Valor (R$)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${Array.from(items).map((item, index) => `
+                                <tr>
+                                    <td>${index + 1}</td>
+                                    <td>${item.children[0].textContent}</td>
+                                    <td>${item.children[1].textContent}</td>
+                                    <td>${item.children[2].textContent}</td>
+                                    <td>${item.children[3].textContent}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+
+                    <div class="totals">
+                        ${document.querySelector('.total-row') ? `
+                            <p><strong>Volume Total:</strong> ${document.querySelector('.total-row').children[2].textContent}</p>
+                            <p><strong>Valor Total:</strong> ${document.querySelector('.total-row').children[3].textContent}</p>
+                        ` : ''}
+                    </div>
+
+                    <div class="footer">
+                        <p>Relatório gerado em ${new Date().toLocaleString()}</p>
+                    </div>
+
+                    <div class="no-print" style="text-align: center; margin-top: 20px;">
+                        <button onclick="window.print()" style="padding: 10px 20px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                            Imprimir Relatório
+                        </button>
+                    </div>
                 </body>
                 </html>
-            `);
-            printWindow.document.close();
-            printWindow.focus();
-            printWindow.print();
-        }
+            `;
 
-        // Adicionar validação para campos numéricos
-        function validateNumericInput(input) {
-            // Remove caracteres não numéricos
-            input.value = input.value.replace(/[^0-9,.]/g, '');
-            
-            // Garante que não comece com vírgula ou ponto
-            if (input.value.startsWith(',') || input.value.startsWith('.')) {
-                input.value = input.value.substring(1);
-            }
-            
-            // Garante que não tenha mais de uma vírgula ou ponto
-            const decimalCount = (input.value.match(/[,.]/g) || []).length;
-            if (decimalCount > 1) {
-                input.value = input.value.replace(/[,.]/g, function(match, index, original) {
-                    return index === original.indexOf(match) ? match : '';
-                });
-            }
+            reportWindow.document.write(reportContent);
+            reportWindow.document.close();
         }
-
-        // Adicionar eventos de validação para os campos numéricos
-        document.querySelectorAll('.input-group input[type="number"]').forEach(input => {
-            input.addEventListener('input', function() {
-                validateNumericInput(this);
-            });
-            
-            // Prevenir entrada de caracteres não numéricos
-            input.addEventListener('keypress', function(e) {
-                if (!/[0-9,.]/.test(e.key)) {
-                    e.preventDefault();
-                }
-            });
-        });
     </script>
 </body>
 </html> 
