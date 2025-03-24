@@ -6,7 +6,7 @@
     <title>Meu Perfil - Calculadora de Madeira</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#8B0000">
+    <meta name="theme-color" content="#4CAF50">
     <link rel="apple-touch-icon" href="icon-192x192.png">
     <style>
         .profile-container {
@@ -24,48 +24,65 @@
         }
 
         .profile-section h2 {
-            color: #8B0000;
+            color: #4CAF50;
             margin-bottom: 20px;
             font-size: 1.5em;
-        }
-
-        .profile-section h3 {
-            color: #333;
-            margin: 20px 0 10px;
-            font-size: 1.2em;
-        }
-
-        .profile-section p {
-            color: #666;
-            line-height: 1.6;
-            margin-bottom: 15px;
         }
 
         .profile-header {
             display: flex;
             align-items: center;
-            gap: 20px;
             margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
         }
 
         .profile-avatar {
             width: 120px;
             height: 120px;
             border-radius: 50%;
-            background-color: #f5f5f5;
+            background: #e8f5e9;
             display: flex;
             align-items: center;
             justify-content: center;
+            margin-right: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .profile-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-avatar i {
             font-size: 48px;
-            color: #8B0000;
+            color: #4CAF50;
+        }
+
+        .profile-avatar .change-avatar {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background: #4CAF50;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 14px;
         }
 
         .profile-info {
-            flex: 1;
+            flex-grow: 1;
         }
 
         .profile-name {
-            font-size: 24px;
+            font-size: 1.5em;
             color: #333;
             margin-bottom: 5px;
         }
@@ -77,14 +94,38 @@
 
         .profile-plan {
             display: inline-block;
-            padding: 5px 10px;
-            background-color: #8B0000;
-            color: white;
-            border-radius: 4px;
-            font-size: 14px;
+            background: #e8f5e9;
+            color: #4CAF50;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.9em;
         }
 
-        .profile-stats {
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+
+        .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 20px;
@@ -92,71 +133,53 @@
         }
 
         .stat-card {
-            background-color: #f5f5f5;
+            background: #f5f5f5;
             padding: 15px;
             border-radius: 8px;
             text-align: center;
         }
 
         .stat-value {
-            font-size: 24px;
-            color: #8B0000;
+            font-size: 1.8em;
+            color: #4CAF50;
             margin-bottom: 5px;
         }
 
         .stat-label {
             color: #666;
-            font-size: 14px;
+            font-size: 0.9em;
         }
 
-        .profile-form {
-            display: grid;
-            gap: 15px;
+        .danger-zone {
+            border: 1px solid #ffcdd2;
+            background: #ffebee;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
         }
 
-        .form-group {
-            display: grid;
-            gap: 5px;
+        .danger-zone h3 {
+            color: #d32f2f;
+            margin-bottom: 15px;
         }
 
-        .form-group label {
-            color: #333;
-            font-weight: 500;
+        .danger-zone p {
+            color: #666;
+            margin-bottom: 15px;
         }
 
-        .form-group input {
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
-        }
-
-        .form-group input:focus {
-            outline: none;
-            border-color: #8B0000;
-        }
-
-        .profile-section button {
-            background-color: #8B0000;
+        .danger-zone button {
+            background: #d32f2f;
             color: white;
             border: none;
             padding: 10px 20px;
             border-radius: 4px;
             cursor: pointer;
-            font-size: 14px;
             transition: background-color 0.3s;
         }
 
-        .profile-section button:hover {
-            background-color: #A00000;
-        }
-
-        .profile-section button.danger {
-            background-color: #f44336;
-        }
-
-        .profile-section button.danger:hover {
-            background-color: #d32f2f;
+        .danger-zone button:hover {
+            background: #b71c1c;
         }
 
         .feedback {
@@ -198,7 +221,11 @@
                 text-align: center;
             }
 
-            .profile-stats {
+            .profile-avatar {
+                margin: 0 0 15px 0;
+            }
+
+            .stats-grid {
                 grid-template-columns: 1fr;
             }
         }
@@ -207,7 +234,9 @@
 <body>
     <div class="container">
         <header>
-            <h1>Meu Perfil</h1>
+            <div class="logo">
+                <img src="logo.png" alt="Logo Calculadora de Madeira">
+            </div>
             <nav>
                 <a href="calc.html">Calculadora</a>
                 <a href="perfil.html" class="active">Perfil</a>
@@ -215,45 +244,68 @@
                 <a href="notificacoes.html">Notificações</a>
                 <a href="ajuda.html">Ajuda</a>
             </nav>
+            <div class="user-menu">
+                <button id="menuButton" class="menu-button">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div id="menuPanel" class="menu-panel">
+                    <div class="menu-header">
+                        <img src="logo.png" alt="Logo" class="menu-logo">
+                    </div>
+                    <ul class="menu-items">
+                        <li><a href="calc.html"><i class="fas fa-calculator"></i> Calculadora</a></li>
+                        <li><a href="perfil.html"><i class="fas fa-user"></i> Perfil</a></li>
+                        <li><a href="configuracoes.html"><i class="fas fa-cog"></i> Configurações</a></li>
+                        <li><a href="notificacoes.html"><i class="fas fa-bell"></i> Notificações</a></li>
+                        <li><a href="ajuda.html"><i class="fas fa-question-circle"></i> Ajuda</a></li>
+                        <li><a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sair</a></li>
+                    </ul>
+                </div>
+                <div id="menuOverlay" class="menu-overlay"></div>
+            </div>
         </header>
 
         <main class="profile-container">
             <div class="profile-section">
                 <div class="profile-header">
                     <div class="profile-avatar">
-                        <i class="fas fa-user"></i>
+                        <img id="companyLogo" src="logo.png" alt="Logo da Empresa">
+                        <div class="change-avatar" onclick="document.getElementById('logoInput').click()">
+                            <i class="fas fa-camera"></i>
+                        </div>
+                        <input type="file" id="logoInput" accept="image/*" style="display: none" onchange="handleLogoUpload(event)">
                     </div>
                     <div class="profile-info">
-                        <h2 class="profile-name">Nome do Usuário</h2>
-                        <p class="profile-email">usuario@email.com</p>
-                        <span class="profile-plan">Plano Premium</span>
+                        <div class="profile-name">Nome do Usuário</div>
+                        <div class="profile-email">usuario@email.com</div>
+                        <div class="profile-plan">Plano Premium</div>
                     </div>
                 </div>
 
-                <div class="profile-stats">
+                <div class="stats-grid">
                     <div class="stat-card">
                         <div class="stat-value">150</div>
                         <div class="stat-label">Cálculos Realizados</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-value">25</div>
+                        <div class="stat-value">12</div>
                         <div class="stat-label">Listas Salvas</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-value">1.5k</div>
-                        <div class="stat-label">m³ Calculados</div>
+                        <div class="stat-value">98%</div>
+                        <div class="stat-label">Precisão</div>
                     </div>
                 </div>
 
-                <h3>Informações Pessoais</h3>
-                <form class="profile-form">
+                <h2>Informações Pessoais</h2>
+                <form id="profileForm">
                     <div class="form-group">
                         <label for="name">Nome Completo</label>
-                        <input type="text" id="name" value="Nome do Usuário">
+                        <input type="text" id="name" value="Nome do Usuário" required>
                     </div>
                     <div class="form-group">
                         <label for="email">E-mail</label>
-                        <input type="email" id="email" value="usuario@email.com">
+                        <input type="email" id="email" value="usuario@email.com" required>
                     </div>
                     <div class="form-group">
                         <label for="phone">Telefone</label>
@@ -263,106 +315,116 @@
                         <label for="company">Empresa</label>
                         <input type="text" id="company" value="Nome da Empresa">
                     </div>
-                    <button type="submit">Salvar Alterações</button>
+                    <button type="submit" class="btn-primary">Salvar Alterações</button>
                 </form>
             </div>
 
             <div class="profile-section">
-                <h3>Alterar Senha</h3>
-                <form class="profile-form">
+                <h2>Alterar Senha</h2>
+                <form id="passwordForm">
                     <div class="form-group">
                         <label for="currentPassword">Senha Atual</label>
-                        <input type="password" id="currentPassword">
+                        <input type="password" id="currentPassword" required>
                     </div>
                     <div class="form-group">
                         <label for="newPassword">Nova Senha</label>
-                        <input type="password" id="newPassword">
+                        <input type="password" id="newPassword" required>
                     </div>
                     <div class="form-group">
                         <label for="confirmPassword">Confirmar Nova Senha</label>
-                        <input type="password" id="confirmPassword">
+                        <input type="password" id="confirmPassword" required>
                     </div>
-                    <button type="submit">Alterar Senha</button>
+                    <button type="submit" class="btn-primary">Alterar Senha</button>
                 </form>
             </div>
 
-            <div class="profile-section">
-                <h3>Gerenciar Conta</h3>
-                <p>Deseja excluir sua conta? Esta ação não pode ser desfeita.</p>
-                <button class="danger" onclick="deleteAccount()">Excluir Conta</button>
+            <div class="danger-zone">
+                <h3>Zona de Perigo</h3>
+                <p>Ao excluir sua conta, todos os seus dados serão permanentemente removidos e não poderão ser recuperados.</p>
+                <button onclick="deleteAccount()">Excluir Conta</button>
             </div>
         </main>
     </div>
 
     <script src="auth.js"></script>
     <script>
-        // Verificar autenticação e plano ativo
+        // Verificar autenticação
         if (!isUserLoggedIn()) {
             window.location.href = 'index.html';
-        } else if (!isPlanActive()) {
-            window.location.href = 'planos.html';
         }
 
         // Carregar dados do perfil
-        function loadProfile() {
+        function loadProfileData() {
             const user = JSON.parse(localStorage.getItem('user') || '{}');
-            
-            // Aplicar dados aos elementos
-            document.querySelector('.profile-name').textContent = user.name || 'Nome do Usuário';
-            document.querySelector('.profile-email').textContent = user.email || 'usuario@email.com';
-            document.querySelector('.profile-plan').textContent = user.plan || 'Plano Gratuito';
             
             document.getElementById('name').value = user.name || '';
             document.getElementById('email').value = user.email || '';
             document.getElementById('phone').value = user.phone || '';
             document.getElementById('company').value = user.company || '';
+            
+            document.querySelector('.profile-name').textContent = user.name || 'Nome do Usuário';
+            document.querySelector('.profile-email').textContent = user.email || 'usuario@email.com';
+            document.querySelector('.profile-plan').textContent = `Plano ${user.plan || 'Gratuito'}`;
+
+            // Carregar logo da empresa
+            const companyLogo = localStorage.getItem('companyLogo');
+            if (companyLogo) {
+                document.getElementById('companyLogo').src = companyLogo;
+            }
+        }
+
+        // Manipular upload da logo
+        function handleLogoUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const logoData = e.target.result;
+                    localStorage.setItem('companyLogo', logoData);
+                    document.getElementById('companyLogo').src = logoData;
+                    showFeedback('Logo atualizada com sucesso!');
+                };
+                reader.readAsDataURL(file);
+            }
         }
 
         // Salvar alterações do perfil
-        function saveProfile(event) {
-            event.preventDefault();
+        document.getElementById('profileForm').addEventListener('submit', (e) => {
+            e.preventDefault();
             
-            const user = {
-                name: document.getElementById('name').value,
-                email: document.getElementById('email').value,
-                phone: document.getElementById('phone').value,
-                company: document.getElementById('company').value
-            };
-
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            user.name = document.getElementById('name').value;
+            user.email = document.getElementById('email').value;
+            user.phone = document.getElementById('phone').value;
+            user.company = document.getElementById('company').value;
+            
             localStorage.setItem('user', JSON.stringify(user));
             showFeedback('Perfil atualizado com sucesso!');
-        }
+        });
 
         // Alterar senha
-        function changePassword(event) {
-            event.preventDefault();
+        document.getElementById('passwordForm').addEventListener('submit', (e) => {
+            e.preventDefault();
             
             const currentPassword = document.getElementById('currentPassword').value;
             const newPassword = document.getElementById('newPassword').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
-
+            
             if (newPassword !== confirmPassword) {
-                showFeedback('As senhas não coincidem.', 'error');
+                showFeedback('As senhas não coincidem!', 'error');
                 return;
             }
-
+            
             // Aqui você implementaria a lógica de alteração de senha
             showFeedback('Senha alterada com sucesso!');
-            
-            // Limpar campos
-            document.getElementById('currentPassword').value = '';
-            document.getElementById('newPassword').value = '';
-            document.getElementById('confirmPassword').value = '';
-        }
+            e.target.reset();
+        });
 
         // Excluir conta
         function deleteAccount() {
             if (confirm('Tem certeza que deseja excluir sua conta? Esta ação não pode ser desfeita.')) {
                 localStorage.clear();
-                showFeedback('Conta excluída com sucesso.', 'error');
-                setTimeout(() => {
-                    window.location.href = 'index.html';
-                }, 2000);
+                window.location.href = 'index.html';
             }
         }
 
@@ -378,19 +440,30 @@
             }, 3000);
         }
 
+        // Menu toggle
+        function toggleMenu() {
+            const menuPanel = document.getElementById('menuPanel');
+            const menuOverlay = document.getElementById('menuOverlay');
+            
+            menuPanel.classList.toggle('active');
+            menuOverlay.classList.toggle('active');
+        }
+
         // Event Listeners
-        document.querySelectorAll('.profile-form').forEach(form => {
-            form.addEventListener('submit', (event) => {
-                if (form.querySelector('#currentPassword')) {
-                    changePassword(event);
-                } else {
-                    saveProfile(event);
-                }
+        document.addEventListener('DOMContentLoaded', () => {
+            loadProfileData();
+
+            // Menu button
+            document.getElementById('menuButton').addEventListener('click', toggleMenu);
+            document.getElementById('menuOverlay').addEventListener('click', toggleMenu);
+
+            // Menu items
+            document.querySelectorAll('.menu-items a').forEach(link => {
+                link.addEventListener('click', () => {
+                    toggleMenu();
+                });
             });
         });
-
-        // Carregar perfil ao iniciar
-        loadProfile();
     </script>
 </body>
 </html> 

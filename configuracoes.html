@@ -6,7 +6,7 @@
     <title>Configurações - Calculadora de Madeira</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#8B0000">
+    <meta name="theme-color" content="#4CAF50">
     <link rel="apple-touch-icon" href="icon-192x192.png">
     <style>
         .settings-container {
@@ -24,15 +24,9 @@
         }
 
         .settings-section h2 {
-            color: #8B0000;
+            color: #4CAF50;
             margin-bottom: 20px;
             font-size: 1.5em;
-        }
-
-        .settings-section h3 {
-            color: #333;
-            margin: 20px 0 10px;
-            font-size: 1.2em;
         }
 
         .settings-section p {
@@ -41,83 +35,91 @@
             margin-bottom: 15px;
         }
 
-        .settings-section ul {
+        .settings-list {
             list-style-type: none;
             padding: 0;
-            margin: 0 0 20px 0;
+            margin: 0;
         }
 
-        .settings-section li {
-            padding: 10px 0;
+        .settings-item {
+            padding: 15px 0;
             border-bottom: 1px solid #eee;
             display: flex;
-            align-items: center;
             justify-content: space-between;
+            align-items: center;
         }
 
-        .settings-section li:last-child {
+        .settings-item:last-child {
             border-bottom: none;
         }
 
-        .settings-section li i {
-            color: #8B0000;
-            margin-right: 10px;
+        .settings-item label {
+            color: #333;
+            font-weight: 500;
         }
 
-        .settings-section select,
-        .settings-section input {
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
+        .settings-item .description {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 5px;
         }
 
-        .settings-section select {
-            width: 200px;
-        }
-
-        .settings-section input[type="color"] {
+        .switch {
+            position: relative;
+            display: inline-block;
             width: 50px;
-            height: 30px;
-            padding: 0;
-            border: none;
-            border-radius: 4px;
+            height: 24px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
             cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
         }
 
-        .settings-section button {
-            background-color: #8B0000;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background-color 0.3s;
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
         }
 
-        .settings-section button:hover {
-            background-color: #A00000;
+        input:checked + .slider {
+            background-color: #4CAF50;
         }
 
-        .settings-section button.danger {
-            background-color: #f44336;
-        }
-
-        .settings-section button.danger:hover {
-            background-color: #d32f2f;
+        input:checked + .slider:before {
+            transform: translateX(26px);
         }
 
         .danger-zone {
-            background-color: #fff5f5;
             border: 1px solid #ffcdd2;
-            border-radius: 8px;
+            background: #ffebee;
             padding: 20px;
-            margin-top: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
         }
 
         .danger-zone h3 {
-            color: #f44336;
+            color: #d32f2f;
+            margin-bottom: 15px;
         }
 
         .danger-zone p {
@@ -126,11 +128,17 @@
         }
 
         .danger-zone button {
-            background-color: #f44336;
+            background: #d32f2f;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
         }
 
         .danger-zone button:hover {
-            background-color: #d32f2f;
+            background: #b71c1c;
         }
 
         .feedback {
@@ -166,23 +174,15 @@
             .settings-section {
                 padding: 15px;
             }
-
-            .settings-section select {
-                width: 100%;
-            }
-
-            .settings-section li {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 10px;
-            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>Configurações</h1>
+            <div class="logo">
+                <img src="logo.png" alt="Logo Calculadora de Madeira">
+            </div>
             <nav>
                 <a href="calc.html">Calculadora</a>
                 <a href="perfil.html">Perfil</a>
@@ -190,64 +190,85 @@
                 <a href="notificacoes.html">Notificações</a>
                 <a href="ajuda.html">Ajuda</a>
             </nav>
+            <div class="user-menu">
+                <button id="menuButton" class="menu-button">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div id="menuPanel" class="menu-panel">
+                    <div class="menu-header">
+                        <img src="logo.png" alt="Logo" class="menu-logo">
+                    </div>
+                    <ul class="menu-items">
+                        <li><a href="calc.html"><i class="fas fa-calculator"></i> Calculadora</a></li>
+                        <li><a href="perfil.html"><i class="fas fa-user"></i> Perfil</a></li>
+                        <li><a href="configuracoes.html"><i class="fas fa-cog"></i> Configurações</a></li>
+                        <li><a href="notificacoes.html"><i class="fas fa-bell"></i> Notificações</a></li>
+                        <li><a href="ajuda.html"><i class="fas fa-question-circle"></i> Ajuda</a></li>
+                        <li><a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sair</a></li>
+                    </ul>
+                </div>
+                <div id="menuOverlay" class="menu-overlay"></div>
+            </div>
         </header>
 
         <main class="settings-container">
             <div class="settings-section">
                 <h2>Preferências Gerais</h2>
-                <ul>
-                    <li>
+                <ul class="settings-list">
+                    <li class="settings-item">
                         <div>
-                            <i class="fas fa-palette"></i>
-                            <span>Tema</span>
+                            <label>Notificações por Email</label>
+                            <div class="description">Receber notificações sobre atualizações e novidades</div>
                         </div>
-                        <select id="theme">
-                            <option value="light">Claro</option>
-                            <option value="dark">Escuro</option>
-                        </select>
+                        <label class="switch">
+                            <input type="checkbox" id="emailNotifications" checked>
+                            <span class="slider"></span>
+                        </label>
                     </li>
-                    <li>
+                    <li class="settings-item">
                         <div>
-                            <i class="fas fa-language"></i>
-                            <span>Idioma</span>
+                            <label>Modo Escuro</label>
+                            <div class="description">Ativar tema escuro para melhor visualização noturna</div>
                         </div>
-                        <select id="language">
-                            <option value="pt-BR">Português</option>
-                            <option value="en">English</option>
-                        </select>
+                        <label class="switch">
+                            <input type="checkbox" id="darkMode">
+                            <span class="slider"></span>
+                        </label>
                     </li>
-                    <li>
+                    <li class="settings-item">
                         <div>
-                            <i class="fas fa-money-bill-wave"></i>
-                            <span>Moeda</span>
+                            <label>Backup Automático</label>
+                            <div class="description">Fazer backup dos dados automaticamente</div>
                         </div>
-                        <select id="currency">
-                            <option value="BRL">Real (R$)</option>
-                            <option value="USD">Dólar ($)</option>
-                        </select>
+                        <label class="switch">
+                            <input type="checkbox" id="autoBackup" checked>
+                            <span class="slider"></span>
+                        </label>
                     </li>
                 </ul>
             </div>
 
             <div class="settings-section">
                 <h2>Personalização</h2>
-                <ul>
-                    <li>
+                <ul class="settings-list">
+                    <li class="settings-item">
                         <div>
-                            <i class="fas fa-paint-brush"></i>
-                            <span>Cor Principal</span>
+                            <label>Unidade de Medida</label>
+                            <div class="description">Selecione a unidade padrão para cálculos</div>
                         </div>
-                        <input type="color" id="primaryColor" value="#8B0000">
+                        <select id="unitSystem">
+                            <option value="metric">Métrico (m, cm)</option>
+                            <option value="imperial">Imperial (ft, in)</option>
+                        </select>
                     </li>
-                    <li>
+                    <li class="settings-item">
                         <div>
-                            <i class="fas fa-text-height"></i>
-                            <span>Tamanho da Fonte</span>
+                            <label>Formato de Números</label>
+                            <div class="description">Escolha como os números serão exibidos</div>
                         </div>
-                        <select id="fontSize">
-                            <option value="small">Pequeno</option>
-                            <option value="medium" selected>Médio</option>
-                            <option value="large">Grande</option>
+                        <select id="numberFormat">
+                            <option value="pt-BR">Brasileiro (1.234,56)</option>
+                            <option value="en-US">Americano (1,234.56)</option>
                         </select>
                     </li>
                 </ul>
@@ -255,108 +276,108 @@
 
             <div class="settings-section">
                 <h2>Notificações</h2>
-                <ul>
-                    <li>
+                <ul class="settings-list">
+                    <li class="settings-item">
                         <div>
-                            <i class="fas fa-envelope"></i>
-                            <span>Notificações por Email</span>
+                            <label>Notificações Push</label>
+                            <div class="description">Receber notificações no navegador</div>
                         </div>
-                        <select id="emailNotifications">
-                            <option value="all">Todas</option>
-                            <option value="important">Apenas Importantes</option>
-                            <option value="none">Nenhuma</option>
-                        </select>
+                        <label class="switch">
+                            <input type="checkbox" id="pushNotifications" checked>
+                            <span class="slider"></span>
+                        </label>
                     </li>
-                    <li>
+                    <li class="settings-item">
                         <div>
-                            <i class="fas fa-bell"></i>
-                            <span>Notificações Push</span>
+                            <label>Lembretes de Backup</label>
+                            <div class="description">Receber lembretes para fazer backup dos dados</div>
                         </div>
-                        <select id="pushNotifications">
-                            <option value="enabled">Ativadas</option>
-                            <option value="disabled">Desativadas</option>
-                        </select>
+                        <label class="switch">
+                            <input type="checkbox" id="backupReminders" checked>
+                            <span class="slider"></span>
+                        </label>
                     </li>
                 </ul>
             </div>
 
             <div class="settings-section">
                 <h2>Backup e Sincronização</h2>
-                <ul>
-                    <li>
+                <ul class="settings-list">
+                    <li class="settings-item">
                         <div>
-                            <i class="fas fa-save"></i>
-                            <span>Backup Automático</span>
+                            <label>Sincronização na Nuvem</label>
+                            <div class="description">Manter seus dados sincronizados entre dispositivos</div>
                         </div>
-                        <select id="autoBackup">
-                            <option value="daily">Diário</option>
-                            <option value="weekly">Semanal</option>
-                            <option value="monthly">Mensal</option>
-                        </select>
+                        <label class="switch">
+                            <input type="checkbox" id="cloudSync" checked>
+                            <span class="slider"></span>
+                        </label>
                     </li>
-                    <li>
+                    <li class="settings-item">
                         <div>
-                            <i class="fas fa-cloud"></i>
-                            <span>Sincronização na Nuvem</span>
+                            <label>Frequência de Backup</label>
+                            <div class="description">Com que frequência fazer backup dos dados</div>
                         </div>
-                        <select id="cloudSync">
-                            <option value="enabled">Ativada</option>
-                            <option value="disabled">Desativada</option>
+                        <select id="backupFrequency">
+                            <option value="daily">Diariamente</option>
+                            <option value="weekly">Semanalmente</option>
+                            <option value="monthly">Mensalmente</option>
                         </select>
                     </li>
                 </ul>
             </div>
 
-            <div class="settings-section">
-                <h2>Zona de Perigo</h2>
-                <div class="danger-zone">
-                    <h3>Limpar Todos os Dados</h3>
-                    <p>Esta ação não pode ser desfeita. Todos os seus dados serão permanentemente excluídos.</p>
-                    <button class="danger" onclick="clearAllData()">Limpar Todos os Dados</button>
-                </div>
+            <div class="danger-zone">
+                <h3>Zona de Perigo</h3>
+                <p>Ao limpar todos os dados, todas as suas configurações e dados salvos serão permanentemente removidos.</p>
+                <button onclick="clearAllData()">Limpar Todos os Dados</button>
             </div>
         </main>
     </div>
 
     <script src="auth.js"></script>
     <script>
-        // Verificar autenticação e plano ativo
+        // Verificar autenticação
         if (!isUserLoggedIn()) {
             window.location.href = 'index.html';
-        } else if (!isPlanActive()) {
-            window.location.href = 'planos.html';
         }
 
-        // Carregar configurações salvas
+        // Carregar configurações
         function loadSettings() {
             const settings = JSON.parse(localStorage.getItem('settings') || '{}');
             
-            // Aplicar configurações aos elementos
-            document.getElementById('theme').value = settings.theme || 'light';
-            document.getElementById('language').value = settings.language || 'pt-BR';
-            document.getElementById('currency').value = settings.currency || 'BRL';
-            document.getElementById('primaryColor').value = settings.primaryColor || '#8B0000';
-            document.getElementById('fontSize').value = settings.fontSize || 'medium';
-            document.getElementById('emailNotifications').value = settings.emailNotifications || 'all';
-            document.getElementById('pushNotifications').value = settings.pushNotifications || 'enabled';
-            document.getElementById('autoBackup').value = settings.autoBackup || 'daily';
-            document.getElementById('cloudSync').value = settings.cloudSync || 'enabled';
+            // Preferências Gerais
+            document.getElementById('emailNotifications').checked = settings.emailNotifications !== false;
+            document.getElementById('darkMode').checked = settings.darkMode || false;
+            document.getElementById('autoBackup').checked = settings.autoBackup !== false;
+            
+            // Personalização
+            document.getElementById('unitSystem').value = settings.unitSystem || 'metric';
+            document.getElementById('numberFormat').value = settings.numberFormat || 'pt-BR';
+            
+            // Notificações
+            document.getElementById('pushNotifications').checked = settings.pushNotifications !== false;
+            document.getElementById('backupReminders').checked = settings.backupReminders !== false;
+            
+            // Backup e Sincronização
+            document.getElementById('cloudSync').checked = settings.cloudSync !== false;
+            document.getElementById('backupFrequency').value = settings.backupFrequency || 'daily';
         }
 
         // Salvar configurações
         function saveSettings() {
             const settings = {
-                theme: document.getElementById('theme').value,
-                language: document.getElementById('language').value,
-                currency: document.getElementById('currency').value,
-                primaryColor: document.getElementById('primaryColor').value,
-                fontSize: document.getElementById('fontSize').value,
-                emailNotifications: document.getElementById('emailNotifications').value,
-                pushNotifications: document.getElementById('pushNotifications').value,
-                autoBackup: document.getElementById('autoBackup').value,
-                cloudSync: document.getElementById('cloudSync').value
+                emailNotifications: document.getElementById('emailNotifications').checked,
+                darkMode: document.getElementById('darkMode').checked,
+                autoBackup: document.getElementById('autoBackup').checked,
+                unitSystem: document.getElementById('unitSystem').value,
+                numberFormat: document.getElementById('numberFormat').value,
+                pushNotifications: document.getElementById('pushNotifications').checked,
+                backupReminders: document.getElementById('backupReminders').checked,
+                cloudSync: document.getElementById('cloudSync').checked,
+                backupFrequency: document.getElementById('backupFrequency').value
             };
-
+            
             localStorage.setItem('settings', JSON.stringify(settings));
             showFeedback('Configurações salvas com sucesso!');
         }
@@ -365,10 +386,7 @@
         function clearAllData() {
             if (confirm('Tem certeza que deseja limpar todos os dados? Esta ação não pode ser desfeita.')) {
                 localStorage.clear();
-                showFeedback('Todos os dados foram limpos.', 'error');
-                setTimeout(() => {
-                    window.location.href = 'index.html';
-                }, 2000);
+                window.location.href = 'index.html';
             }
         }
 
@@ -384,13 +402,35 @@
             }, 3000);
         }
 
-        // Aplicar configurações quando mudar
-        document.querySelectorAll('select, input').forEach(element => {
-            element.addEventListener('change', saveSettings);
-        });
+        // Menu toggle
+        function toggleMenu() {
+            const menuPanel = document.getElementById('menuPanel');
+            const menuOverlay = document.getElementById('menuOverlay');
+            
+            menuPanel.classList.toggle('active');
+            menuOverlay.classList.toggle('active');
+        }
 
-        // Carregar configurações ao iniciar
-        loadSettings();
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            loadSettings();
+
+            // Menu button
+            document.getElementById('menuButton').addEventListener('click', toggleMenu);
+            document.getElementById('menuOverlay').addEventListener('click', toggleMenu);
+
+            // Menu items
+            document.querySelectorAll('.menu-items a').forEach(link => {
+                link.addEventListener('click', () => {
+                    toggleMenu();
+                });
+            });
+
+            // Salvar configurações quando alteradas
+            document.querySelectorAll('.settings-list input, .settings-list select').forEach(element => {
+                element.addEventListener('change', saveSettings);
+            });
+        });
     </script>
 </body>
 </html> 

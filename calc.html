@@ -933,13 +933,6 @@
             ctx.fillStyle = 'white';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
-            // Cabeçalho com gradiente
-            const gradient = ctx.createLinearGradient(0, 0, 0, 100);
-            gradient.addColorStop(0, '#8B0000');
-            gradient.addColorStop(1, '#A00000');
-            ctx.fillStyle = gradient;
-            ctx.fillRect(0, 0, canvas.width, 100);
-            
             // Carregar dados do perfil
             const profileData = JSON.parse(localStorage.getItem('profileData') || '{}');
             
@@ -1186,6 +1179,145 @@
                 calcularTotal();
                 showFeedback('Item removido com sucesso!');
             }
+        }
+
+        function gerarRelatorio() {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            const companyLogo = localStorage.getItem('companyLogo');
+            
+            let relatorio = `
+                <div class="relatorio">
+                    <div class="relatorio-header">
+                        ${companyLogo ? `<img src="${companyLogo}" alt="Logo da Empresa" class="company-logo">` : ''}
+                        <h2>Relatório de Cálculo</h2>
+                    </div>
+                    <div class="relatorio-info">
+                        <p><strong>Data:</strong> ${new Date().toLocaleDateString()}</p>
+                        <p><strong>Cliente:</strong> ${user.name || 'Não informado'}</p>
+                        <p><strong>Empresa:</strong> ${user.company || 'Não informada'}</p>
+                        <p><strong>Telefone:</strong> ${user.phone || 'Não informado'}</p>
+                        <p><strong>E-mail:</strong> ${user.email || 'Não informado'}</p>
+                    </div>
+                    <div class="relatorio-items">
+                        <h3>Itens Calculados</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Dimensões</th>
+                                    <th>Quantidade</th>
+                                    <th>Volume (m³)</th>
+                                    <th>Preço (R$)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${itens.map(item => `
+                                    <tr>
+                                        <td>${item.descricao}</td>
+                                        <td>${item.largura}m x ${item.altura}m x ${item.comprimento}m</td>
+                                        <td>${item.quantidade}</td>
+                                        <td>${item.volume.toFixed(3)}</td>
+                                        <td>${item.preco.toFixed(2)}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="relatorio-total">
+                        <p><strong>Volume Total:</strong> ${volumeTotal.toFixed(3)} m³</p>
+                        <p><strong>Valor Total:</strong> R$ ${valorTotal.toFixed(2)}</p>
+                    </div>
+                </div>
+            `;
+
+            // Adicionar estilos específicos para o relatório
+            const style = document.createElement('style');
+            style.textContent = `
+                .relatorio {
+                    max-width: 800px;
+                    margin: 20px auto;
+                    padding: 20px;
+                    background: white;
+                    border-radius: 8px;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                }
+
+                .relatorio-header {
+                    display: flex;
+                    align-items: center;
+                    margin-bottom: 20px;
+                    padding-bottom: 20px;
+                    border-bottom: 1px solid #eee;
+                }
+
+                .company-logo {
+                    max-width: 150px;
+                    height: auto;
+                    margin-right: 20px;
+                }
+
+                .relatorio-info {
+                    margin-bottom: 20px;
+                }
+
+                .relatorio-info p {
+                    margin: 5px 0;
+                }
+
+                .relatorio-items {
+                    margin-bottom: 20px;
+                }
+
+                .relatorio-items table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin-top: 10px;
+                }
+
+                .relatorio-items th,
+                .relatorio-items td {
+                    padding: 8px;
+                    text-align: left;
+                    border-bottom: 1px solid #eee;
+                }
+
+                .relatorio-items th {
+                    background-color: #f5f5f5;
+                    font-weight: 500;
+                }
+
+                .relatorio-total {
+                    margin-top: 20px;
+                    padding-top: 20px;
+                    border-top: 1px solid #eee;
+                    font-size: 1.1em;
+                }
+
+                .relatorio-total p {
+                    margin: 5px 0;
+                }
+            `;
+            document.head.appendChild(style);
+
+            // Criar janela de impressão
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Relatório de Cálculo</title>
+                    <style>
+                        ${style.textContent}
+                    </style>
+                </head>
+                <body>
+                    ${relatorio}
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.focus();
+            printWindow.print();
         }
     </script>
 </body>
