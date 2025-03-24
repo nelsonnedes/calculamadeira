@@ -917,81 +917,112 @@
             // Carregar dados do perfil
             const profileData = JSON.parse(localStorage.getItem('profileData') || '{}');
             
-            // Configurar fonte para o cabeçalho
-            ctx.font = 'bold 24px Arial';
-            ctx.fillStyle = 'white';
-            
-            // Desenhar dados do usuário
-            ctx.fillText(profileData.name || 'Usuário', 120, 40);
-            ctx.font = '16px Arial';
-            ctx.fillStyle = 'rgba(255,255,255,0.9)';
-            ctx.fillText(profileData.company || 'Empresa', 120, 65);
-            ctx.fillText(profileData.phone || 'Telefone não informado', 120, 85);
-            
-            // Título do relatório
-            ctx.font = 'bold 28px Arial';
-            ctx.fillStyle = '#8B0000';
-            ctx.fillText('Relatório de Cálculos de Madeira', 30, 150);
-            
-            // Data e hora
-            const now = new Date();
-            const dateStr = now.toLocaleDateString('pt-BR');
-            const timeStr = now.toLocaleTimeString('pt-BR');
-            
-            ctx.font = '14px Arial';
-            ctx.fillStyle = '#666';
-            ctx.fillText(`Gerado em ${dateStr} às ${timeStr}`, 30, 180);
-            
-            // Linha separadora
-            ctx.strokeStyle = '#ddd';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.moveTo(30, 200);
-            ctx.lineTo(770, 200);
-            ctx.stroke();
-            
-            // Cabeçalho da tabela
-            const headers = ['TAMANHO', 'PEÇAS', 'VOLUME', 'PREÇO'];
-            const columnWidths = [250, 100, 150, 150];
-            
-            // Fundo do cabeçalho da tabela
-            ctx.fillStyle = '#f8f8f8';
-            ctx.fillRect(30, 220, 740, 40);
-            
-            // Texto do cabeçalho
-            ctx.fillStyle = '#8B0000';
-            ctx.font = 'bold 14px Arial';
-            let x = 30;
-            headers.forEach((header, index) => {
-                ctx.fillText(header, x + 10, 245);
-                x += columnWidths[index];
-            });
-            
-            // Dados da tabela
-            ctx.fillStyle = '#333';
-            ctx.font = '14px Arial';
-            let y = 280;
-            
-            // Alternar cores das linhas
-            items.forEach((item, index) => {
-                // Fundo alternado
-                ctx.fillStyle = index % 2 === 0 ? '#ffffff' : '#f8f8f8';
-                ctx.fillRect(30, y - 25, 740, 30);
+            // Carregar e desenhar o logo do perfil
+            const logo = new Image();
+            logo.onload = function() {
+                // Desenhar logo
+                const logoSize = 80;
+                ctx.drawImage(logo, 20, 10, logoSize, logoSize);
                 
-                // Texto
+                // Configurar fonte para o cabeçalho
+                ctx.font = 'bold 24px Arial';
+                ctx.fillStyle = 'white';
+                
+                // Desenhar dados da empresa
+                ctx.fillText(profileData.company || 'Empresa', 120, 45);
+                ctx.font = '16px Arial';
+                ctx.fillStyle = 'rgba(255,255,255,0.9)';
+                ctx.fillText(profileData.phone || 'Telefone não informado', 120, 70);
+                ctx.fillText(profileData.address || 'Endereço não informado', 120, 90);
+                
+                // Título do relatório
+                ctx.font = 'bold 28px Arial';
+                ctx.fillStyle = '#8B0000';
+                ctx.fillText('Relatório de Cálculos de Madeira', 30, 150);
+                
+                // Data e hora
+                const now = new Date();
+                const dateStr = now.toLocaleDateString('pt-BR');
+                const timeStr = now.toLocaleTimeString('pt-BR');
+                
+                ctx.font = '14px Arial';
+                ctx.fillStyle = '#666';
+                ctx.fillText(`Gerado em ${dateStr} às ${timeStr}`, 30, 180);
+                
+                // Linha separadora
+                ctx.strokeStyle = '#ddd';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(30, 200);
+                ctx.lineTo(770, 200);
+                ctx.stroke();
+                
+                // Cabeçalho da tabela
+                const headers = ['TAMANHO', 'PEÇAS', 'VOLUME', 'PREÇO'];
+                const columnWidths = [250, 100, 150, 150];
+                
+                // Fundo do cabeçalho da tabela
+                ctx.fillStyle = '#f8f8f8';
+                ctx.fillRect(30, 220, 740, 40);
+                
+                // Texto do cabeçalho
+                ctx.fillStyle = '#8B0000';
+                ctx.font = 'bold 14px Arial';
+                let x = 30;
+                headers.forEach((header, index) => {
+                    ctx.fillText(header, x + 10, 245);
+                    x += columnWidths[index];
+                });
+                
+                // Dados da tabela
                 ctx.fillStyle = '#333';
-                x = 30;
-                for (let i = 0; i < 4; i++) {
-                    ctx.fillText(item.children[i].textContent, x + 10, y);
-                    x += columnWidths[i];
+                ctx.font = '14px Arial';
+                let y = 280;
+                
+                // Alternar cores das linhas
+                items.forEach((item, index) => {
+                    // Fundo alternado
+                    ctx.fillStyle = index % 2 === 0 ? '#ffffff' : '#f8f8f8';
+                    ctx.fillRect(30, y - 25, 740, 30);
+                    
+                    // Texto
+                    ctx.fillStyle = '#333';
+                    x = 30;
+                    for (let i = 0; i < 4; i++) {
+                        ctx.fillText(item.children[i].textContent, x + 10, y);
+                        x += columnWidths[i];
+                    }
+                    y += 30;
+                });
+                
+                // Linha de total
+                const totalRow = document.querySelector('.total-row');
+                if (totalRow) {
+                    y += 10;
+                    ctx.strokeStyle = '#ddd';
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.moveTo(30, y);
+                    ctx.lineTo(770, y);
+                    ctx.stroke();
+                    
+                    y += 30;
+                    // Fundo do total
+                    ctx.fillStyle = '#f0f0f0';
+                    ctx.fillRect(30, y - 25, 740, 30);
+                    
+                    // Texto do total
+                    ctx.fillStyle = '#8B0000';
+                    ctx.font = 'bold 14px Arial';
+                    x = 30;
+                    for (let i = 0; i < 4; i++) {
+                        ctx.fillText(totalRow.children[i].textContent, x + 10, y);
+                        x += columnWidths[i];
+                    }
                 }
-                y += 30;
-            });
-            
-            // Linha de total
-            const totalRow = document.querySelector('.total-row');
-            if (totalRow) {
-                y += 10;
+                
+                // Rodapé
+                y += 50;
                 ctx.strokeStyle = '#ddd';
                 ctx.lineWidth = 1;
                 ctx.beginPath();
@@ -999,60 +1030,45 @@
                 ctx.lineTo(770, y);
                 ctx.stroke();
                 
-                y += 30;
-                // Fundo do total
-                ctx.fillStyle = '#f0f0f0';
-                ctx.fillRect(30, y - 25, 740, 30);
+                ctx.fillStyle = '#666';
+                ctx.font = '12px Arial';
+                ctx.fillText('Calculadora de Madeira - Relatório Gerado Automaticamente', 30, y + 20);
                 
-                // Texto do total
-                ctx.fillStyle = '#8B0000';
-                ctx.font = 'bold 14px Arial';
-                x = 30;
-                for (let i = 0; i < 4; i++) {
-                    ctx.fillText(totalRow.children[i].textContent, x + 10, y);
-                    x += columnWidths[i];
-                }
-            }
-            
-            // Rodapé
-            y += 50;
-            ctx.strokeStyle = '#ddd';
-            ctx.lineWidth = 1;
-            ctx.beginPath();
-            ctx.moveTo(30, y);
-            ctx.lineTo(770, y);
-            ctx.stroke();
-            
-            ctx.fillStyle = '#666';
-            ctx.font = '12px Arial';
-            ctx.fillText('Calculadora de Madeira - Relatório Gerado Automaticamente', 30, y + 20);
-            
-            try {
-                // Converter canvas para blob e compartilhar
-                canvas.toBlob(function(blob) {
-                    if (!blob) {
-                        showFeedback('Erro ao gerar a imagem.', 'error');
-                        return;
-                    }
+                try {
+                    // Converter canvas para blob e compartilhar
+                    canvas.toBlob(function(blob) {
+                        if (!blob) {
+                            showFeedback('Erro ao gerar a imagem.', 'error');
+                            return;
+                        }
 
-                    const file = new File([blob], 'relatorio_madeira.png', { type: 'image/png' });
-                    
-                    if (navigator.share) {
-                        navigator.share({
-                            title: 'Relatório de Madeira',
-                            text: 'Relatório detalhado de cálculos de madeira',
-                            files: [file]
-                        }).catch(error => {
-                            console.error('Erro ao compartilhar:', error);
+                        const file = new File([blob], 'relatorio_madeira.png', { type: 'image/png' });
+                        
+                        if (navigator.share) {
+                            navigator.share({
+                                title: 'Relatório de Madeira',
+                                text: 'Relatório detalhado de cálculos de madeira',
+                                files: [file]
+                            }).catch(error => {
+                                console.error('Erro ao compartilhar:', error);
+                                downloadImage(blob);
+                            });
+                        } else {
                             downloadImage(blob);
-                        });
-                    } else {
-                        downloadImage(blob);
-                    }
-                }, 'image/png');
-            } catch (error) {
-                console.error('Erro ao gerar relatório:', error);
-                showFeedback('Erro ao gerar o relatório. Tente novamente.', 'error');
+                        }
+                    }, 'image/png');
+                } catch (error) {
+                    console.error('Erro ao gerar relatório:', error);
+                    showFeedback('Erro ao gerar o relatório. Tente novamente.', 'error');
+                }
+            };
+            
+            // Carregar a logo do perfil
+            if (profileData.logo) {
+                logo.src = profileData.logo;
+            } else {
+                // Se não houver logo, continuar sem ela
+                logo.onload();
             }
         }
 
