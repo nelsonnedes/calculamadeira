@@ -29,6 +29,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
+            gap: 20px;
         }
 
         .logo {
@@ -37,6 +38,15 @@
             font-size: 24px;
             display: flex;
             align-items: center;
+            padding: 5px;
+        }
+
+        .page-title {
+            color: white;
+            font-size: 1.2rem;
+            margin: 0;
+            flex: 1;
+            text-align: center;
         }
 
         nav ul {
@@ -141,6 +151,10 @@
                 text-align: center;
             }
 
+            .page-title {
+                margin-top: 10px;
+            }
+
             nav ul {
                 flex-direction: column;
                 margin: 15px 0;
@@ -155,7 +169,7 @@
             }
 
             .container {
-                padding-top: 180px; /* Mais espaço para o header em modo mobile */
+                padding-top: 120px; /* Mais espaço para o header em modo mobile */
             }
         }
 
@@ -312,31 +326,7 @@
             <a href="calc.html" class="logo">
                 <i class="fas fa-home"></i>
             </a>
-            <nav>
-                <ul>
-                    <li><a href="calc.html">Calculadora</a></li>
-                    <li><a href="perfil.html">Perfil</a></li>
-                    <li><a href="configuracoes.html">Configurações</a></li>
-                    <li><a href="notificacoes.html" class="active">Notificações</a></li>
-                    <li><a href="ajuda.html">Ajuda</a></li>
-                </ul>
-            </nav>
-            <div class="user-menu">
-                <button class="user-menu-button">
-                    <i class="fas fa-user"></i>
-                </button>
-                <div class="user-menu-panel">
-                    <div class="user-info">
-                        <span id="userName">Carregando...</span>
-                        <span id="userEmail">Carregando...</span>
-                    </div>
-                    <ul>
-                        <li><a href="perfil.html"><i class="fas fa-user"></i> Meu Perfil</a></li>
-                        <li><a href="configuracoes.html"><i class="fas fa-cog"></i> Configurações</a></li>
-                        <li><a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sair</a></li>
-                    </ul>
-                </div>
-            </div>
+            <h1 class="page-title">Notificações</h1>
         </div>
     </header>
 

@@ -29,6 +29,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
+            gap: 20px;
         }
 
         .logo {
@@ -37,6 +38,15 @@
             font-size: 24px;
             display: flex;
             align-items: center;
+            padding: 5px;
+        }
+
+        .page-title {
+            color: white;
+            font-size: 1.2rem;
+            margin: 0;
+            flex: 1;
+            text-align: center;
         }
 
         nav ul {
@@ -339,6 +349,10 @@
                 text-align: center;
             }
 
+            .page-title {
+                margin-top: 10px;
+            }
+
             nav ul {
                 flex-direction: column;
                 margin: 15px 0;
@@ -353,7 +367,7 @@
             }
 
             .container {
-                padding-top: 180px; /* Mais espaço para o header em modo mobile */
+                padding-top: 120px; /* Mais espaço para o header em modo mobile */
             }
         }
     </style>
@@ -364,15 +378,7 @@
             <a href="calc.html" class="logo">
                 <i class="fas fa-home"></i>
             </a>
-            <nav>
-                <ul>
-                    <li><a href="calc.html">Calculadora</a></li>
-                    <li><a href="perfil.html" class="active">Perfil</a></li>
-                    <li><a href="configuracoes.html">Configurações</a></li>
-                    <li><a href="notificacoes.html">Notificações</a></li>
-                    <li><a href="ajuda.html">Ajuda</a></li>
-                </ul>
-            </nav>
+            <h1 class="page-title">Perfil</h1>
         </div>
     </header>
 
