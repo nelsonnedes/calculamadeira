@@ -10,6 +10,155 @@
     <link rel="apple-touch-icon" href="icon-192x192.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
+        /* Estilos do header e navegação */
+        header {
+            background: #8B0000;
+            padding: 15px 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            color: white;
+            text-decoration: none;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            margin: 0;
+            padding: 0;
+        }
+
+        nav ul li {
+            margin: 0 15px;
+        }
+
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            transition: opacity 0.3s;
+        }
+
+        nav ul li a:hover {
+            opacity: 0.8;
+        }
+
+        .user-menu {
+            position: relative;
+        }
+
+        .user-menu-button {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 20px;
+            padding: 5px;
+        }
+
+        .user-menu-panel {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            min-width: 200px;
+            display: none;
+            z-index: 1001;
+        }
+
+        .user-menu-button:focus + .user-menu-panel,
+        .user-menu-panel:hover {
+            display: block;
+        }
+
+        .user-info {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .user-info span {
+            display: block;
+            color: #333;
+        }
+
+        .user-info span:first-child {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .user-menu-panel ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .user-menu-panel ul li a {
+            padding: 12px 15px;
+            display: flex;
+            align-items: center;
+            color: #333;
+            text-decoration: none;
+            transition: background-color 0.3s;
+        }
+
+        .user-menu-panel ul li a:hover {
+            background-color: #f5f5f5;
+        }
+
+        .user-menu-panel ul li a i {
+            margin-right: 10px;
+            color: #8B0000;
+        }
+
+        /* Ajuste para o conteúdo principal */
+        .container {
+            padding-top: 80px; /* Espaço para o header fixo */
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            nav ul {
+                flex-direction: column;
+                margin: 15px 0;
+            }
+
+            nav ul li {
+                margin: 10px 0;
+            }
+
+            .user-menu {
+                margin-top: 15px;
+            }
+
+            .container {
+                padding-top: 180px; /* Mais espaço para o header em modo mobile */
+            }
+        }
+
         .help-container {
             max-width: 800px;
             margin: 20px auto;
