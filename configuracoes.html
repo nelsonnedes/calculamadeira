@@ -6,8 +6,9 @@
     <title>Configurações - Calculadora de Madeira</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#4CAF50">
+    <meta name="theme-color" content="#8B0000">
     <link rel="apple-touch-icon" href="icon-192x192.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         /* Cores principais */
         :root {
@@ -323,34 +324,35 @@
 <body>
     <div class="container">
         <header>
-            <div class="logo">
-                <img src="logo.png" alt="Logo Calculadora de Madeira">
-            </div>
-            <nav>
-                <a href="calc.html">Calculadora</a>
-                <a href="perfil.html">Perfil</a>
-                <a href="configuracoes.html" class="active">Configurações</a>
-                <a href="notificacoes.html">Notificações</a>
-                <a href="ajuda.html">Ajuda</a>
-            </nav>
-            <div class="user-menu">
-                <button id="menuButton" class="menu-button">
-                    <i class="fas fa-bars"></i>
-                </button>
-                <div id="menuPanel" class="menu-panel">
-                    <div class="menu-header">
-                        <img src="logo.png" alt="Logo" class="menu-logo">
-                    </div>
-                    <ul class="menu-items">
-                        <li><a href="calc.html"><i class="fas fa-calculator"></i> Calculadora</a></li>
-                        <li><a href="perfil.html"><i class="fas fa-user"></i> Perfil</a></li>
-                        <li><a href="configuracoes.html"><i class="fas fa-cog"></i> Configurações</a></li>
-                        <li><a href="notificacoes.html"><i class="fas fa-bell"></i> Notificações</a></li>
-                        <li><a href="ajuda.html"><i class="fas fa-question-circle"></i> Ajuda</a></li>
-                        <li><a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sair</a></li>
+            <div class="header-content">
+                <a href="calc.html" class="logo">
+                    <i class="fas fa-home"></i>
+                </a>
+                <nav>
+                    <ul>
+                        <li><a href="calc.html">Calculadora</a></li>
+                        <li><a href="perfil.html">Perfil</a></li>
+                        <li><a href="configuracoes.html" class="active">Configurações</a></li>
+                        <li><a href="notificacoes.html">Notificações</a></li>
+                        <li><a href="ajuda.html">Ajuda</a></li>
                     </ul>
+                </nav>
+                <div class="user-menu">
+                    <button class="user-menu-button">
+                        <i class="fas fa-user"></i>
+                    </button>
+                    <div class="user-menu-panel">
+                        <div class="user-info">
+                            <span id="userName">Carregando...</span>
+                            <span id="userEmail">Carregando...</span>
+                        </div>
+                        <ul>
+                            <li><a href="perfil.html"><i class="fas fa-user"></i> Meu Perfil</a></li>
+                            <li><a href="configuracoes.html"><i class="fas fa-cog"></i> Configurações</a></li>
+                            <li><a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sair</a></li>
+                        </ul>
+                    </div>
                 </div>
-                <div id="menuOverlay" class="menu-overlay"></div>
             </div>
         </header>
 

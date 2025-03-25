@@ -6,8 +6,9 @@
     <title>Ajuda - Calculadora de Madeira</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#4CAF50">
+    <meta name="theme-color" content="#8B0000">
     <link rel="apple-touch-icon" href="icon-192x192.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         .help-container {
             max-width: 800px;
@@ -311,18 +312,40 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>Ajuda</h1>
+    <header>
+        <div class="header-content">
+            <a href="calc.html" class="logo">
+                <i class="fas fa-home"></i>
+            </a>
             <nav>
-                <a href="calc.html">Calculadora</a>
-                <a href="perfil.html">Perfil</a>
-                <a href="configuracoes.html">Configurações</a>
-                <a href="notificacoes.html">Notificações</a>
-                <a href="ajuda.html" class="active">Ajuda</a>
+                <ul>
+                    <li><a href="calc.html">Calculadora</a></li>
+                    <li><a href="perfil.html">Perfil</a></li>
+                    <li><a href="configuracoes.html">Configurações</a></li>
+                    <li><a href="notificacoes.html">Notificações</a></li>
+                    <li><a href="ajuda.html" class="active">Ajuda</a></li>
+                </ul>
             </nav>
-        </header>
+            <div class="user-menu">
+                <button class="user-menu-button">
+                    <i class="fas fa-user"></i>
+                </button>
+                <div class="user-menu-panel">
+                    <div class="user-info">
+                        <span id="userName">Carregando...</span>
+                        <span id="userEmail">Carregando...</span>
+                    </div>
+                    <ul>
+                        <li><a href="perfil.html"><i class="fas fa-user"></i> Meu Perfil</a></li>
+                        <li><a href="configuracoes.html"><i class="fas fa-cog"></i> Configurações</a></li>
+                        <li><a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sair</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </header>
 
+    <div class="container">
         <main class="help-container">
             <div class="search-box">
                 <input type="text" id="searchHelp" placeholder="Pesquisar na ajuda...">
