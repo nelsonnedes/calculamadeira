@@ -553,7 +553,7 @@
                    placeholder="0"
                    inputmode="numeric"
                    pattern="[0-9]*"
-                   min="1">
+                   min="0">
             <span class="unit">Peças</span>
         </div>
         <div class="input-group">
@@ -861,6 +861,9 @@
                 document.getElementById('length').value = '';
                 document.getElementById('quantity').value = '1';
                 document.getElementById('price').value = 'R$ 0,00';
+
+                // Focar no campo de espessura
+                document.getElementById('thickness').focus();
             });
 
             // Refresh button with confirmation
