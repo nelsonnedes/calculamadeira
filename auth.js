@@ -88,6 +88,13 @@ function logoutUser() {
     const users = JSON.parse(localStorage.getItem(AUTH_KEY) || '[]');
     const updatedUsers = users.map(user => ({ ...user, isLoggedIn: false }));
     localStorage.setItem(AUTH_KEY, JSON.stringify(updatedUsers));
+    
+    // Limpar dados específicos do usuário
+    localStorage.removeItem('woodList');
+    localStorage.removeItem('calc_madeira_reset_codes');
+    
+    // Redirecionar para a página de login
+    window.location.href = 'index.html';
 }
 
 function updateUserPlan(userId, planType) {

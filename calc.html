@@ -826,48 +826,41 @@
 
             // Add to list with validation
             document.querySelector('.add-button').addEventListener('click', function() {
-                if (!validateInputs()) return;
-
-                try {
-                    const width = document.getElementById('width').value;
-                    const thickness = document.getElementById('thickness').value;
-                    const length = document.getElementById('length').value;
-                    const quantity = document.getElementById('quantity').value;
-                    const volume = document.getElementById('volume').textContent;
-                    const cost = document.getElementById('cost').textContent;
-
-                    const listItem = document.createElement('div');
-                    listItem.className = 'list-item';
-                    listItem.innerHTML = `
-                        <div>${thickness}x${width}x${length}</div>
-                        <div>${quantity}</div>
-                        <div>${volume}</div>
-                        <div>${cost}</div>
-                        <button class="delete-btn" onclick="deleteItem(this)" aria-label="Excluir item">×</button>
-                    `;
-
-                    document.getElementById('itemsList').appendChild(listItem);
-                    saveList();
-                    calcularTotal();
-                    showFeedback('Item adicionado com sucesso!');
-
-                    // Gerar relatório após adicionar o item
-                    generateReport();
-
-                    // Limpar inputs
-                    ['width', 'thickness', 'length', 'quantity'].forEach(id => {
-                        document.getElementById(id).value = '';
-                    });
-                    document.getElementById('price').value = 'R$ 0,00';
-                    
-                    // Limpar resultados
-                    document.getElementById('volume').textContent = '0,000m³';
-                    document.getElementById('totalVolume').textContent = '0,000m³';
-                    document.getElementById('cost').textContent = 'R$ 0,00';
-                } catch (error) {
-                    console.error('Erro ao adicionar item:', error);
-                    showFeedback('Erro ao adicionar item. Tente novamente.', 'error');
+                if (!validateInputs()) {
+                    return;
                 }
+
+                const width = document.getElementById('width').value;
+                const thickness = document.getElementById('thickness').value;
+                const length = document.getElementById('length').value;
+                const quantity = document.getElementById('quantity').value;
+                const price = document.getElementById('price').value;
+
+                const volume = (width * thickness * length * quantity) / 1000000; // Convertendo para m³
+                const cost = volume * parseFloat(price.replace(/[^0-9,.]/g, '').replace(',', '.'));
+
+                const item = document.createElement('div');
+                item.className = 'list-item';
+                item.innerHTML = `
+                    <div>${width}x${thickness}x${length}</div>
+                    <div>${quantity}</div>
+                    <div>${volume.toFixed(3).replace('.', ',')}m³</div>
+                    <div>${formatters.currency.format(cost)}</div>
+                    <div>
+                        <button class="delete-btn" onclick="this.parentElement.parentElement.remove(); saveList();">×</button>
+                    </div>
+                `;
+
+                document.getElementById('itemsList').appendChild(item);
+                saveList();
+                showFeedback('Item adicionado com sucesso!', 'success');
+
+                // Limpar campos
+                document.getElementById('width').value = '';
+                document.getElementById('thickness').value = '';
+                document.getElementById('length').value = '';
+                document.getElementById('quantity').value = '1';
+                document.getElementById('price').value = 'R$ 0,00';
             });
 
             // Refresh button with confirmation
