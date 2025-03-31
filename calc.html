@@ -470,6 +470,7 @@
         }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 </head>
 <body>
     <div class="overlay" id="overlay"></div>
@@ -918,14 +919,16 @@
                 totalCost += cost;
             });
 
-            // Atualizar a linha de total de forma mais eficiente
-            let totalRow = document.querySelector('.total-row');
+            // Remover total anterior se existir
+            const oldTotal = document.querySelector('.total-row');
+            if (oldTotal) {
+                oldTotal.remove();
+            }
+
+            // Adicionar nova linha de total apenas se houver itens
             if (items.length > 0) {
-                if (!totalRow) {
-                    totalRow = document.createElement('div');
-                    totalRow.className = 'total-row';
-                    document.getElementById('itemsList').appendChild(totalRow);
-                }
+                const totalRow = document.createElement('div');
+                totalRow.className = 'total-row';
                 totalRow.innerHTML = `
                     <div>TOTAL</div>
                     <div>${totalPieces}</div>
@@ -933,8 +936,7 @@
                     <div>R$ ${totalCost.toFixed(2).replace('.', ',')}</div>
                     <div></div>
                 `;
-            } else if (totalRow) {
-                totalRow.remove();
+                document.getElementById('itemsList').appendChild(totalRow);
             }
         }
 
@@ -967,140 +969,68 @@
                 return;
             }
 
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            
-            // Configurar tamanho do canvas
-            canvas.width = 800;
-            canvas.height = 1000;
-            
-            // Fundo branco
-            ctx.fillStyle = 'white';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
-            // Carregar dados do usuário
-            const user = JSON.parse(localStorage.getItem('user') || '{}');
-            const companyLogo = localStorage.getItem('companyLogo');
-            
-            // Carregar e desenhar o logo da empresa
-            const logo = new Image();
-            logo.onload = function() {
-                // Desenhar logo
-                const logoSize = 80;
-                ctx.drawImage(logo, 20, 10, logoSize, logoSize);
-                
-                // Configurar fonte para o cabeçalho
-                ctx.font = 'bold 24px Arial';
-                ctx.fillStyle = '#333';
-                
-                // Desenhar dados da empresa
-                ctx.fillText(user.company || 'Nome da Empresa', 120, 45);
-                ctx.font = '16px Arial';
-                ctx.fillStyle = '#666';
-                ctx.fillText(user.phone || 'Telefone não informado', 120, 70);
-                
-                // Título do relatório
-                ctx.font = 'bold 28px Arial';
-                ctx.fillStyle = '#8B0000';
-                ctx.fillText('Relatório de Cálculos de Madeira', 30, 150);
-                
-                // Data e hora
-                const now = new Date();
-                const dateStr = now.toLocaleDateString('pt-BR');
-                const timeStr = now.toLocaleTimeString('pt-BR');
-                
-                ctx.font = '14px Arial';
-                ctx.fillStyle = '#666';
-                ctx.fillText(`Gerado em ${dateStr} às ${timeStr}`, 30, 180);
-                
-                // Linha separadora
-                ctx.strokeStyle = '#ddd';
-                ctx.lineWidth = 2;
-                ctx.beginPath();
-                ctx.moveTo(30, 200);
-                ctx.lineTo(770, 200);
-                ctx.stroke();
-                
-                // Cabeçalho da tabela
-                const headers = ['TAMANHO', 'PEÇAS', 'VOLUME', 'PREÇO'];
-                const columnWidths = [250, 100, 150, 150];
-                
-                // Fundo do cabeçalho da tabela
-                ctx.fillStyle = '#f8f8f8';
-                ctx.fillRect(30, 220, 740, 40);
-                
-                // Texto do cabeçalho
-                ctx.fillStyle = '#8B0000';
-                ctx.font = 'bold 14px Arial';
-                let x = 30;
-                headers.forEach((header, index) => {
-                    ctx.fillText(header, x + 10, 245);
-                    x += columnWidths[index];
+            try {
+                // Criar um elemento temporário para o relatório
+                const reportDiv = document.createElement('div');
+                reportDiv.style.position = 'fixed';
+                reportDiv.style.left = '-9999px';
+                document.body.appendChild(reportDiv);
+
+                // Criar o conteúdo do relatório
+                let reportContent = `
+                    <div style="font-family: Arial, sans-serif; padding: 20px;">
+                        <h2 style="color: #8B0000;">Relatório de Madeira</h2>
+                        <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+                            <thead>
+                                <tr style="background-color: #8B0000; color: white;">
+                                    <th style="padding: 10px; text-align: left;">Tamanho</th>
+                                    <th style="padding: 10px; text-align: right;">Peças</th>
+                                    <th style="padding: 10px; text-align: right;">Volume</th>
+                                    <th style="padding: 10px; text-align: right;">Preço</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+
+                // Adicionar itens
+                items.forEach(item => {
+                    reportContent += `
+                        <tr style="border-bottom: 1px solid #ddd;">
+                            <td style="padding: 10px;">${item.children[0].textContent}</td>
+                            <td style="padding: 10px; text-align: right;">${item.children[1].textContent}</td>
+                            <td style="padding: 10px; text-align: right;">${item.children[2].textContent}</td>
+                            <td style="padding: 10px; text-align: right;">${item.children[3].textContent}</td>
+                        </tr>
+                    `;
                 });
-                
-                // Dados da tabela
-                ctx.fillStyle = '#333';
-                ctx.font = '14px Arial';
-                let y = 280;
-                
-                // Alternar cores das linhas
-                items.forEach((item, index) => {
-                    // Fundo alternado
-                    ctx.fillStyle = index % 2 === 0 ? '#ffffff' : '#f8f8f8';
-                    ctx.fillRect(30, y - 25, 740, 30);
-                    
-                    // Texto
-                    ctx.fillStyle = '#333';
-                    x = 30;
-                    for (let i = 0; i < 4; i++) {
-                        ctx.fillText(item.children[i].textContent, x + 10, y);
-                        x += columnWidths[i];
-                    }
-                    y += 30;
-                });
-                
-                // Linha de total
+
+                // Adicionar total
                 const totalRow = document.querySelector('.total-row');
                 if (totalRow) {
-                    y += 10;
-                    ctx.strokeStyle = '#ddd';
-                    ctx.lineWidth = 1;
-                    ctx.beginPath();
-                    ctx.moveTo(30, y);
-                    ctx.lineTo(770, y);
-                    ctx.stroke();
-                    
-                    y += 30;
-                    // Fundo do total
-                    ctx.fillStyle = '#f0f0f0';
-                    ctx.fillRect(30, y - 25, 740, 30);
-                    
-                    // Texto do total
-                    ctx.fillStyle = '#8B0000';
-                    ctx.font = 'bold 14px Arial';
-                    x = 30;
-                    for (let i = 0; i < 4; i++) {
-                        ctx.fillText(totalRow.children[i].textContent, x + 10, y);
-                        x += columnWidths[i];
-                    }
+                    reportContent += `
+                        <tr style="background-color: #f8f8f8; font-weight: bold;">
+                            <td style="padding: 10px;">TOTAL</td>
+                            <td style="padding: 10px; text-align: right;">${totalRow.children[1].textContent}</td>
+                            <td style="padding: 10px; text-align: right;">${totalRow.children[2].textContent}</td>
+                            <td style="padding: 10px; text-align: right;">${totalRow.children[3].textContent}</td>
+                        </tr>
+                    `;
                 }
-                
-                // Rodapé
-                y += 50;
-                ctx.strokeStyle = '#ddd';
-                ctx.lineWidth = 1;
-                ctx.beginPath();
-                ctx.moveTo(30, y);
-                ctx.lineTo(770, y);
-                ctx.stroke();
-                
-                ctx.fillStyle = '#666';
-                ctx.font = '12px Arial';
-                ctx.fillText('Calculadora de Madeira - Relatório Gerado Automaticamente', 30, y + 20);
-                
-                try {
-                    // Converter canvas para blob e compartilhar
-                    canvas.toBlob(function(blob) {
+
+                reportContent += `
+                            </tbody>
+                        </table>
+                        <div style="margin-top: 20px; text-align: center; color: #666;">
+                            Gerado em ${new Date().toLocaleString()}
+                        </div>
+                    </div>
+                `;
+
+                reportDiv.innerHTML = reportContent;
+
+                // Usar html2canvas para converter o conteúdo em imagem
+                html2canvas(reportDiv).then(canvas => {
+                    canvas.toBlob(blob => {
                         if (!blob) {
                             showFeedback('Erro ao gerar a imagem.', 'error');
                             return;
@@ -1121,18 +1051,15 @@
                             downloadImage(blob);
                         }
                     }, 'image/png');
-                } catch (error) {
+                }).catch(error => {
                     console.error('Erro ao gerar relatório:', error);
                     showFeedback('Erro ao gerar o relatório. Tente novamente.', 'error');
-                }
-            };
-            
-            // Carregar a logo da empresa
-            if (companyLogo) {
-                logo.src = companyLogo;
-            } else {
-                // Se não houver logo, continuar sem ela
-                logo.onload();
+                }).finally(() => {
+                    document.body.removeChild(reportDiv);
+                });
+            } catch (error) {
+                console.error('Erro ao gerar relatório:', error);
+                showFeedback('Erro ao gerar o relatório. Tente novamente.', 'error');
             }
         }
 
