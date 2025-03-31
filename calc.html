@@ -847,11 +847,12 @@
                     <div>${volume.toFixed(3).replace('.', ',')}m³</div>
                     <div>${formatters.currency.format(cost)}</div>
                     <div>
-                        <button class="delete-btn" onclick="this.parentElement.parentElement.remove(); saveList();">×</button>
+                        <button class="delete-btn" onclick="this.parentElement.parentElement.remove(); calcularTotal(); saveList();">×</button>
                     </div>
                 `;
 
                 document.getElementById('itemsList').appendChild(item);
+                calcularTotal(); // Atualizar totais imediatamente
                 saveList();
                 showFeedback('Item adicionado com sucesso!', 'success');
 
@@ -906,6 +907,7 @@
             let totalVolume = 0;
             let totalCost = 0;
 
+            // Calcular totais em uma única passagem
             items.forEach(item => {
                 const pieces = parseInt(item.children[1].textContent);
                 const volume = parseFloat(item.children[2].textContent.replace(',', '.'));
@@ -916,14 +918,14 @@
                 totalCost += cost;
             });
 
-            // Remover total anterior se existir
-            const oldTotal = document.querySelector('.total-row');
-            if (oldTotal) oldTotal.remove();
-
-            // Adicionar nova linha de total
+            // Atualizar a linha de total de forma mais eficiente
+            let totalRow = document.querySelector('.total-row');
             if (items.length > 0) {
-                const totalRow = document.createElement('div');
-                totalRow.className = 'total-row';
+                if (!totalRow) {
+                    totalRow = document.createElement('div');
+                    totalRow.className = 'total-row';
+                    document.getElementById('itemsList').appendChild(totalRow);
+                }
                 totalRow.innerHTML = `
                     <div>TOTAL</div>
                     <div>${totalPieces}</div>
@@ -931,7 +933,8 @@
                     <div>R$ ${totalCost.toFixed(2).replace('.', ',')}</div>
                     <div></div>
                 `;
-                document.getElementById('itemsList').appendChild(totalRow);
+            } else if (totalRow) {
+                totalRow.remove();
             }
         }
 
