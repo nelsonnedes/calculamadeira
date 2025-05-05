@@ -32,8 +32,46 @@
             align-items: center;
         }
 
-        .header h1 {
+        .header-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .app-name {
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .page-title {
+            font-size: 1.3rem;
+            margin: 0;
+        }
+
+        .home-btn {
+            color: white;
             font-size: 1.2rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+            text-decoration: none;
+        }
+
+        .home-btn:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .refresh-btn {
@@ -42,6 +80,13 @@
             color: white;
             font-size: 1.2rem;
             cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        .refresh-btn:hover {
+            background-color: rgba(255, 255, 255, 0.2);
         }
 
         .menu-btn {
@@ -468,6 +513,84 @@
         .list-controls {
             display: none;
         }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Roboto', Arial, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        /* Estilos para autocomplete */
+        .autocomplete-items {
+            position: absolute;
+            border: 1px solid #ccc;
+            border-top: none;
+            z-index: 99;
+            background-color: white;
+            width: calc(100% - 20px);
+            max-height: 150px;
+            overflow-y: auto;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            display: none;
+        }
+        
+        .autocomplete-items div {
+            padding: 10px;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .autocomplete-items div:hover {
+            background-color: #e9e9e9;
+        }
+        
+        .input-group {
+            position: relative;
+            margin-bottom: 10px;
+        }
+        
+        /* Resto dos estilos existentes */
+        
+        /* Estilos para autocomplete */
+        .autocomplete-container {
+            position: relative;
+        }
+        
+        .autocomplete-results {
+            position: absolute;
+            width: 100%;
+            max-height: 200px;
+            overflow-y: auto;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-top: none;
+            border-radius: 0 0 4px 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            z-index: 1000;
+            display: none;
+        }
+        
+        .autocomplete-results div {
+            padding: 10px;
+            cursor: pointer;
+            border-bottom: 1px solid #f5f5f5;
+        }
+        
+        .autocomplete-results div:hover {
+            background-color: #f5f5f5;
+        }
+
+        .species-card {
+            flex: 1;
+            min-width: 300px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+            border: 1px solid #eaeaea;
+        }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
@@ -487,6 +610,10 @@
             <a href="perfil.html" class="menu-item">
                 <i class="fas fa-user"></i>
                 <span>Meu Perfil</span>
+            </a>
+            <a href="orcamentos.html" class="menu-item">
+                <i class="fas fa-file-invoice-dollar"></i>
+                <span>Orçamentos</span>
             </a>
             <a href="configuracoes.html" class="menu-item">
                 <i class="fas fa-cog"></i>
@@ -509,11 +636,36 @@
 
     <div class="header">
         <button class="menu-btn" id="menuBtn" aria-label="Abrir menu">☰</button>
-        <h1>Sistema de Calculo de Madeiras</h1>
+        <div class="header-content">
+            <div class="app-name">Sistema de Gestão de Madeiras Serrada</div>
+            <h1 class="page-title">Calculadora</h1>
+        </div>
+        <div class="header-actions">
         <button class="refresh-btn" aria-label="Limpar dados">⟳</button>
+            <a href="calc.html" class="home-btn" aria-label="Página inicial"><i class="fas fa-home"></i></a>
+        </div>
     </div>
 
     <div class="calculator">
+        <!-- Informações adicionais -->
+        <div class="client-info">
+            <div class="input-group">
+                <label for="clientName">Cliente:</label>
+                <input type="text" id="clientName" placeholder="Nome do cliente" autocomplete="off">
+                <div class="autocomplete-items" id="clientAutocomplete"></div>
+            </div>
+            <div class="input-group">
+                <label for="clientContact">Contato:</label>
+                <input type="text" id="clientContact" placeholder="(00) 0 0000-0000" autocomplete="off">
+            </div>
+            <div class="input-group">
+                <label for="species">Espécie:</label>
+                <input type="text" id="species" placeholder="Tipo de madeira" autocomplete="off">
+                <div class="autocomplete-items" id="speciesAutocomplete"></div>
+            </div>
+        </div>
+
+        <!-- Calculadora de Madeira -->
         <div class="input-group">
             <label>Espessura</label>
             <input type="number" 
@@ -555,7 +707,19 @@
                    inputmode="numeric"
                    pattern="[0-9]*"
                    min="0">
-            <span class="unit">Peças</span>
+            <span class="unit" id="quantityUnit">Peças</span>
+        </div>
+        <div class="input-group">
+            <label>Quantidade Pacote</label>
+            <input type="number" 
+                   id="packageQuantity" 
+                   placeholder="1"
+                   inputmode="numeric"
+                   pattern="[0-9]*"
+                   value="1"
+                   min="1"
+                   oninput="updateQuantityLabel()">
+            <span class="unit">Pacote</span>
         </div>
         <div class="input-group">
             <label for="price">Preço por m³:</label>
@@ -584,7 +748,9 @@
             </div>
         </div>
 
-        <button class="add-button">ADICIONAR À LISTA</button>
+        <button class="add-button" id="addButton" onclick="testDirectClick()">ADICIONAR À LISTA</button>
+
+        <button class="add-button" style="background-color: #4CAF50; margin-top: 10px;" onclick="saveAsQuote()">SALVAR ORÇAMENTO</button>
 
         <div class="list">
             <div class="list-container">
@@ -611,8 +777,29 @@
         // Verificar autenticação e plano ativo
         if (!isUserLoggedIn()) {
             window.location.href = 'index.html';
-        } else if (!isPlanActive()) {
+        } 
+        /* Bloqueio de plano temporariamente removido para testes
+        else if (!isPlanActive()) {
             window.location.href = 'planos.html';
+        }
+        */
+
+        // Funções de fallback para auth.js caso não seja carregado
+        if (typeof isUserLoggedIn !== 'function') {
+            console.warn("Função isUserLoggedIn não encontrada. Usando fallback.");
+            function isUserLoggedIn() {
+                // Versão simplificada para testes
+                return true;
+            }
+        }
+
+        if (typeof logoutUser !== 'function') {
+            console.warn("Função logoutUser não encontrada. Usando fallback.");
+            function logoutUser() {
+                console.log("Logout simulado");
+                localStorage.removeItem('woodList');
+                window.location.href = 'index.html';
+            }
         }
 
         function logout() {
@@ -651,16 +838,54 @@
             deferredPrompt = null;
         }
 
-        // Formatters
+        // Formatadores
         const formatters = {
+            volume: new Intl.NumberFormat('pt-BR', {
+                minimumFractionDigits: 3,
+                maximumFractionDigits: 3
+            }),
             currency: new Intl.NumberFormat('pt-BR', {
                 style: 'currency',
-                currency: 'BRL',
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            }),
-            volume: (value) => value.toFixed(3).replace('.', ',') + 'm³'
+                currency: 'BRL'
+            })
         };
+
+        // Função para calcular
+        function calculate() {
+            try {
+                // Obter todos os valores dos campos de entrada
+                const thickness = parseFloat(document.getElementById('thickness').value) || 0;
+                const width = parseFloat(document.getElementById('width').value) || 0;
+                const length = parseFloat(document.getElementById('length').value) || 0;
+                const quantity = parseInt(document.getElementById('quantity').value) || 0;
+                const packageQuantity = parseInt(document.getElementById('packageQuantity').value) || 1;
+                
+                // Obter o preço e converter para número
+                const priceInput = document.getElementById('price').value;
+                const price = parseFloat(priceInput.replace(/[^0-9,.]/g, '').replace(',', '.')) || 0;
+
+                console.log("Valores para cálculo:", { thickness, width, length, quantity, packageQuantity, price });
+
+                // Calcular volume unitário em m³
+                const volumeUnit = (thickness * width * length) / 1000000;
+                
+                // Calcular volume total considerando quantidade e pacotes
+                const totalQuantity = quantity * packageQuantity;
+                const volumeTotal = volumeUnit * totalQuantity;
+                
+                // Calcular custo total
+                const cost = volumeTotal * price;
+
+                console.log("Resultados calculados:", { volumeUnit, volumeTotal, cost });
+
+                // Atualizar os elementos na interface
+                document.getElementById('volume').textContent = formatters.volume.format(volumeUnit).replace('.', ',') + 'm³';
+                document.getElementById('totalVolume').textContent = formatters.volume.format(volumeTotal).replace('.', ',') + 'm³';
+                document.getElementById('cost').textContent = formatters.currency.format(cost);
+            } catch (error) {
+                console.error("Erro ao calcular:", error);
+            }
+        }
 
         // Utility functions
         function sanitizeInput(input) {
@@ -689,38 +914,54 @@
 
         // Função para validar inputs
         function validateInputs() {
+            console.log("Iniciando validação de inputs");
+            
+            try {
             const width = document.getElementById('width').value;
             const thickness = document.getElementById('thickness').value;
             const length = document.getElementById('length').value;
             const quantity = document.getElementById('quantity').value;
             const price = document.getElementById('price').value;
 
-            if (!width || width <= 0) {
+                console.log("Valores para validação:", { width, thickness, length, quantity, price });
+
+                if (!width || parseFloat(width) <= 0) {
+                    console.log("Largura inválida");
                 showFeedback('Por favor, insira uma largura válida', 'error');
                 return false;
             }
 
-            if (!thickness || thickness <= 0) {
+                if (!thickness || parseFloat(thickness) <= 0) {
+                    console.log("Espessura inválida");
                 showFeedback('Por favor, insira uma espessura válida', 'error');
                 return false;
             }
 
-            if (!length || length <= 0) {
+                if (!length || parseFloat(length) <= 0) {
+                    console.log("Comprimento inválido");
                 showFeedback('Por favor, insira um comprimento válido', 'error');
                 return false;
             }
 
-            if (!quantity || quantity <= 0) {
+                if (!quantity || parseInt(quantity) <= 0) {
+                    console.log("Quantidade inválida");
                 showFeedback('Por favor, insira uma quantidade válida', 'error');
                 return false;
             }
 
-            if (!price || price === 'R$ 0,00') {
+                if (!price || price === 'R$ 0,00' || price === 'R$ ,00') {
+                    console.log("Preço inválido");
                 showFeedback('Por favor, insira um preço válido', 'error');
                 return false;
             }
 
+                console.log("Validação bem-sucedida");
             return true;
+            } catch (error) {
+                console.error("Erro durante a validação:", error);
+                showFeedback('Erro ao validar os dados', 'error');
+                return false;
+            }
         }
 
         // Debounce function
@@ -738,13 +979,30 @@
 
         // Storage functions
         function saveList() {
-            const items = Array.from(document.querySelectorAll('.list-item')).map(item => ({
-                size: item.children[0].textContent,
-                quantity: item.children[1].textContent,
+            const items = Array.from(document.querySelectorAll('.list-item')).map(item => {
+                // Usar os dados armazenados nos atributos data- para informações precisas
+                // Formatar as dimensões usando o thickness, width e length originais
+                const thickness = item.dataset.thickness;
+                const width = item.dataset.width;
+                const length = item.dataset.length;
+                const formattedSize = thickness && width && length ? 
+                    `${thickness} X ${width} X ${length}` : 
+                    item.children[0].textContent;
+                
+                return {
+                    size: formattedSize,
+                    quantity: item.dataset.quantity || item.children[1].textContent,
                 volume: item.children[2].textContent,
-                price: item.children[3].textContent
-            }));
+                    price: item.children[3].textContent,
+                    packageQuantity: item.dataset.packageQuantity || 1,
+                    totalQuantity: item.dataset.totalQuantity || item.children[1].textContent,
+                    species: item.dataset.species || ''
+                };
+            });
+            
+            // Salvar a lista atual
             localStorage.setItem('woodList', JSON.stringify(items));
+            console.log("Lista salva com sucesso:", items);
         }
 
         function loadList() {
@@ -752,9 +1010,33 @@
             items.forEach(item => {
                 const listItem = document.createElement('div');
                 listItem.className = 'list-item';
+                
+                // Guardar informações adicionais como atributos data-
+                if (item.packageQuantity) {
+                    listItem.dataset.packageQuantity = item.packageQuantity;
+                }
+                listItem.dataset.quantity = item.quantity;
+                
+                // Caso tenha totalQuantity salvo, usar, senão calcular
+                const totalQuantity = item.totalQuantity || 
+                                     (parseInt(item.quantity) * parseInt(item.packageQuantity || 1));
+                listItem.dataset.totalQuantity = totalQuantity;
+                
+                // Determinar o que mostrar na coluna de quantidade
+                let quantityDisplay = item.quantity;
+                if (parseInt(item.packageQuantity) > 1) {
+                    quantityDisplay = totalQuantity;
+                }
+                
+                // Guardar a espécie se existir
+                if (item.species) {
+                    listItem.dataset.species = item.species;
+                }
+                
+                // Remover a tag de espécie do HTML
                 listItem.innerHTML = `
                     <div>${item.size}</div>
-                    <div>${item.quantity}</div>
+                    <div>${quantityDisplay}</div>
                     <div>${item.volume}</div>
                     <div>${item.price}</div>
                     <button class="delete-btn" aria-label="Excluir item">×</button>
@@ -777,57 +1059,236 @@
             calcularTotal();
         }
 
-        // Função para calcular volume e custo
-        function calculate() {
-            try {
-                const width = parseFloat(document.getElementById('width').value) || 0;
-                const thickness = parseFloat(document.getElementById('thickness').value) || 0;
-                const length = parseFloat(document.getElementById('length').value) || 0;
-                const quantity = parseInt(document.getElementById('quantity').value) || 0;
-                const price = parseFloat(document.getElementById('price').value.replace('R$', '').replace('.', '').replace(',', '.')) || 0;
-
-                // Calcular volume em m³
-                const volume = (width * thickness * length * quantity) / 1000000;
-                const totalVolume = volume;
-                const cost = volume * price;
-
-                // Atualizar resultados
-                document.getElementById('volume').textContent = volume.toFixed(3).replace('.', ',') + 'm³';
-                document.getElementById('totalVolume').textContent = totalVolume.toFixed(3).replace('.', ',') + 'm³';
-                document.getElementById('cost').textContent = 'R$ ' + cost.toFixed(2).replace('.', ',');
-            } catch (error) {
-                console.error('Erro ao calcular:', error);
-                showFeedback('Erro ao calcular. Verifique os valores inseridos.', 'error');
-            }
-        }
-
-        // Initialize
+        // Carregar dados do perfil
         document.addEventListener('DOMContentLoaded', function() {
-            // Initialize price input
-            const priceInput = document.getElementById('price');
-            priceInput.value = 'R$ 0,00';
+            try {
+                console.log("DOMContentLoaded iniciado");
+                
+                // Configurar formatação de telefone
+                const contactInput = document.getElementById('clientContact');
+                contactInput.addEventListener('input', function(e) {
+                    let value = e.target.value.replace(/\D/g, '');
+                    let formattedValue = '';
+                    
+                    if (value.length > 0) {
+                        formattedValue += '(' + value.substring(0, Math.min(2, value.length));
+                    }
+                    
+                    if (value.length > 2) {
+                        formattedValue += ') ';
+                        
+                        // Verificar se é celular (tem 9 na frente)
+                        if (value.length > 2 && value.charAt(2) === '9') {
+                            formattedValue += value.charAt(2) + ' ';
+                            
+                            if (value.length > 3) {
+                                formattedValue += value.substring(3, Math.min(7, value.length));
+                            }
+                            
+                            if (value.length > 7) {
+                                formattedValue += '-' + value.substring(7, Math.min(11, value.length));
+                            }
+                        } else {
+                            // Telefone fixo
+                            formattedValue += value.substring(2, Math.min(6, value.length));
+                            
+                            if (value.length > 6) {
+                                formattedValue += '-' + value.substring(6, Math.min(10, value.length));
+                            }
+                        }
+                    }
+                    
+                    e.target.value = formattedValue;
+                });
+                console.log("Formatação de telefone configurada");
+                
+                // Configurar autocomplete para cliente e espécie
+                // Inicializar lista de clientes se não existir
+                if (!localStorage.getItem('clients')) {
+                    localStorage.setItem('clients', JSON.stringify([]));
+                }
+                
+                // Inicializar lista de espécies se não existir
+                if (!localStorage.getItem('species')) {
+                    localStorage.setItem('species', JSON.stringify([]));
+                }
+                
+                // Configurar autocompletar para Cliente
+                const clientInput = document.getElementById('clientName');
+                const clientAutocomplete = document.getElementById('clientAutocomplete');
+                
+                clientInput.addEventListener('input', function() {
+                    const term = this.value.trim().toLowerCase();
+                    const clients = JSON.parse(localStorage.getItem('clients')) || [];
+                    
+                    // Limpar sugestões anteriores
+                    clientAutocomplete.innerHTML = '';
+                    
+                    if (!term) return;
+                    
+                    // Filtrar clientes que correspondem ao termo
+                    const matchingClients = clients.filter(client => 
+                        client.toLowerCase().includes(term)
+                    );
+                    
+                    // Mostrar até 5 sugestões
+                    matchingClients.slice(0, 5).forEach(client => {
+                        const item = document.createElement('div');
+                        item.textContent = client;
+                        item.addEventListener('click', function() {
+                            clientInput.value = client;
+                            clientAutocomplete.innerHTML = '';
+                            clientAutocomplete.style.display = 'none';
+                        });
+                        clientAutocomplete.appendChild(item);
+                    });
+                    
+                    // Mostrar o container de autocompletar
+                    if (matchingClients.length > 0) {
+                        clientAutocomplete.style.display = 'block';
+                    } else {
+                        clientAutocomplete.style.display = 'none';
+                    }
+                });
+                
+                // Configurar autocompletar para Espécie
+                const speciesInput = document.getElementById('species');
+                const speciesAutocomplete = document.getElementById('speciesAutocomplete');
+                
+                speciesInput.addEventListener('input', function() {
+                    const term = this.value.trim().toLowerCase();
+                    const speciesList = JSON.parse(localStorage.getItem('species')) || [];
+                    
+                    // Limpar sugestões anteriores
+                    speciesAutocomplete.innerHTML = '';
+                    
+                    if (!term) return;
+                    
+                    // Filtrar espécies que correspondem ao termo
+                    const matchingSpecies = speciesList.filter(species => 
+                        species.toLowerCase().includes(term)
+                    );
+                    
+                    // Mostrar até 5 sugestões
+                    matchingSpecies.slice(0, 5).forEach(species => {
+                        const item = document.createElement('div');
+                        item.textContent = species;
+                        item.addEventListener('click', function() {
+                            speciesInput.value = species;
+                            speciesAutocomplete.innerHTML = '';
+                            speciesAutocomplete.style.display = 'none';
+                        });
+                        speciesAutocomplete.appendChild(item);
+                    });
+                    
+                    // Mostrar o container de autocompletar
+                    if (matchingSpecies.length > 0) {
+                        speciesAutocomplete.style.display = 'block';
+                    } else {
+                        speciesAutocomplete.style.display = 'none';
+                    }
+                });
+                
+                // Salvar cliente e espécie quando perder o foco
+                clientInput.addEventListener('blur', function() {
+                    const clientName = this.value.trim();
+                    if (clientName) {
+                        saveClientToLocalStorage(clientName);
+                    }
+                    // Ocultar sugestões após um pequeno atraso (para permitir o clique)
+                    setTimeout(() => {
+                        clientAutocomplete.style.display = 'none';
+                    }, 200);
+                });
+                
+                speciesInput.addEventListener('blur', function() {
+                    const speciesName = this.value.trim();
+                    if (speciesName) {
+                        saveSpeciesToLocalStorage(speciesName);
+                    }
+                    // Ocultar sugestões após um pequeno atraso (para permitir o clique)
+                    setTimeout(() => {
+                        speciesAutocomplete.style.display = 'none';
+                    }, 200);
+                });
+                
+                // Função para salvar cliente no localStorage
+                function saveClientToLocalStorage(clientName) {
+                    const clients = JSON.parse(localStorage.getItem('clients')) || [];
+                    if (!clients.includes(clientName)) {
+                        clients.push(clientName);
+                        localStorage.setItem('clients', JSON.stringify(clients));
+                    }
+                }
+                
+                // Função para salvar espécie no localStorage
+                function saveSpeciesToLocalStorage(speciesName) {
+                    const speciesList = JSON.parse(localStorage.getItem('species')) || [];
+                    if (!speciesList.includes(speciesName)) {
+                        speciesList.push(speciesName);
+                        localStorage.setItem('species', JSON.stringify(speciesList));
+                    }
+                }
+                console.log("Autocompletar configurado para cliente e espécie");
+                
+                // Verificar autenticação - TEMPORÁRIO: remover verificação para teste
+                let bypass = true; // Variável temporária para contornar verificação
+                if (!isUserLoggedIn() && !bypass) {
+                    console.log("Usuário não está logado, redirecionando");
+                    window.location.href = 'index.html';
+                    return;
+                }
+                console.log("Verificação de autenticação concluída ou ignorada");
 
-            // Load saved list
-            loadList();
+                // Verificar se está editando um orçamento
+                const urlParams = new URLSearchParams(window.location.search);
+                const editId = urlParams.get('edit');
+                
+                if (editId) {
+                    console.log("Carregando orçamento para edição: " + editId);
+                    loadQuoteForEditing(editId);
+                } else {
+                    // Carregar lista normal
+                    console.log("Carregando lista normal");
+                    loadList();
+                }
 
-            // Add event listeners with debounce
-            const inputs = ['width', 'thickness', 'length', 'quantity'];
-            inputs.forEach(id => {
-                document.getElementById(id).addEventListener('input', debounce(calculate, 300));
-            });
+                // Inicializar formatador de moeda
+                initializeCurrencyInput();
+                console.log("Formatador de moeda inicializado");
 
-            // Price input formatting
-            priceInput.addEventListener('input', function(e) {
-                let value = e.target.value.replace(/\D/g, '');
-                value = (parseInt(value, 10) / 100).toFixed(2);
-                value = value.replace('.', ',');
-                e.target.value = `R$ ${value}`;
-                calculate();
-            });
+                // Inicializar a label de quantidade
+                updateQuantityLabel();
+                console.log("Label de quantidade inicializada");
 
-            // Add to list with validation
-            document.querySelector('.add-button').addEventListener('click', function() {
+                // Carregar menus e informações do usuário
+                loadUserInfo();
+                console.log("Informações do usuário carregadas");
+
+                // Adicionar eventos
+                setupEvents();
+                console.log("Eventos configurados");
+                
+                // Forçar cálculo inicial após um pequeno atraso para garantir que todos os elementos estão carregados
+                setTimeout(() => {
+                    console.log("Executando cálculo inicial após carregamento da página");
+                    calculate();
+                }, 500);
+                
+                // Verificação adicional para o botão de adicionar
+                const addButton = document.getElementById('addButton');
+                if (addButton) {
+                    console.log("Botão de adicionar encontrado, verificando evento");
+                    
+                    // Verificar se o evento já foi adicionado
+                    const eventsAdded = addButton.getAttribute('data-events-added');
+                    if (!eventsAdded) {
+                        console.log("Adicionando evento de clique novamente");
+                        addButton.addEventListener('click', function() {
+                            console.log("Evento alternativo de clique executado");
+                            
                 if (!validateInputs()) {
+                                console.log("Validação falhou no evento alternativo");
                     return;
                 }
 
@@ -835,25 +1296,47 @@
                 const thickness = document.getElementById('thickness').value;
                 const length = document.getElementById('length').value;
                 const quantity = document.getElementById('quantity').value;
+                            const packageQuantity = document.getElementById('packageQuantity').value;
+                            const totalQuantity = quantity * packageQuantity;
                 const price = document.getElementById('price').value;
+                            const species = document.getElementById('species').value.trim();
 
-                const volume = (width * thickness * length * quantity) / 1000000; // Convertendo para m³
+                            const volume = (width * thickness * length * totalQuantity) / 1000000;
                 const cost = volume * parseFloat(price.replace(/[^0-9,.]/g, '').replace(',', '.'));
 
                 const item = document.createElement('div');
                 item.className = 'list-item';
+                            
+                            let sizeInfo = `${thickness} X ${width} X ${length}`;
+                            
+                            item.dataset.width = width;
+                            item.dataset.thickness = thickness;
+                            item.dataset.length = length;
+                            item.dataset.quantity = quantity;
+                            item.dataset.packageQuantity = packageQuantity;
+                            if (species) {
+                                item.dataset.species = species;
+                            }
+                            item.dataset.totalQuantity = totalQuantity;
+                            item.dataset.price = price.replace(/[^0-9,.]/g, '').replace(',', '.');
+                            
                 item.innerHTML = `
-                    <div>${width}x${thickness}x${length}</div>
+                                <div>${sizeInfo}</div>
                     <div>${quantity}</div>
                     <div>${volume.toFixed(3).replace('.', ',')}m³</div>
                     <div>${formatters.currency.format(cost)}</div>
                     <div>
-                        <button class="delete-btn" onclick="this.parentElement.parentElement.remove(); calcularTotal(); saveList();">×</button>
+                                    <button class="delete-btn" onclick="deleteItem(this)">×</button>
                     </div>
+                                ${species ? `<div class="species-tag" style="position: absolute; top: 2px; right: 40px; font-size: 10px; background-color: #f0f0f0; padding: 2px 5px; border-radius: 3px; color: #666;">${species}</div>` : ''}
                 `;
+                            
+                            if (species) {
+                                item.style.position = 'relative';
+                            }
 
                 document.getElementById('itemsList').appendChild(item);
-                calcularTotal(); // Atualizar totais imediatamente
+                            calcularTotal();
                 saveList();
                 showFeedback('Item adicionado com sucesso!', 'success');
 
@@ -863,21 +1346,276 @@
                 document.getElementById('length').value = '';
                 document.getElementById('quantity').value = '1';
                 document.getElementById('price').value = 'R$ 0,00';
+                document.getElementById('thickness').focus();
+                        });
+                        addButton.setAttribute('data-events-added', 'true');
+                        console.log("Evento alternativo adicionado com sucesso");
+                    } else {
+                        console.log("Eventos já estão configurados no botão");
+                    }
+                } else {
+                    console.error("Botão de adicionar não encontrado!");
+                }
+            } catch (error) {
+                console.error("Erro durante o carregamento da página:", error);
+            }
+        });
+
+        // Adicionar variável global para ID do orçamento em edição
+        let editingQuoteId = null;
+
+        // Função para carregar orçamento para edição
+        function loadQuoteForEditing(id) {
+            // Definir o ID do orçamento em edição
+            editingQuoteId = id;
+            
+            // Obter o ID do usuário atual ou criar um temporário
+            const userId = localStorage.getItem('currentUserId') || ('user_' + Date.now());
+            
+            // Salvar ID do usuário se não existir
+            if (!localStorage.getItem('currentUserId')) {
+                localStorage.setItem('currentUserId', userId);
+                console.log("ID de usuário temporário criado:", userId);
+            }
+            
+            const quotes = JSON.parse(localStorage.getItem(`quotes_${userId}`) || '[]');
+            const quote = quotes.find(q => q.id === id);
+            
+            if (!quote) {
+                showFeedback('Orçamento não encontrado', 'error');
+                loadList(); // Carregar lista normal
+                return;
+            }
+            
+            console.log("Carregando orçamento para edição:", quote);
+            
+            // Preencher dados do cliente
+            document.getElementById('clientName').value = quote.clientName;
+            document.getElementById('clientContact').value = quote.clientContact || '';
+            
+            // Preencher espécie se existir
+            if (quote.species) {
+                document.getElementById('species').value = quote.species;
+            }
+            
+            // Limpar lista atual
+            document.getElementById('itemsList').innerHTML = '';
+            
+            // Adicionar itens do orçamento
+            quote.items.forEach(item => {
+                const listItem = document.createElement('div');
+                listItem.className = 'list-item';
+                
+                // Guardar informações adicionais como atributos data-
+                if (item.packageQuantity) {
+                    listItem.dataset.packageQuantity = item.packageQuantity;
+                }
+                listItem.dataset.quantity = item.quantity;
+                
+                // Caso tenha totalQuantity salvo, usar, senão calcular
+                const totalQuantity = item.totalQuantity || 
+                                     (parseInt(item.quantity) * parseInt(item.packageQuantity || 1));
+                listItem.dataset.totalQuantity = totalQuantity;
+                
+                // Determinar o que mostrar na coluna de quantidade
+                let quantityDisplay = item.quantity;
+                if (parseInt(item.packageQuantity) > 1) {
+                    quantityDisplay = totalQuantity;
+                }
+                
+                // Formatar as dimensões com X maiúsculo
+                let sizeInfo = item.size;
+                if (sizeInfo.includes('x')) {
+                    // Substituir 'x' por ' X ' - primeiro criando um array com as partes e depois juntando
+                    const parts = sizeInfo.split('x');
+                    sizeInfo = parts.join(' X ');
+                }
+                
+                // Guardar a espécie, mas não mostrar visualmente
+                if (item.species) {
+                    listItem.dataset.species = item.species;
+                }
+
+                // Remover a tag visual de espécie do HTML
+                listItem.innerHTML = `
+                    <div>${sizeInfo}</div>
+                    <div>${quantityDisplay}</div>
+                    <div>${item.volume}</div>
+                    <div>${item.price}</div>
+                    <button class="delete-btn" onclick="deleteItem(this)">×</button>
+                `;
+
+                document.getElementById('itemsList').appendChild(listItem);
+            });
+            
+            calcularTotal();
+            showFeedback('Orçamento carregado para edição', 'success');
+        }
+
+        // Setup de eventos
+        function setupEvents() {
+            try {
+                console.log("Iniciando setupEvents");
+                
+                // Evento para calcular em tempo real
+                const inputs = document.querySelectorAll('#thickness, #width, #length, #quantity, #packageQuantity, #price');
+                inputs.forEach(input => {
+                    // Limpar eventos anteriores
+                    const newInput = input.cloneNode(true);
+                    input.parentNode.replaceChild(newInput, input);
+                    
+                    // Adicionar evento diretamente, sem debounce para garantir atualização imediata
+                    newInput.addEventListener('input', function() {
+                        console.log(`Input alterado: ${newInput.id}`);
+                        calculate();
+                    });
+                });
+                console.log("Eventos de cálculo em tempo real configurados");
+
+                // Atualizar label de quantidade quando mudar o valor de pacotes
+                const packageQuantityInput = document.getElementById('packageQuantity');
+                if (packageQuantityInput) {
+                    packageQuantityInput.addEventListener('input', function() {
+                        updateQuantityLabel();
+                        calculate();
+                    });
+                }
+                console.log("Evento de atualização de label configurado");
+
+                // Inicializar formatador de moeda
+                initializeCurrencyInput();
+                console.log("Formatador de moeda configurado");
+
+                // Botão de atualizar com confirmação
+                const refreshBtn = document.querySelector('.refresh-btn');
+                if (refreshBtn) {
+                    refreshBtn.addEventListener('click', function() {
+                        if (confirm('Tem certeza que deseja limpar todos os dados?')) {
+                            localStorage.removeItem('woodList');
+                            document.getElementById('itemsList').innerHTML = '';
+                            calcularTotal();
+                            showFeedback('Dados limpos com sucesso!');
+                        }
+                    });
+                }
+                console.log("Evento do botão refresh configurado");
+                
+                // Executar cálculo inicial
+                calculate();
+            } catch (error) {
+                console.error("Erro ao configurar eventos:", error);
+            }
+        }
+
+        // Função de teste para verificar se o problema está no evento ou na implementação
+        function testDirectClick() {
+            console.log("Botão adicionar clicado");
+            
+            // Chama a função principal diretamente sem alertas
+            try {
+                handleAddButtonClick();
+            } catch (e) {
+                console.error("Erro durante a adição de item:", e);
+            }
+        }
+
+        // Função separada para lidar com o clique no botão adicionar
+        function handleAddButtonClick() {
+            console.log("Função handleAddButtonClick iniciada");
+            
+            if (!validateInputs()) {
+                console.log("Validação falhou");
+                return;
+            }
+
+            const width = document.getElementById('width').value;
+            const thickness = document.getElementById('thickness').value;
+            const length = document.getElementById('length').value;
+            const quantity = document.getElementById('quantity').value;
+            const packageQuantity = document.getElementById('packageQuantity').value;
+            const totalQuantity = quantity * packageQuantity;
+            const price = document.getElementById('price').value;
+            const species = document.getElementById('species').value.trim();
+
+            console.log("Valores dos campos:", { width, thickness, length, quantity, packageQuantity, totalQuantity, species });
+
+            // Cálculos
+            const volume = (width * thickness * length * totalQuantity) / 1000000;
+            const cost = volume * parseFloat(price.replace(/[^0-9,.]/g, '').replace(',', '.'));
+            console.log("Volume e custo calculados:", { volume, cost });
+
+            // Criar o elemento
+            const item = document.createElement('div');
+            item.className = 'list-item';
+            
+            // Dados simplificados para exibição na tabela - agora com "X" maiúsculo
+            let sizeInfo = `${thickness} X ${width} X ${length}`;
+            
+            // Guardar a informação completa nos atributos data- para uso ao salvar
+            item.dataset.width = width;
+            item.dataset.thickness = thickness;
+            item.dataset.length = length;
+            item.dataset.quantity = quantity;
+            item.dataset.packageQuantity = packageQuantity;
+            if (species) {
+                item.dataset.species = species;
+            }
+            item.dataset.totalQuantity = totalQuantity;
+            item.dataset.price = price.replace(/[^0-9,.]/g, '').replace(',', '.');
+            
+            // Exibir a quantidade total (quantidade × quantidade por pacote)
+            let quantityDisplay = quantity;
+            if (parseInt(packageQuantity) > 1) {
+                quantityDisplay = `${totalQuantity}`;
+            }
+            
+            // Remover a tag visual de espécie do HTML
+            item.innerHTML = `
+                <div>${sizeInfo}</div>
+                <div>${quantityDisplay}</div>
+                <div>${volume.toFixed(3).replace('.', ',')}m³</div>
+                <div>${formatters.currency.format(cost)}</div>
+                <div>
+                    <button class="delete-btn" onclick="deleteItem(this)">×</button>
+                </div>
+            `;
+
+            const itemsList = document.getElementById('itemsList');
+            if (!itemsList) {
+                console.error("Elemento itemsList não encontrado!");
+                return;
+            }
+
+            try {
+                // Adicionar o item à lista
+                itemsList.appendChild(item);
+                console.log("Item adicionado à lista com sucesso");
+                
+                // Atualizar totais
+                calcularTotal();
+                console.log("Totais recalculados");
+                
+                // Salvar lista
+                saveList();
+                
+                // Mostrar feedback visual sem popup
+                showFeedback('Item adicionado com sucesso!', 'success');
+
+                // Limpar campos
+                document.getElementById('width').value = '';
+                document.getElementById('thickness').value = '';
+                document.getElementById('length').value = '';
+                document.getElementById('quantity').value = '1';
+                // Não limpar packageQuantity, que mantém o último valor usado
+                document.getElementById('price').value = 'R$ 0,00';
 
                 // Focar no campo de espessura
                 document.getElementById('thickness').focus();
-            });
-
-            // Refresh button with confirmation
-            document.querySelector('.refresh-btn').addEventListener('click', function() {
-                if (confirm('Tem certeza que deseja limpar todos os dados?')) {
-                    localStorage.clear();
-                    document.getElementById('itemsList').innerHTML = '';
-                    calcularTotal();
-                    showFeedback('Dados limpos com sucesso!');
-                }
-            });
-        });
+                console.log("Campos limpos e foco definido");
+            } catch (error) {
+                console.error("Erro ao processar adição de item:", error);
+            }
+        }
 
         // Carregar informações do usuário
         function loadUserInfo() {
@@ -890,16 +1628,28 @@
         }
 
         // Atualizar estatísticas do usuário
-        function updateUserStats(volume, cost) {
-            const userData = JSON.parse(localStorage.getItem('userData') || '{}');
-            userData.totalCalculations = (userData.totalCalculations || 0) + 1;
-            userData.totalVolume = (userData.totalVolume || 0) + volume;
-            userData.totalCost = (userData.totalCost || 0) + cost;
-            localStorage.setItem('userData', JSON.stringify(userData));
+        function updateUserStats(type, amount) {
+            try {
+                const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+                
+                switch(type) {
+                    case 'calculation':
+                        userData.totalCalculations = (userData.totalCalculations || 0) + 1;
+                        userData.totalVolume = (userData.totalVolume || 0) + (amount || 0);
+                        break;
+                    case 'quotes':
+                        userData.totalQuotes = (userData.totalQuotes || 0) + 1;
+                        break;
+                    default:
+                        console.warn("Tipo de estatística desconhecido:", type);
+                }
+                
+                localStorage.setItem('userData', JSON.stringify(userData));
+                console.log("Estatísticas do usuário atualizadas:", userData);
+            } catch (error) {
+                console.error("Erro ao atualizar estatísticas:", error);
+            }
         }
-
-        // Carregar informações ao iniciar
-        loadUserInfo();
 
         // Atualizar a função calcularTotal
         function calcularTotal() {
@@ -907,12 +1657,38 @@
             let totalPieces = 0;
             let totalVolume = 0;
             let totalCost = 0;
+            
+            // Mapa para contar espécies (mantemos para funcionalidades internas, mas não mostraremos)
+            const speciesMap = new Map();
 
             // Calcular totais em uma única passagem
             items.forEach(item => {
-                const pieces = parseInt(item.children[1].textContent);
+                // Extrair quantidade considerando pacotes
+                let pieces = 0;
+                const quantityText = item.children[1].textContent;
+                
+                // Verificar se há informação de pacotes (formato: "X pacotes (Y peças)")
+                const totalPiecesMatch = quantityText.match(/\((\d+) peças\)/);
+                if (totalPiecesMatch && totalPiecesMatch[1]) {
+                    // Se tem informação sobre peças totais, usar diretamente
+                    pieces = parseInt(totalPiecesMatch[1]);
+                } else {
+                    // Caso contrário, usar a quantidade direta
+                    pieces = parseInt(quantityText);
+                }
+                
                 const volume = parseFloat(item.children[2].textContent.replace(',', '.'));
                 const cost = parseFloat(item.children[3].textContent.replace('R$', '').replace('.', '').replace(',', '.'));
+
+                // Contabilizar espécie para o resumo (mantemos para funcionalidades internas)
+                const species = item.dataset.species || "";
+                if (species) {
+                    if (speciesMap.has(species)) {
+                        speciesMap.set(species, speciesMap.get(species) + 1);
+                    } else {
+                        speciesMap.set(species, 1);
+                    }
+                }
 
                 totalPieces += pieces;
                 totalVolume += volume;
@@ -927,11 +1703,36 @@
 
             // Adicionar nova linha de total apenas se houver itens
             if (items.length > 0) {
+                // Obter espécie mais comum (apenas para armazenamento interno, não mostraremos na interface)
+                let mainSpecies = "";
+                let maxCount = 0;
+                speciesMap.forEach((count, species) => {
+                    if (count > maxCount) {
+                        maxCount = count;
+                        mainSpecies = species;
+                    }
+                });
+                
                 const totalRow = document.createElement('div');
                 totalRow.className = 'total-row';
+                
+                // Adicionar classe para destacar melhor o total
+                totalRow.style.fontWeight = "bold";
+                totalRow.style.fontSize = "1.1em";
+                totalRow.style.backgroundColor = "#f3f3f3";
+                totalRow.style.border = "1px solid #ddd";
+                totalRow.style.borderRadius = "4px";
+                totalRow.style.padding = "10px 10px";
+                totalRow.style.marginTop = "15px";
+                
+                // Adicionar atributo data-species para manter o valor mas não exibir visualmente
+                if (mainSpecies) {
+                    totalRow.dataset.species = mainSpecies;
+                }
+                
                 totalRow.innerHTML = `
                     <div>TOTAL</div>
-                    <div>${totalPieces}</div>
+                    <div>${totalPieces} peças</div>
                     <div>${totalVolume.toFixed(3).replace('.', ',')}m³</div>
                     <div>R$ ${totalCost.toFixed(2).replace('.', ',')}</div>
                     <div></div>
@@ -1179,148 +1980,478 @@
             const user = JSON.parse(localStorage.getItem('user') || '{}');
             const companyName = user.company || 'Nome da Empresa';
             const companyPhone = user.phone || 'Telefone não informado';
+            const companyAddress = user.address || 'Endereço não informado';
+            const companyEmail = user.email || 'Email não informado';
+            const companyCNPJ = user.cnpj || 'CNPJ não informado';
             const companyLogo = localStorage.getItem('companyLogo') || '';
 
+            // Obter informações do cliente
+            let clientName = document.getElementById('clientName').value.trim();
+            const clientContact = document.getElementById('clientContact').value.trim();
+            
+            // Se o cliente não for informado, usar "Consumidor Final"
+            if (!clientName) {
+                clientName = "Consumidor Final";
+            }
+
+            // Gerar número único para o orçamento
+            const quoteNumber = 'ORÇ-' + Math.floor(Date.now() / 1000).toString().slice(-6);
+            const formattedDate = new Date().toLocaleDateString('pt-BR');
+            
+            // Preparar relatório condensado
             const reportWindow = window.open('', '_blank');
             const reportContent = `
                 <!DOCTYPE html>
                 <html>
                 <head>
-                    <title>Relatório de Cálculos</title>
+                    <title>Orçamento - ${clientName}</title>
                     <meta name="viewport" content="width=device-width, initial-scale=1.0">
                     <style>
+                        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+                        
+                        :root {
+                            --primary-color: #8B0000;
+                            --secondary-color: #f5f5f5;
+                            --text-color: #333;
+                            --border-color: #ddd;
+                        }
+                        
+                        * {
+                            margin: 0;
+                            padding: 0;
+                            box-sizing: border-box;
+                        }
+                        
                         body {
-                            font-family: Arial, sans-serif;
-                            margin: 20px;
-                            color: #333;
+                            font-family: 'Roboto', Arial, sans-serif;
+                            margin: 0;
+                            padding: 15px;
+                            color: var(--text-color);
+                            font-size: 12px;
+                            line-height: 1.4;
                         }
-                        .header {
+                        
+                        .container {
+                            max-width: 1000px;
+                            margin: 0 auto;
+                        }
+                        
+                        .compact-header {
                             display: flex;
-                            align-items: center;
-                            gap: 20px;
-                            margin-bottom: 30px;
-                            padding-bottom: 20px;
-                            border-bottom: 1px solid #ddd;
+                            justify-content: space-between;
+                            border-bottom: 1px solid var(--primary-color);
+                            padding-bottom: 8px;
+                            margin-bottom: 10px;
                         }
+                        
                         .logo-container {
-                            width: 150px;
-                            flex-shrink: 0;
+                            width: 120px;
                         }
+                        
                         .logo {
                             max-width: 100%;
-                            height: auto;
-                            max-height: 100px;
-                            object-fit: contain;
+                            max-height: 60px;
                         }
+                        
                         .company-info {
                             flex: 1;
+                            padding-left: 15px;
                         }
+                        
                         .company-info h1 {
-                            margin: 0 0 10px 0;
-                            color: #333;
-                            font-size: 24px;
+                            font-size: 18px;
+                            color: var(--primary-color);
+                            margin-bottom: 4px;
                         }
+                        
                         .company-info p {
                             margin: 0;
-                            color: #666;
-                            font-size: 16px;
+                            font-size: 10px;
+                            line-height: 1.3;
                         }
-                        .date-info {
-                            margin: 20px 0;
-                            color: #666;
+                        
+                        .document-details {
+                            text-align: right;
+                            font-size: 10px;
                         }
+                        
+                        .document-details h2 {
+                            font-size: 14px;
+                            color: var(--primary-color);
+                            margin-bottom: 4px;
+                        }
+                        
+                        .client-section {
+                            background-color: var(--secondary-color);
+                            padding: 8px;
+                            display: flex;
+                            justify-content: space-between;
+                            margin-bottom: 10px;
+                            font-size: 11px;
+                        }
+                        
+                        .client-info, .quote-info {
+                            flex: 1;
+                        }
+                        
+                        .subtitle {
+                            font-weight: 700;
+                            color: var(--primary-color);
+                            font-size: 11px;
+                            margin-bottom: 4px;
+                        }
+                        
                         table {
                             width: 100%;
                             border-collapse: collapse;
-                            margin: 20px 0;
+                            font-size: 10px;
                         }
-                        th, td {
-                            border: 1px solid #ddd;
-                            padding: 12px 8px;
-                            text-align: left;
-                        }
+                        
                         th {
-                            background-color: #8B0000;
+                            background-color: var(--primary-color);
                             color: white;
+                            font-weight: 500;
+                            text-align: left;
+                            padding: 5px 3px;
                         }
-                        .totals {
-                            margin-top: 20px;
-                            text-align: right;
-                            font-size: 16px;
+                        
+                        td {
+                            padding: 4px 3px;
+                            border-bottom: 1px solid #eee;
+                            vertical-align: top;
                         }
-                        .footer {
-                            margin-top: 30px;
+                        
+                        tr:nth-child(even) {
+                            background-color: #f9f9f9;
+                        }
+                        
+                        .narrow {
+                            width: 35px;
                             text-align: center;
-                            font-size: 0.9em;
-                            color: #666;
-                            padding-top: 20px;
-                            border-top: 1px solid #ddd;
                         }
+                        
+                        .text-right {
+                            text-align: right;
+                        }
+                        
+                        .totals {
+                            display: flex;
+                            justify-content: flex-end;
+                            margin-top: 10px;
+                            font-weight: 700;
+                        }
+                        
+                        .totals div {
+                            margin-left: 20px;
+                        }
+                        
+                        .summary-heading {
+                            font-size: 12px;
+                            font-weight: 700;
+                            margin: 15px 0 5px 0;
+                            color: var(--primary-color);
+                            border-bottom: 1px solid var(--border-color);
+                            padding-bottom: 3px;
+                        }
+                        
+                        .summary-container {
+                            display: flex;
+                            flex-wrap: wrap;
+                            gap: 10px;
+                        }
+                        
+                        .summary-item {
+                            background-color: #f5f5f5;
+                            padding: 4px 8px;
+                            border-radius: 4px;
+                            white-space: nowrap;
+                            font-size: 11px;
+                        }
+                        
+                        .footer {
+                            margin-top: 20px;
+                            font-size: 10px;
+                            color: #666;
+                            text-align: center;
+                        }
+                        
+                        .print-buttons {
+                            text-align: center;
+                            margin-top: 20px;
+                        }
+                        
+                        button {
+                            padding: 8px 15px;
+                            background-color: var(--primary-color);
+                            color: white;
+                            border: none;
+                            border-radius: 4px;
+                            cursor: pointer;
+                        }
+                        
                         @media print {
-                            body {
-                                margin: 0;
-                                padding: 20px;
-                            }
-                            .no-print {
+                            .print-buttons {
                                 display: none;
+                            }
+                            
+                            body {
+                                padding: 0;
+                                -webkit-print-color-adjust: exact;
+                                print-color-adjust: exact;
+                            }
+                            
+                            @page {
+                                margin: 0.5cm;
                             }
                         }
                     </style>
                 </head>
                 <body>
-                    <div class="header">
+                    <div class="container">
+                        <div class="compact-header">
                         <div class="logo-container">
-                            ${companyLogo ? `<img src="${companyLogo}" alt="Logo" class="logo">` : '<div style="width: 150px; height: 100px; background-color: #f8f8f8; display: flex; align-items: center; justify-content: center; color: #666;">Sem Logo</div>'}
+                                ${companyLogo ? `<img src="${companyLogo}" alt="Logo" class="logo">` : ''}
                         </div>
                         <div class="company-info">
                             <h1>${companyName}</h1>
-                            <p>${companyPhone}</p>
+                                <p>${companyAddress}</p>
+                                <p>Tel: ${companyPhone} | Email: ${companyEmail}</p>
+                                <p>CNPJ: ${companyCNPJ}</p>
+                            </div>
+                            <div class="document-details">
+                                <h2>ORÇAMENTO</h2>
+                                <p><strong>Nº:</strong> ${quoteNumber}</p>
+                                <p><strong>Data:</strong> ${formattedDate}</p>
+                                <p><strong>Validade:</strong> 15 dias</p>
                         </div>
                     </div>
                     
-                    <div class="date-info">
-                        <p><strong>Data:</strong> ${new Date().toLocaleDateString()}</p>
-                        <p><strong>Hora:</strong> ${new Date().toLocaleTimeString()}</p>
+                        <div class="client-section">
+                            <div class="client-info">
+                                <div class="subtitle">CLIENTE</div>
+                                <p><strong>Nome:</strong> ${clientName}</p>
+                                ${clientContact ? `<p><strong>Contato:</strong> ${clientContact}</p>` : ''}
+                            </div>
+                            <div class="quote-info">
+                                <div class="subtitle">CONDIÇÕES</div>
+                                <p><strong>Pagamento:</strong> 50% entrada, 50% na entrega</p>
+                                <p><strong>Entrega:</strong> 5-7 dias após confirmação</p>
+                            </div>
                     </div>
 
                     <table>
                         <thead>
                             <tr>
-                                <th>Item</th>
+                                    <th class="narrow">Nº</th>
                                 <th>Dimensões</th>
-                                <th>Quantidade</th>
-                                <th>Volume (m³)</th>
-                                <th>Valor (R$)</th>
+                                    <th>Qtd</th>
+                                    <th>Volume</th>
+                                    <th class="text-right">Unit.</th>
+                                    <th class="text-right">Total</th>
                             </tr>
                         </thead>
                         <tbody>
-                            ${Array.from(items).map((item, index) => `
-                                <tr>
-                                    <td>${index + 1}</td>
-                                    <td>${item.children[0].textContent}</td>
-                                    <td>${item.children[1].textContent}</td>
-                                    <td>${item.children[2].textContent}</td>
-                                    <td>${item.children[3].textContent}</td>
+                                ${Array.from(items).map((item, index) => {
+                                    // Obter dados do item
+                                    const sizeText = item.children[0].textContent;
+                                    const packageQuantity = item.dataset.packageQuantity || 1;
+                                    const quantity = item.dataset.quantity || item.children[1].textContent;
+                                    const totalQuantity = item.dataset.totalQuantity || quantity;
+                                    const volume = item.children[2].textContent;
+                                    const priceText = item.children[3].textContent;
+                                    
+                                    // Calcular preço unitário
+                                    const totalPrice = parseFloat(priceText.replace(/[^0-9,.]/g, '').replace('.', '').replace(',', '.'));
+                                    const volumeValue = parseFloat(volume.replace(/[^0-9,.]/g, '').replace(',', '.'));
+                                    const unitPrice = volumeValue ? totalPrice / volumeValue : 0;
+                                    
+                                    // Determinar formato de exibição para quantidade
+                                    let quantityDisplay = quantity;
+                                    if (parseInt(packageQuantity) > 1) {
+                                        quantityDisplay = `${quantity}×${packageQuantity}`;
+                                    }
+                                    
+                                    return `
+                                    <tr>
+                                        <td class="narrow">${index + 1}</td>
+                                        <td>${sizeText}</td>
+                                        <td>${quantityDisplay}</td>
+                                        <td>${volume}</td>
+                                        <td class="text-right">R$ ${unitPrice.toFixed(2).replace('.', ',')}</td>
+                                        <td class="text-right">${priceText}</td>
                                 </tr>
-                            `).join('')}
+                                    `;
+                                }).join('')}
                         </tbody>
                     </table>
 
                     <div class="totals">
-                        ${document.querySelector('.total-row') ? `
-                            <p><strong>Volume Total:</strong> ${document.querySelector('.total-row').children[2].textContent}</p>
-                            <p><strong>Valor Total:</strong> ${document.querySelector('.total-row').children[3].textContent}</p>
-                        ` : ''}
+                            ${(() => {
+                                const totalRow = document.querySelector('.total-row');
+                                if (totalRow) {
+                                    const totalPieces = totalRow.children[1].textContent;
+                                    const totalVolume = totalRow.children[2].textContent;
+                                    const totalPrice = totalRow.children[3].textContent;
+                                    
+                                    return `
+                                    <div>Peças: ${totalPieces}</div>
+                                    <div>Volume: ${totalVolume}</div>
+                                    <div>Total: ${totalPrice}</div>
+                                    `;
+                                }
+                                return '';
+                            })()}
+                        </div>
+                        
+                        <div class="summary-heading">Resumo por dimensões</div>
+                        <div class="summary-container">
+                            ${(() => {
+                                // Criar resumo agrupado por espécies (primeiro) e dimensões (segundo)
+                                const speciesMap = new Map();
+                                
+                                Array.from(items).forEach(item => {
+                                    // Obter a dimensão e formatar com X maiúsculo
+                                    let size = item.children[0].textContent;
+                                    // Se ainda estiver no formato antigo com 'x' minúsculo, converter
+                                    if (size.includes('x')) {
+                                        const parts = size.split('x');
+                                        size = parts.join(' X ');
+                                    }
+                                    
+                                    const totalQuantity = item.dataset.totalQuantity || item.children[1].textContent;
+                                    const volume = item.children[2].textContent;
+                                    
+                                    // Obter a espécie, se não tiver usar "Sem Espécie"
+                                    const species = item.dataset.species || "Sem Espécie";
+                                    
+                                    // Se a espécie não existe no mapa, criar
+                                    if (!speciesMap.has(species)) {
+                                        speciesMap.set(species, new Map());
+                                    }
+                                    
+                                    // Obter o mapa de dimensões para esta espécie
+                                    const dimensionMap = speciesMap.get(species);
+                                    
+                                    // Adicionar ou atualizar informações da dimensão
+                                    if (dimensionMap.has(size)) {
+                                        const existing = dimensionMap.get(size);
+                                        existing.quantity += parseInt(totalQuantity);
+                                        existing.volume += parseFloat(volume.replace(/[^0-9,.]/g, '').replace(',', '.'));
+                                    } else {
+                                        dimensionMap.set(size, {
+                                            quantity: parseInt(totalQuantity),
+                                            volume: parseFloat(volume.replace(/[^0-9,.]/g, '').replace(',', '.'))
+                                        });
+                                    }
+                                });
+                                
+                                // Adicionar estilos para o layout em colunas
+                                let summaryHTML = `
+                                <style>
+                                    .species-cards {
+                                        display: flex;
+                                        flex-wrap: wrap;
+                                        gap: 20px;
+                                        margin-bottom: 20px;
+                                    }
+                                    
+                                    .species-card {
+                                        flex: 1;
+                                        min-width: 300px;
+                                        background-color: #f9f9f9;
+                                        border-radius: 8px;
+                                        padding: 15px;
+                                        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+                                        border: 1px solid #eaeaea;
+                                    }
+                                    
+                                    .species-title {
+                                        font-weight: bold;
+                                        color: var(--primary-color);
+                                        padding-bottom: 5px;
+                                        margin-bottom: 10px;
+                                        border-bottom: 1px solid #ddd;
+                                    }
+                                    
+                                    .dimension-table {
+                                        width: 100%;
+                                        border-collapse: collapse;
+                                    }
+                                    
+                                    .dimension-table td {
+                                        padding: 2px 0;
+                                        border: none;
+                                    }
+                                    
+                                    .dimension-col-1 {
+                                        width: 50%;
+                                        text-align: left;
+                                    }
+                                    
+                                    .dimension-col-2 {
+                                        width: 25%;
+                                        text-align: right;
+                                    }
+                                    
+                                    .dimension-col-3 {
+                                        width: 25%;
+                                        text-align: right;
+                                    }
+                                    
+                                    .species-total {
+                                        margin-top: 10px;
+                                        padding-top: 5px;
+                                        border-top: 1px solid #ddd;
+                                        font-weight: bold;
+                                        text-align: right;
+                                    }
+                                </style>
+                                <div class="species-cards">`;
+                                
+                                // Para cada espécie, criar um card
+                                speciesMap.forEach((dimensionMap, species) => {
+                                    summaryHTML += `
+                                    <div class="species-card">
+                                        <div class="species-title">Resumo: ${species}</div>
+                                        <table class="dimension-table">`;
+                                        
+                                        // Somar o volume total da espécie
+                                        let speciesVolume = 0;
+                                        
+                                        // Para cada dimensão desta espécie
+                                        dimensionMap.forEach((data, size) => {
+                                            speciesVolume += data.volume;
+                                            summaryHTML += `
+                                            <tr>
+                                                <td class="dimension-col-1">${size}</td>
+                                                <td class="dimension-col-2">${data.quantity} PEÇAS</td>
+                                                <td class="dimension-col-3">${data.volume.toFixed(3).replace('.', ',')}m³</td>
+                                            </tr>`;
+                                        });
+                                        
+                                        // Adicionar linha do total
+                                        summaryHTML += `
+                                            <tr>
+                                                <td colspan="3" class="species-total">TOTAL: ${speciesVolume.toFixed(3).replace('.', ',')}m³</td>
+                                            </tr>
+                                        </table>
+                                    </div>`;
+                                });
+                                
+                                summaryHTML += `</div>`;
+                                return summaryHTML;
+                            })()}
                     </div>
 
                     <div class="footer">
-                        <p>Relatório gerado em ${new Date().toLocaleString()}</p>
+                            <p>Agradecemos sua preferência! Para mais informações: ${companyPhone}</p>
+                            <p>Este documento não possui valor fiscal - Gerado em ${new Date().toLocaleString()}</p>
                     </div>
 
-                    <div class="no-print" style="text-align: center; margin-top: 20px;">
-                        <button onclick="window.print()" style="padding: 10px 20px; background-color: #8B0000; color: white; border: none; border-radius: 4px; cursor: pointer; transition: background-color 0.3s;">
-                            Imprimir Relatório
-                        </button>
+                        <div class="print-buttons">
+                            <button onclick="window.print()">Imprimir Orçamento</button>
+                            <button onclick="window.close()" style="margin-left: 10px; background-color: #333;">Fechar</button>
+                        </div>
                     </div>
                 </body>
                 </html>
@@ -1328,6 +2459,656 @@
 
             reportWindow.document.write(reportContent);
             reportWindow.document.close();
+        }
+
+        // Função para atualizar a label do campo quantidade
+        function updateQuantityLabel() {
+            const packageQuantity = parseInt(document.getElementById('packageQuantity').value) || 1;
+            const quantityUnitLabel = document.getElementById('quantityUnit');
+            
+            if (packageQuantity > 1) {
+                quantityUnitLabel.textContent = 'Pacotes';
+            } else {
+                quantityUnitLabel.textContent = 'Peças';
+            }
+        }
+
+        // Função para salvar como orçamento
+        function saveAsQuote() {
+            try {
+                console.log("Iniciando salvamento de orçamento");
+                
+                // Verificar se há itens na lista
+                const itemsList = document.getElementById('itemsList');
+                if (!itemsList || itemsList.children.length === 0) {
+                    showFeedback("Adicione pelo menos um item para salvar como orçamento", "error");
+                    return;
+                }
+
+                // Extrair a lista de itens
+                let items = [];
+                for (let i = 0; i < itemsList.children.length; i++) {
+                    const item = itemsList.children[i];
+                    // Ignorar a linha de total
+                    if (item.classList.contains('total-row')) continue;
+                    
+                    // Obter tamanho (que contém largura, espessura e comprimento)
+                    const sizeText = item.children[0].textContent.trim();
+                    
+                    // Obter quantidade
+                    const quantityText = item.children[1].textContent.trim();
+                    
+                    // Obter volume
+                    const volumeText = item.children[2].textContent.trim();
+                    
+                    // Obter preço
+                    const priceText = item.children[3].textContent.trim();
+                    
+                    // Obter valores dos atributos data-* 
+                    const species = item.dataset.species || '';
+                    const packageQuantity = parseInt(item.dataset.packageQuantity || '1');
+                    const quantity = parseInt(item.dataset.quantity || '1');
+                    
+                    // Calcular o volume e preço como números
+                    const totalVolume = parseFloat(volumeText.replace(/[^0-9,.]/g, '').replace(',', '.'));
+                    const finalPrice = parseFloat(priceText.replace(/[^0-9,.]/g, '').replace('.', '').replace(',', '.'));
+
+                    // Obter dimensões do tamanho (formato: "thickness X width X length")
+                    let thickness = 0, width = 0, length = 0;
+                    const sizeParts = sizeText.split('X').map(part => part.trim());
+                    if (sizeParts.length === 3) {
+                        thickness = parseFloat(sizeParts[0].replace(',', '.'));
+                        width = parseFloat(sizeParts[1].replace(',', '.'));
+                        length = parseFloat(sizeParts[2].replace(',', '.'));
+                    }
+                    
+                    items.push({
+                        size: sizeText,
+                        width: width,
+                        thickness: thickness,
+                        length: length,
+                        quantity: quantity,
+                        packageQuantity: packageQuantity,
+                        species: species,
+                        volume: volumeText,
+                        price: priceText,
+                        totalVolume: totalVolume,
+                        finalPrice: finalPrice
+                    });
+                }
+
+                console.log("Items processados:", items);
+
+                // Obter o volume total e preço total
+                const totalRow = document.querySelector('.total-row');
+                if (!totalRow) {
+                    console.error("Linha de total não encontrada");
+                    calcularTotal(); // Tentar recalcular o total
+                    showFeedback("Erro ao calcular o preço total. Tente novamente.", "error");
+                    return;
+                }
+                
+                const totalVolume = parseFloat(totalRow.children[2].textContent.replace(/[^0-9,.]/g, '').replace(',', '.')) || 0;
+                const totalPrice = parseFloat(totalRow.children[3].textContent.replace(/[^0-9,.]/g, '').replace('.', '').replace(',', '.')) || 0;
+                
+                console.log("Volume total:", totalVolume, "Preço total:", totalPrice);
+
+                // Obter informações do cliente
+                const clientName = document.getElementById('clientName').value.trim();
+                const clientContact = document.getElementById('clientContact').value.trim();
+                const species = document.getElementById('species').value.trim();
+                
+                // Verificar se o cliente foi preenchido
+                if (!clientName) {
+                    showFeedback("Preencha o nome do cliente para salvar como orçamento", "error");
+                    return;
+                }
+
+                // Obter a data atual formatada
+                const currentDate = new Date();
+                const formattedDate = `${currentDate.getDate().toString().padStart(2, '0')}/${(currentDate.getMonth() + 1).toString().padStart(2, '0')}/${currentDate.getFullYear()} ${currentDate.getHours().toString().padStart(2, '0')}:${currentDate.getMinutes().toString().padStart(2, '0')}`;
+
+                // Garantir que temos um ID de usuário
+                let userId = localStorage.getItem('currentUserId');
+                if (!userId) {
+                    userId = 'user_' + Date.now();
+                    localStorage.setItem('currentUserId', userId);
+                    console.log("ID de usuário criado:", userId);
+                }
+
+                // Preparar objeto de orçamento
+                const quote = {
+                    id: editingQuoteId || `quote_${Date.now()}`,
+                    clientName: clientName,
+                    clientContact: clientContact,
+                    species: species,
+                    date: formattedDate,
+                    items: items,
+                    totalVolume: totalVolume,
+                    totalPrice: totalPrice
+                };
+
+                console.log("Orçamento preparado:", quote);
+
+                // Salvar o orçamento
+                saveQuote(quote);
+                
+                // NOVO: Limpar a lista após salvar o orçamento
+                clearList();
+                
+                // Adicionar um atraso antes do redirecionamento para garantir que o localStorage foi atualizado
+                console.log("Orçamento salvo. Redirecionando para a página de orçamentos...");
+                
+                // Usar setTimeout para dar tempo ao localStorage ser atualizado
+                setTimeout(function() {
+                    window.location.href = 'orcamentos.html';
+                }, 500);
+            } catch (error) {
+                console.error("Erro ao salvar orçamento:", error);
+                showFeedback("Erro ao salvar o orçamento: " + error.message, "error");
+            }
+        }
+
+        function saveQuote(quote) {
+            try {
+                // Buscar orçamentos existentes
+                const userId = localStorage.getItem('currentUserId');
+                if (!userId) {
+                    throw new Error("ID do usuário não encontrado");
+                }
+                
+                console.log("Salvando orçamento para usuário:", userId);
+                let userQuotes = JSON.parse(localStorage.getItem(`quotes_${userId}`) || '[]');
+                
+                // Verificar se é um orçamento existente para edição
+                if (editingQuoteId) {
+                    const existingIndex = userQuotes.findIndex(q => q.id === editingQuoteId);
+                    if (existingIndex !== -1) {
+                        // Atualizar o orçamento existente
+                        userQuotes[existingIndex] = quote;
+                        showFeedback("Orçamento atualizado com sucesso!", "success");
+                    } else {
+                        // Se não encontrou, adicionar como novo
+                        userQuotes.push(quote);
+                        showFeedback("Orçamento salvo com sucesso!", "success");
+                    }
+                } else {
+                    // Adicionar novo orçamento
+                    userQuotes.push(quote);
+                    
+                    // Atualizar estatísticas do usuário
+                    try {
+                        updateUserStats('quotes');
+                    } catch (e) {
+                        console.warn("Erro ao atualizar estatísticas:", e);
+                    }
+                    
+                    showFeedback("Orçamento salvo com sucesso!", "success");
+                }
+                
+                // Salvar os orçamentos atualizados
+                localStorage.setItem(`quotes_${userId}`, JSON.stringify(userQuotes));
+                console.log("Orçamentos salvos com sucesso. Total:", userQuotes.length);
+            } catch (error) {
+                console.error("Erro ao salvar orçamento:", error);
+                showFeedback("Erro ao salvar: " + error.message, "error");
+                throw error; // Propagar o erro para tratamento adicional
+            }
+        }
+
+        // Verificar se estamos carregando um orçamento para edição
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('edit')) {
+            console.log("Carregando orçamento para edição");
+            loadQuoteForEditing(urlParams.get('edit'));
+        }
+
+        // Corrigir a formatação de preço e garantir cálculo imediato
+        function initializeCurrencyInput() {
+            const priceInput = document.getElementById('price');
+            if (!priceInput) return;
+            
+            // Definir valor inicial
+            if (!priceInput.value || priceInput.value === '') {
+                priceInput.value = 'R$ 0,00';
+            }
+            
+            // Limpar eventos existentes
+            const newPriceInput = priceInput.cloneNode(true);
+            priceInput.parentNode.replaceChild(newPriceInput, priceInput);
+            
+            // Adicionar novo evento
+            newPriceInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                value = (parseInt(value, 10) / 100).toFixed(2);
+                value = value.replace('.', ',');
+                e.target.value = `R$ ${value}`;
+                
+                // Chamar calculate imediatamente após atualizar o valor
+                calculate();
+            });
+            
+            // Adicionar eventos de foco
+            newPriceInput.addEventListener('focus', function(e) {
+                // Posicionar cursor no final
+                const val = e.target.value;
+                e.target.value = '';
+                e.target.value = val;
+                
+                // Selecionar todo o texto ao focar
+                setTimeout(() => {
+                    e.target.select();
+                }, 10);
+            });
+        }
+
+        // Adicionar um evento para executar o cálculo quando a página estiver totalmente carregada
+        window.addEventListener('load', function() {
+            console.log("Página completamente carregada. Forçando cálculo...");
+            calculate();
+        });
+
+        // NOVA função para limpar a lista
+        function clearList() {
+            try {
+                // Limpar o conteúdo da lista no DOM
+                const itemsList = document.getElementById('itemsList');
+                if (itemsList) {
+                    itemsList.innerHTML = '';
+                }
+                
+                // Limpar a lista salva no localStorage
+                localStorage.removeItem('woodList');
+                
+                // Atualizar os totais para refletir a lista vazia
+                calcularTotal();
+                
+                // Mostrar feedback
+                showFeedback("Lista limpa com sucesso!", "success");
+                
+                console.log("Lista limpa após salvar orçamento");
+            } catch (error) {
+                console.error("Erro ao limpar lista:", error);
+            }
+        }
+
+        // Adicionar uma função dedicada para inicializar o autocomplete logo após a declaração do DOMContentLoaded
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                console.log("DOMContentLoaded iniciado");
+                
+                // Garantir que o autocomplete seja inicializado primeiro, antes de qualquer outra coisa
+                setTimeout(() => {
+                    console.log("Inicializando autocomplete após delay...");
+                    initAutocomplete();
+                }, 100); // Pequeno delay para garantir que os elementos estejam completamente carregados
+                
+                // Resto do código existente
+                // ... existing code ...
+            } catch (error) {
+                console.error("Erro durante o carregamento da página:", error);
+            }
+        });
+
+        // Nova função específica para inicializar o autocomplete de forma robusta
+        function initAutocomplete() {
+            console.log("Inicializando autocomplete...");
+            
+            try {
+                // Inicializar lista de clientes se não existir
+                if (!localStorage.getItem('clients')) {
+                    localStorage.setItem('clients', JSON.stringify([]));
+                    console.log("Lista de clientes inicializada com array vazio");
+                }
+                
+                // Inicializar lista de espécies se não existir
+                if (!localStorage.getItem('species')) {
+                    const especiesIniciais = ["Peroba", "Pinus", "Cedro", "Ipê", "Timborana", "Maçaranduba"];
+                    localStorage.setItem('species', JSON.stringify(especiesIniciais));
+                    console.log("Lista de espécies inicializada com valores padrão:", especiesIniciais);
+                } else {
+                    // Verificar se há algum problema com o localStorage
+                    try {
+                        const testSpecies = JSON.parse(localStorage.getItem('species'));
+                        console.log("Espécies existentes:", testSpecies);
+                        
+                        // Se a lista estiver vazia, preenchê-la com valores padrão
+                        if (!testSpecies || testSpecies.length === 0) {
+                            const especiesIniciais = ["Peroba", "Pinus", "Cedro", "Ipê", "Timborana", "Maçaranduba"];
+                            localStorage.setItem('species', JSON.stringify(especiesIniciais));
+                            console.log("Lista de espécies estava vazia, inicializada com valores padrão:", especiesIniciais);
+                        }
+                    } catch (e) {
+                        // Reset da lista se houver erro no parsing
+                        console.error("Erro ao ler espécies do localStorage:", e);
+                        const especiesIniciais = ["Peroba", "Pinus", "Cedro", "Ipê", "Timborana", "Maçaranduba"];
+                        localStorage.setItem('species', JSON.stringify(especiesIniciais));
+                        console.log("Lista de espécies resetada com valores padrão após erro:", especiesIniciais);
+                    }
+                }
+                
+                // CLIENTE: Configurar autocomplete com validação de elementos
+                const clientInput = document.getElementById('clientName');
+                const clientAutocomplete = document.getElementById('clientAutocomplete');
+                
+                if (!clientInput) {
+                    console.error("Elemento de input do cliente não encontrado!");
+                    return;
+                }
+                
+                if (!clientAutocomplete) {
+                    console.error("Elemento de autocomplete do cliente não encontrado!");
+                    // Tentar criar o elemento se ele não existir
+                    if (clientInput.parentNode) {
+                        const newAutocomplete = document.createElement('div');
+                        newAutocomplete.id = 'clientAutocomplete';
+                        newAutocomplete.className = 'autocomplete-items';
+                        clientInput.parentNode.appendChild(newAutocomplete);
+                        console.log("Criado elemento de autocomplete para cliente");
+                    }
+                    return;
+                }
+                
+                // Remover eventos existentes para evitar duplicação clonando o elemento
+                const newClientInput = clientInput.cloneNode(true);
+                clientInput.parentNode.replaceChild(newClientInput, clientInput);
+                
+                // Adicionar evento de foco para mostrar todas as opções quando o campo está vazio
+                newClientInput.addEventListener('focus', function() {
+                    if (!this.value.trim()) {
+                        const allClients = JSON.parse(localStorage.getItem('clients')) || [];
+                        
+                        // Limpar sugestões anteriores
+                        clientAutocomplete.innerHTML = '';
+                        
+                        // Mostrar até 10 sugestões
+                        allClients.slice(0, 10).forEach(client => {
+                            const item = document.createElement('div');
+                            item.textContent = client;
+                            item.addEventListener('click', function() {
+                                newClientInput.value = client;
+                                clientAutocomplete.innerHTML = '';
+                                clientAutocomplete.style.display = 'none';
+                            });
+                            clientAutocomplete.appendChild(item);
+                        });
+                        
+                        // Mostrar o container de autocompletar somente se houver sugestões
+                        if (allClients.length > 0) {
+                            clientAutocomplete.style.display = 'block';
+                        }
+                    }
+                });
+                
+                // Evento de input para filtrar as sugestões conforme o usuário digita
+                newClientInput.addEventListener('input', function() {
+                    const term = this.value.trim().toLowerCase();
+                    let clients = [];
+                    
+                    try {
+                        clients = JSON.parse(localStorage.getItem('clients')) || [];
+                    } catch (e) {
+                        console.error("Erro ao carregar clientes:", e);
+                        clients = [];
+                    }
+                    
+                    console.log("Pesquisando clientes com termo:", term);
+                    
+                    // Limpar sugestões anteriores
+                    clientAutocomplete.innerHTML = '';
+                    
+                    // Filtrar clientes que correspondem ao termo
+                    const matchingClients = clients.filter(client => 
+                        client && client.toLowerCase().includes(term)
+                    );
+                    
+                    console.log("Clientes correspondentes:", matchingClients);
+                    
+                    // Mostrar até 5 sugestões
+                    matchingClients.slice(0, 5).forEach(client => {
+                        const item = document.createElement('div');
+                        item.textContent = client;
+                        item.addEventListener('click', function() {
+                            newClientInput.value = client;
+                            clientAutocomplete.innerHTML = '';
+                            clientAutocomplete.style.display = 'none';
+                        });
+                        clientAutocomplete.appendChild(item);
+                    });
+                    
+                    // Mostrar o container de autocompletar
+                    if (matchingClients.length > 0) {
+                        clientAutocomplete.style.display = 'block';
+                    } else {
+                        clientAutocomplete.style.display = 'none';
+                    }
+                });
+                
+                // ESPÉCIE: Configurar autocomplete com validação de elementos
+                const speciesInput = document.getElementById('species');
+                const speciesAutocomplete = document.getElementById('speciesAutocomplete');
+                
+                if (!speciesInput) {
+                    console.error("Elemento de input de espécie não encontrado!");
+                    return;
+                }
+                
+                if (!speciesAutocomplete) {
+                    console.error("Elemento de autocomplete de espécie não encontrado!");
+                    // Tentar criar o elemento se ele não existir
+                    if (speciesInput.parentNode) {
+                        const newAutocomplete = document.createElement('div');
+                        newAutocomplete.id = 'speciesAutocomplete';
+                        newAutocomplete.className = 'autocomplete-items';
+                        speciesInput.parentNode.appendChild(newAutocomplete);
+                        console.log("Criado elemento de autocomplete para espécie");
+                    }
+                    return;
+                }
+                
+                // Remover eventos existentes para evitar duplicação clonando o elemento
+                const newSpeciesInput = speciesInput.cloneNode(true);
+                speciesInput.parentNode.replaceChild(newSpeciesInput, speciesInput);
+                
+                // Adicionar evento de foco para mostrar todas as opções quando o campo está vazio
+                newSpeciesInput.addEventListener('focus', function() {
+                    // Se o campo estiver vazio ao focar, mostrar todas as opções
+                    if (!this.value.trim()) {
+                        let allSpecies = [];
+                        
+                        try {
+                            allSpecies = JSON.parse(localStorage.getItem('species')) || [];
+                            
+                            // Se a lista estiver vazia, usar valores padrão
+                            if (allSpecies.length === 0) {
+                                allSpecies = ["Peroba", "Pinus", "Cedro", "Ipê", "Timborana", "Maçaranduba"];
+                                localStorage.setItem('species', JSON.stringify(allSpecies));
+                            }
+                        } catch (e) {
+                            console.error("Erro ao carregar espécies:", e);
+                            allSpecies = ["Peroba", "Pinus", "Cedro", "Ipê", "Timborana", "Maçaranduba"];
+                            localStorage.setItem('species', JSON.stringify(allSpecies));
+                        }
+                        
+                        // Limpar sugestões anteriores
+                        speciesAutocomplete.innerHTML = '';
+                        
+                        // Mostrar até 10 sugestões
+                        allSpecies.slice(0, 10).forEach(species => {
+                            const item = document.createElement('div');
+                            item.textContent = species;
+                            item.addEventListener('click', function() {
+                                newSpeciesInput.value = species;
+                                speciesAutocomplete.innerHTML = '';
+                                speciesAutocomplete.style.display = 'none';
+                            });
+                            speciesAutocomplete.appendChild(item);
+                        });
+                        
+                        // Mostrar o container de autocompletar
+                        if (allSpecies.length > 0) {
+                            speciesAutocomplete.style.display = 'block';
+                        }
+                    }
+                });
+                
+                // Evento de input para filtrar as sugestões conforme o usuário digita
+                newSpeciesInput.addEventListener('input', function() {
+                    const term = this.value.trim().toLowerCase();
+                    let speciesList = [];
+                    
+                    try {
+                        speciesList = JSON.parse(localStorage.getItem('species')) || [];
+                        
+                        // Se a lista estiver vazia, usar valores padrão
+                        if (speciesList.length === 0) {
+                            speciesList = ["Peroba", "Pinus", "Cedro", "Ipê", "Timborana", "Maçaranduba"];
+                            localStorage.setItem('species', JSON.stringify(speciesList));
+                        }
+                    } catch (e) {
+                        console.error("Erro ao carregar espécies:", e);
+                        speciesList = ["Peroba", "Pinus", "Cedro", "Ipê", "Timborana", "Maçaranduba"];
+                        localStorage.setItem('species', JSON.stringify(speciesList));
+                    }
+                    
+                    console.log("Pesquisando espécies com termo:", term);
+                    console.log("Espécies disponíveis:", speciesList);
+                    
+                    // Limpar sugestões anteriores
+                    speciesAutocomplete.innerHTML = '';
+                    
+                    // Filtrar espécies que correspondem ao termo
+                    const matchingSpecies = speciesList.filter(species => 
+                        species && species.toLowerCase().includes(term)
+                    );
+                    
+                    console.log("Espécies correspondentes:", matchingSpecies);
+                    
+                    // Mostrar até 5 sugestões
+                    matchingSpecies.slice(0, 5).forEach(species => {
+                        const item = document.createElement('div');
+                        item.textContent = species;
+                        item.addEventListener('click', function() {
+                            newSpeciesInput.value = species;
+                            speciesAutocomplete.innerHTML = '';
+                            speciesAutocomplete.style.display = 'none';
+                        });
+                        speciesAutocomplete.appendChild(item);
+                    });
+                    
+                    // Mostrar o container de autocompletar
+                    if (matchingSpecies.length > 0) {
+                        speciesAutocomplete.style.display = 'block';
+                    } else {
+                        speciesAutocomplete.style.display = 'none';
+                    }
+                });
+                
+                // Salvar cliente e espécie quando perder o foco
+                newClientInput.addEventListener('blur', function() {
+                    const clientName = this.value.trim();
+                    if (clientName) {
+                        saveClientToLocalStorage(clientName);
+                    }
+                    // Ocultar sugestões após um pequeno atraso (para permitir o clique)
+                    setTimeout(() => {
+                        clientAutocomplete.style.display = 'none';
+                    }, 200);
+                });
+                
+                newSpeciesInput.addEventListener('blur', function() {
+                    const speciesName = this.value.trim();
+                    if (speciesName) {
+                        saveSpeciesToLocalStorage(speciesName);
+                    }
+                    // Ocultar sugestões após um pequeno atraso (para permitir o clique)
+                    setTimeout(() => {
+                        speciesAutocomplete.style.display = 'none';
+                    }, 200);
+                });
+                
+                console.log("Autocomplete inicializado com sucesso");
+            } catch (error) {
+                console.error("Erro ao inicializar autocomplete:", error);
+                
+                // Tenta inicializar novamente após um breve intervalo para dar tempo aos elementos serem carregados
+                setTimeout(() => {
+                    console.log("Tentando inicializar autocomplete novamente...");
+                    try {
+                        // Código simplificado para uma segunda tentativa
+                        const especiesIniciais = ["Peroba", "Pinus", "Cedro", "Ipê", "Timborana", "Maçaranduba"];
+                        localStorage.setItem('species', JSON.stringify(especiesIniciais));
+                        
+                        // Eventos básicos para os inputs se existirem
+                        const speciesInput = document.getElementById('species');
+                        const clientInput = document.getElementById('clientName');
+                        
+                        if (speciesInput) {
+                            speciesInput.addEventListener('focus', function() {
+                                alert("Lista de espécies disponíveis: " + especiesIniciais.join(", "));
+                            });
+                        }
+                        
+                        console.log("Segunda tentativa de inicialização concluída");
+                    } catch (retryError) {
+                        console.error("Falha na segunda tentativa de inicializar autocomplete:", retryError);
+                    }
+                }, 500);
+            }
+        }
+
+        // Função para salvar cliente no localStorage com melhor tratamento de erros
+        function saveClientToLocalStorage(clientName) {
+            try {
+                if (!clientName || clientName.trim() === '') {
+                    console.log("Nome de cliente vazio, ignorando salvamento");
+                    return;
+                }
+                
+                const clients = JSON.parse(localStorage.getItem('clients')) || [];
+                
+                // Verifica se o cliente já existe (ignorando case)
+                const clientExists = clients.some(client => 
+                    client.toLowerCase() === clientName.toLowerCase()
+                );
+                
+                if (!clientExists) {
+                    clients.push(clientName);
+                    localStorage.setItem('clients', JSON.stringify(clients));
+                    console.log("Cliente salvo:", clientName);
+                } else {
+                    console.log("Cliente já existe, não salvo novamente:", clientName);
+                }
+            } catch (error) {
+                console.error("Erro ao salvar cliente:", error);
+            }
+        }
+
+        // Função para salvar espécie no localStorage com melhor tratamento de erros
+        function saveSpeciesToLocalStorage(speciesName) {
+            try {
+                if (!speciesName || speciesName.trim() === '') {
+                    console.log("Nome de espécie vazio, ignorando salvamento");
+                    return;
+                }
+                
+                const speciesList = JSON.parse(localStorage.getItem('species')) || [];
+                
+                // Verifica se a espécie já existe (ignorando case)
+                const speciesExists = speciesList.some(species => 
+                    species.toLowerCase() === speciesName.toLowerCase()
+                );
+                
+                if (!speciesExists) {
+                    speciesList.push(speciesName);
+                    localStorage.setItem('species', JSON.stringify(speciesList));
+                    console.log("Espécie salva:", speciesName);
+                } else {
+                    console.log("Espécie já existe, não salva novamente:", speciesName);
+                }
+            } catch (error) {
+                console.error("Erro ao salvar espécie:", error);
+            }
         }
     </script>
 </body>

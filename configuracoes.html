@@ -676,29 +676,9 @@
             }, 3000);
         }
 
-        // Menu toggle
-        function toggleMenu() {
-            const menuPanel = document.getElementById('menuPanel');
-            const menuOverlay = document.getElementById('menuOverlay');
-            
-            menuPanel.classList.toggle('active');
-            menuOverlay.classList.toggle('active');
-        }
-
         // Event Listeners
         document.addEventListener('DOMContentLoaded', () => {
             loadSettings();
-
-            // Menu button
-            document.getElementById('menuButton').addEventListener('click', toggleMenu);
-            document.getElementById('menuOverlay').addEventListener('click', toggleMenu);
-
-            // Menu items
-            document.querySelectorAll('.menu-items a').forEach(link => {
-                link.addEventListener('click', () => {
-                    toggleMenu();
-                });
-            });
 
             // Salvar configurações quando alteradas
             document.querySelectorAll('.settings-list input, .settings-list select').forEach(element => {
