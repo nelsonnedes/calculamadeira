@@ -1582,7 +1582,16 @@
                 const quoteNumber = quote.number || 'ORÇ-' + quote.id.substring(0, 6);
                 
                 // Preparar relatório condensado
+                console.log('Abrindo janela do relatório PDF...');
                 const reportWindow = window.open('', '_blank');
+                
+                if (!reportWindow) {
+                    console.error('Falha ao abrir janela - popup pode estar bloqueado');
+                    showFeedback('Não foi possível abrir o relatório. Verifique se o popup não está bloqueado.', 'error');
+                    return;
+                }
+                
+                console.log('Janela PDF aberta com sucesso, gerando conteúdo...');
                 const reportContent = `
                     <!DOCTYPE html>
                     <html>
@@ -1905,8 +1914,18 @@
                     </html>
                 `;
                 
-                reportWindow.document.write(reportContent);
-                reportWindow.document.close();
+                console.log('Escrevendo conteúdo PDF na janela...');
+                console.log('Tamanho do conteúdo PDF:', reportContent.length);
+                
+                try {
+                    reportWindow.document.write(reportContent);
+                    reportWindow.document.close();
+                    console.log('PDF gerado com sucesso!');
+                } catch (writeError) {
+                    console.error('Erro ao escrever conteúdo PDF:', writeError);
+                    showFeedback('Erro ao gerar o PDF', 'error');
+                    reportWindow.close();
+                }
             } catch (error) {
                 console.error("Erro ao gerar PDF:", error);
                 showFeedback('Erro ao gerar o PDF', 'error');

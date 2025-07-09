@@ -2332,7 +2332,11 @@
         }
 
         function generateReport() {
+            console.log('Iniciando generateReport...');
+            
             const items = document.querySelectorAll('.list-item');
+            console.log('Itens encontrados:', items.length);
+            
             if (items.length === 0) {
                 showFeedback('Adicione itens à lista antes de gerar o relatório', 'error');
                 return;
@@ -2359,18 +2363,21 @@
             
             const species = document.getElementById('species').value.trim();
             
-            // Verificar se o cliente foi preenchido
-            if (!clientName) {
-                showFeedback("Preencha o nome do cliente para salvar como orçamento", "error");
-                return;
-            }
-
             // Gerar número único para o orçamento
             const quoteNumber = 'ORÇ-' + Math.floor(Date.now() / 1000).toString().slice(-6);
             const formattedDate = new Date().toLocaleDateString('pt-BR');
             
             // Preparar relatório condensado
+            console.log('Abrindo janela do relatório...');
             const reportWindow = window.open('', '_blank');
+            
+            if (!reportWindow) {
+                console.error('Falha ao abrir janela - popup pode estar bloqueado');
+                showFeedback('Não foi possível abrir o relatório. Verifique se o popup não está bloqueado.', 'error');
+                return;
+            }
+            
+            console.log('Janela aberta com sucesso, gerando conteúdo...');
             const reportContent = `
                 <!DOCTYPE html>
                 <html>
@@ -2831,8 +2838,18 @@
                 </html>
             `;
 
-            reportWindow.document.write(reportContent);
-            reportWindow.document.close();
+            console.log('Escrevendo conteúdo na janela...');
+            console.log('Tamanho do conteúdo:', reportContent.length);
+            
+            try {
+                reportWindow.document.write(reportContent);
+                reportWindow.document.close();
+                console.log('Relatório gerado com sucesso!');
+            } catch (error) {
+                console.error('Erro ao escrever conteúdo:', error);
+                showFeedback('Erro ao gerar o relatório', 'error');
+                reportWindow.close();
+            }
         }
 
         // Função para atualizar a label do campo quantidade
