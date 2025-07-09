@@ -7,6 +7,12 @@
     "background_color": "#ffffff",
     "theme_color": "#4CAF50",
     "orientation": "portrait",
+    "scope": "/",
+    "prefer_related_applications": false,
+    "related_applications": [],
+    "categories": ["utilities", "productivity"],
+    "lang": "pt-BR",
+    "dir": "ltr",
     "icons": [
         {
             "src": "icon-192x192.png",
@@ -37,11 +43,6 @@
             "label": "Calculadora de Madeira - Perfil"
         }
     ],
-    "categories": ["utilities", "productivity"],
-    "lang": "pt-BR",
-    "dir": "ltr",
-    "prefer_related_applications": false,
-    "related_applications": [],
     "shortcuts": [
         {
             "name": "Novo Cálculo",
@@ -51,6 +52,11 @@
         {
             "name": "Meu Perfil",
             "url": "/perfil.html",
+            "icons": [{ "src": "icon-96x96.png", "sizes": "96x96" }]
+        },
+        {
+            "name": "Orçamentos",
+            "url": "/orcamentos.html",
             "icons": [{ "src": "icon-96x96.png", "sizes": "96x96" }]
         }
     ]

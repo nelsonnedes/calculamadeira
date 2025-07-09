@@ -773,6 +773,8 @@
     </div>
 
     <script src="auth.js"></script>
+    <script src="pwa-updater.js"></script>
+    <script src="update-checker.js"></script>
     <script>
         // Verificar autenticação e plano ativo
         if (!isUserLoggedIn()) {
@@ -805,19 +807,6 @@
         function logout() {
             logoutUser();
             window.location.href = 'index.html';
-        }
-
-        // Registrar o Service Worker
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/service-worker.js')
-                    .then(registration => {
-                        console.log('ServiceWorker registrado com sucesso:', registration.scope);
-                    })
-                    .catch(error => {
-                        console.log('Falha ao registrar o ServiceWorker:', error);
-                    });
-            });
         }
 
         // Verificar se o app está instalado
