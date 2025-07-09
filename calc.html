@@ -1229,9 +1229,9 @@
                 // Adicionar evento de foco para mostrar todas as opções quando o campo está vazio
                 newClientInput.addEventListener('focus', function() {
                     if (!this.value.trim()) {
-                        // Limpar sugestões anteriores
-                        clientAutocomplete.innerHTML = '';
-                        
+                    // Limpar sugestões anteriores
+                    clientAutocomplete.innerHTML = '';
+                    
                         // Mostrar até 10 sugestões
                         clientsWithPhone.slice(0, 10).forEach(client => {
                             const item = document.createElement('div');
@@ -1326,7 +1326,7 @@
                     
                     // Evento de foco para mostrar todas as condições
                     newPaymentTermsInput.addEventListener('focus', function() {
-                        let paymentConditions = JSON.parse(localStorage.getItem('paymentConditions')) || [];
+                        let paymentConditions = JSON.parse(localStorage.getItem('paymentTerms')) || [];
                         
                         // Limpar sugestões anteriores
                         paymentTermsAutocomplete.innerHTML = '';
@@ -1352,7 +1352,7 @@
                     // Evento de input para filtrar
                     newPaymentTermsInput.addEventListener('input', function() {
                         const term = this.value.trim().toLowerCase();
-                        let paymentConditions = JSON.parse(localStorage.getItem('paymentConditions')) || [];
+                        let paymentConditions = JSON.parse(localStorage.getItem('paymentTerms')) || [];
                         
                         // Limpar sugestões anteriores
                         paymentTermsAutocomplete.innerHTML = '';
@@ -1519,6 +1519,10 @@
                 // Adicionar eventos
                 setupEvents();
                 console.log("Eventos configurados");
+                
+                // Configurar navegação com Enter entre campos
+                setupEnterNavigation();
+                console.log("Navegação com Enter configurada");
                 
                 // Forçar cálculo inicial após um pequeno atraso para garantir que todos os elementos estão carregados
                 setTimeout(() => {
@@ -1858,8 +1862,8 @@
                     exitEditMode();
                 } else {
                     // Modo normal: adicionar novo item
-                    itemsList.appendChild(item);
-                    console.log("Item adicionado à lista com sucesso");
+                itemsList.appendChild(item);
+                console.log("Item adicionado à lista com sucesso");
                     showFeedback('Item adicionado com sucesso!', 'success');
                 }
                 
@@ -1883,16 +1887,17 @@
 
         // Função para limpar os campos do formulário
         function clearFormFields() {
-            document.getElementById('width').value = '';
-            document.getElementById('thickness').value = '';
-            document.getElementById('length').value = '';
-            document.getElementById('quantity').value = '1';
-            // Não limpar packageQuantity, que mantém o último valor usado
-            document.getElementById('price').value = 'R$ 0,00';
+                document.getElementById('width').value = '';
+                document.getElementById('thickness').value = '';
+                document.getElementById('length').value = '';
+                document.getElementById('quantity').value = '1';
+                // Não limpar packageQuantity, que mantém o último valor usado
+            // Não limpar price, mantendo o preço preenchido após adicionar item
             
             // Limpar também a espécie se estiver em modo edição
             if (isEditMode) {
                 document.getElementById('species').value = '';
+                document.getElementById('price').value = 'R$ 0,00'; // Só limpa preço no modo edição
             }
         }
 
@@ -2362,7 +2367,7 @@
             }
             
             const species = document.getElementById('species').value.trim();
-            
+
             // Gerar número único para o orçamento
             const quoteNumber = 'ORÇ-' + Math.floor(Date.now() / 1000).toString().slice(-6);
             const formattedDate = new Date().toLocaleDateString('pt-BR');
@@ -2842,8 +2847,8 @@
             console.log('Tamanho do conteúdo:', reportContent.length);
             
             try {
-                reportWindow.document.write(reportContent);
-                reportWindow.document.close();
+            reportWindow.document.write(reportContent);
+            reportWindow.document.close();
                 console.log('Relatório gerado com sucesso!');
             } catch (error) {
                 console.error('Erro ao escrever conteúdo:', error);
@@ -3319,7 +3324,7 @@
                     
                     // Evento de foco para mostrar todas as condições
                     newPaymentTermsInput.addEventListener('focus', function() {
-                        let paymentConditions = JSON.parse(localStorage.getItem('paymentConditions')) || [];
+                        let paymentConditions = JSON.parse(localStorage.getItem('paymentTerms')) || [];
                         
                         // Limpar sugestões anteriores
                         paymentTermsAutocomplete.innerHTML = '';
@@ -3345,7 +3350,7 @@
                     // Evento de input para filtrar
                     newPaymentTermsInput.addEventListener('input', function() {
                         const term = this.value.trim().toLowerCase();
-                        let paymentConditions = JSON.parse(localStorage.getItem('paymentConditions')) || [];
+                        let paymentConditions = JSON.parse(localStorage.getItem('paymentTerms')) || [];
                         
                         // Limpar sugestões anteriores
                         paymentTermsAutocomplete.innerHTML = '';
@@ -3655,6 +3660,49 @@
             updateAddButton(); // Inicializar o botão corretamente
             calculate();
         });
+
+        // Função para configurar navegação com Enter
+        function setupEnterNavigation() {
+            // Definir a ordem dos campos para navegação
+            const fieldOrder = [
+                'clientName',
+                'clientContact', 
+                'paymentTerms',
+                'species',
+                'thickness',
+                'width',
+                'length',
+                'quantity',
+                'packageQuantity',
+                'price'
+            ];
+            
+            fieldOrder.forEach((fieldId, index) => {
+                const field = document.getElementById(fieldId);
+                if (field) {
+                    field.addEventListener('keydown', function(event) {
+                        if (event.key === 'Enter') {
+                            event.preventDefault();
+                            
+                            // Se for o último campo (price), adicionar item
+                            if (fieldId === 'price') {
+                                testDirectClick(); // Função para adicionar item
+                                return;
+                            }
+                            
+                            // Navegar para o próximo campo
+                            const nextIndex = index + 1;
+                            if (nextIndex < fieldOrder.length) {
+                                const nextField = document.getElementById(fieldOrder[nextIndex]);
+                                if (nextField) {
+                                    nextField.focus();
+                                }
+                            }
+                        }
+                    });
+                }
+            });
+        }
     </script>
 </body>
 </html> 

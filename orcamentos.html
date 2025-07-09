@@ -1488,7 +1488,7 @@
                                             <td class="total-price">${totalPriceFormatted}</td>
                                         </tr>
                                         `;
-                                    }).join('') : '<tr><td colspan="7">Nenhum item encontrado</td></tr>'}
+                                    }).join('') : '<tr><td colspan="6">Nenhum item encontrado</td></tr>'}
                                 </tbody>
                             </table>
 
@@ -1871,7 +1871,7 @@
                                             <td>${priceText}</td>
                                         </tr>
                                         `;
-                                    }).join('') : '<tr><td colspan="7">Nenhum item encontrado</td></tr>'}
+                                    }).join('') : '<tr><td colspan="6">Nenhum item encontrado</td></tr>'}
                                 </tbody>
                             </table>
 
@@ -2219,7 +2219,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    ${quote.items.map((item, index) => {
+                                    ${quote.items && quote.items.length > 0 ? quote.items.map((item, index) => {
                                         let sizeText = item.size;
                                         if (sizeText.includes('x')) {
                                             const parts = sizeText.split('x');
@@ -2342,3 +2342,5 @@
     </script>
 </body>
 </html> 
+
+
