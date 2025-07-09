@@ -388,58 +388,198 @@
             document.getElementById('resetCodeSection').style.display = 'none';
             document.getElementById('resetButton').textContent = 'Enviar Código';
             document.getElementById('resetButton').onclick = requestPasswordReset;
+            
+            // Limpar campos e mensagens
+            clearResetForm();
         }
 
         function showLogin() {
             document.getElementById('loginForm').style.display = 'block';
             document.getElementById('registerForm').style.display = 'none';
             document.getElementById('resetPasswordForm').style.display = 'none';
+            
+            // Limpar mensagens de erro
+            clearAllErrors();
+        }
+
+        function clearResetForm() {
+            document.getElementById('resetEmail').value = '';
+            document.getElementById('resetCode').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmNewPassword').value = '';
+            document.getElementById('resetError').style.display = 'none';
+            document.getElementById('resetSuccess').style.display = 'none';
+        }
+
+        function clearAllErrors() {
+            const errorElements = document.querySelectorAll('.error-message, .success-message');
+            errorElements.forEach(element => {
+                element.style.display = 'none';
+                element.textContent = '';
+            });
+        }
+
+        function setButtonLoading(buttonId, isLoading, originalText) {
+            const button = document.getElementById(buttonId);
+            if (isLoading) {
+                button.disabled = true;
+                button.textContent = 'Processando...';
+                button.style.opacity = '0.7';
+            } else {
+                button.disabled = false;
+                button.textContent = originalText;
+                button.style.opacity = '1';
+            }
+        }
+
+        function validateEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
         }
 
         function requestPasswordReset() {
-            const email = document.getElementById('resetEmail').value;
-            const users = JSON.parse(localStorage.getItem(AUTH_KEY) || '[]');
-            const user = users.find(u => u.email === email);
-
-            if (!user) {
-                showError('reset', 'Email não encontrado');
+            const email = document.getElementById('resetEmail').value.trim();
+            
+            // Limpar mensagens anteriores
+            document.getElementById('resetError').style.display = 'none';
+            document.getElementById('resetSuccess').style.display = 'none';
+            
+            // Validar email
+            if (!email) {
+                showError('reset', 'Por favor, insira seu email');
                 return;
             }
-
-            const resetCode = generateResetCode();
-            saveResetCode(email, resetCode);
-
-            // Em um ambiente real, você enviaria o código por email
-            // Aqui vamos apenas mostrar o código para teste
-            document.getElementById('resetSuccess').textContent = 'Código de verificação: ' + resetCode;
-            document.getElementById('resetSuccess').style.display = 'block';
             
-            document.getElementById('resetCodeSection').style.display = 'block';
-            document.getElementById('resetButton').textContent = 'Redefinir Senha';
-            document.getElementById('resetButton').onclick = confirmPasswordReset;
+            if (!validateEmail(email)) {
+                showError('reset', 'Por favor, insira um email válido');
+                return;
+            }
+            
+            // Mostrar loading
+            setButtonLoading('resetButton', true, 'Enviar Código');
+            
+            // Simular delay de rede para melhor UX
+            setTimeout(() => {
+                try {
+                    const users = JSON.parse(localStorage.getItem(AUTH_KEY) || '[]');
+                    const user = users.find(u => u.email === email.toLowerCase());
+
+                    if (!user) {
+                        setButtonLoading('resetButton', false, 'Enviar Código');
+                        showError('reset', 'Email não encontrado. Verifique se o email está correto.');
+                        return;
+                    }
+
+                    const resetCode = generateResetCode();
+                    saveResetCode(email.toLowerCase(), resetCode);
+
+                    // Mostrar código e seção de reset
+                    document.getElementById('resetSuccess').innerHTML = `
+                        <strong>Código enviado!</strong><br>
+                        <span style="font-size: 18px; font-weight: bold; color: #4CAF50;">${resetCode}</span><br>
+                        <small>Em um ambiente real, este código seria enviado por email.</small>
+                    `;
+                    document.getElementById('resetSuccess').style.display = 'block';
+                    
+                    document.getElementById('resetCodeSection').style.display = 'block';
+                    document.getElementById('resetButton').textContent = 'Redefinir Senha';
+                    document.getElementById('resetButton').onclick = confirmPasswordReset;
+                    
+                    // Focar no campo do código
+                    setTimeout(() => {
+                        document.getElementById('resetCode').focus();
+                    }, 100);
+                    
+                } catch (error) {
+                    console.error('Erro ao solicitar reset:', error);
+                    showError('reset', 'Erro interno. Tente novamente.');
+                } finally {
+                    setButtonLoading('resetButton', false, 'Redefinir Senha');
+                }
+            }, 800);
         }
 
         function confirmPasswordReset() {
-            const email = document.getElementById('resetEmail').value;
-            const code = document.getElementById('resetCode').value;
+            const email = document.getElementById('resetEmail').value.trim().toLowerCase();
+            const code = document.getElementById('resetCode').value.trim();
             const newPassword = document.getElementById('newPassword').value;
             const confirmPassword = document.getElementById('confirmNewPassword').value;
 
+            // Limpar mensagens anteriores
+            document.getElementById('resetError').style.display = 'none';
+            document.getElementById('resetSuccess').style.display = 'none';
+            
+            // Validações
+            if (!code) {
+                showError('reset', 'Por favor, insira o código de verificação');
+                document.getElementById('resetCode').focus();
+                return;
+            }
+            
+            if (code.length !== 6 || !/^\d+$/.test(code)) {
+                showError('reset', 'O código deve ter 6 dígitos numéricos');
+                document.getElementById('resetCode').focus();
+                return;
+            }
+            
+            if (!newPassword) {
+                showError('reset', 'Por favor, insira a nova senha');
+                document.getElementById('newPassword').focus();
+                return;
+            }
+            
+            if (newPassword.length < 6) {
+                showError('reset', 'A nova senha deve ter pelo menos 6 caracteres');
+                document.getElementById('newPassword').focus();
+                return;
+            }
+            
             if (newPassword !== confirmPassword) {
                 showError('reset', 'As senhas não coincidem');
+                document.getElementById('confirmNewPassword').focus();
                 return;
             }
 
-            try {
-                resetPassword(email, code, newPassword);
-                document.getElementById('resetSuccess').textContent = 'Senha alterada com sucesso!';
-                document.getElementById('resetSuccess').style.display = 'block';
-                setTimeout(() => {
-                    showLogin();
-                }, 2000);
-            } catch (error) {
-                showError('reset', error.message);
-            }
+            // Mostrar loading
+            setButtonLoading('resetButton', true, 'Redefinir Senha');
+            
+            // Simular delay de rede
+            setTimeout(() => {
+                try {
+                    resetPassword(email, code, newPassword);
+                    
+                    // Sucesso
+                    document.getElementById('resetSuccess').innerHTML = `
+                        <strong>✓ Senha alterada com sucesso!</strong><br>
+                        <small>Você será redirecionado para o login em alguns segundos...</small>
+                    `;
+                    document.getElementById('resetSuccess').style.display = 'block';
+                    
+                    // Limpar formulário
+                    clearResetForm();
+                    
+                    // Redirecionar após delay
+                    setTimeout(() => {
+                        showLogin();
+                    }, 3000);
+                    
+                } catch (error) {
+                    console.error('Erro ao redefinir senha:', error);
+                    showError('reset', error.message);
+                    
+                    // Se o código expirou ou excedeu tentativas, voltar ao primeiro passo
+                    if (error.message.includes('expirado') || error.message.includes('excedido')) {
+                        setTimeout(() => {
+                            document.getElementById('resetCodeSection').style.display = 'none';
+                            document.getElementById('resetButton').textContent = 'Enviar Código';
+                            document.getElementById('resetButton').onclick = requestPasswordReset;
+                            clearResetForm();
+                        }, 2000);
+                    }
+                } finally {
+                    setButtonLoading('resetButton', false, 'Redefinir Senha');
+                }
+            }, 800);
         }
     </script>
 </body>

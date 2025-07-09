@@ -145,6 +145,43 @@ function getPlanDetails() {
     };
 }
 
+// Função para validar força da senha
+function validatePasswordStrength(password) {
+    const errors = [];
+    
+    if (!password || password.length < 6) {
+        errors.push('A senha deve ter pelo menos 6 caracteres');
+    }
+    
+    if (password.length > 50) {
+        errors.push('A senha deve ter no máximo 50 caracteres');
+    }
+    
+    if (!/[a-zA-Z]/.test(password)) {
+        errors.push('A senha deve conter pelo menos uma letra');
+    }
+    
+    if (!/[0-9]/.test(password)) {
+        errors.push('A senha deve conter pelo menos um número');
+    }
+    
+    // Verificar caracteres comuns perigosos
+    if (/[<>'"&]/.test(password)) {
+        errors.push('A senha contém caracteres não permitidos');
+    }
+    
+    return {
+        isValid: errors.length === 0,
+        errors: errors
+    };
+}
+
+// Função para sanitizar email
+function sanitizeEmail(email) {
+    if (!email) return '';
+    return email.toLowerCase().trim();
+}
+
 // Funções de recuperação de senha
 function generateResetCode() {
     return Math.floor(100000 + Math.random() * 900000).toString();
@@ -196,10 +233,54 @@ function verifyResetCode(email, code) {
 }
 
 function resetPassword(email, code, newPassword) {
-    if (!verifyResetCode(email, code)) {
-        throw new Error('Código de verificação inválido');
+    // Sanitizar e validar entrada
+    email = sanitizeEmail(email);
+    
+    if (!email) {
+        throw new Error('Email é obrigatório');
+    }
+    
+    if (!code || !code.trim()) {
+        throw new Error('Código de verificação é obrigatório');
+    }
+    
+    // Validar força da senha
+    const passwordValidation = validatePasswordStrength(newPassword);
+    if (!passwordValidation.isValid) {
+        throw new Error(passwordValidation.errors[0]); // Mostrar primeiro erro
     }
 
+    // Verificar código de reset
+    const resetCodes = JSON.parse(localStorage.getItem(RESET_CODES_KEY) || '{}');
+    const resetInfo = resetCodes[email];
+    
+    if (!resetInfo) {
+        throw new Error('Código de verificação expirado ou inválido');
+    }
+
+    // Verificar se o código expirou (30 minutos)
+    if (Date.now() - resetInfo.timestamp > 30 * 60 * 1000) {
+        delete resetCodes[email];
+        localStorage.setItem(RESET_CODES_KEY, JSON.stringify(resetCodes));
+        throw new Error('Código de verificação expirado. Solicite um novo código.');
+    }
+
+    // Verificar tentativas máximas (3 tentativas)
+    if (resetInfo.attempts >= 3) {
+        delete resetCodes[email];
+        localStorage.setItem(RESET_CODES_KEY, JSON.stringify(resetCodes));
+        throw new Error('Número máximo de tentativas excedido. Solicite um novo código.');
+    }
+
+    // Verificar código
+    if (resetInfo.code !== code) {
+        resetInfo.attempts++;
+        resetCodes[email] = resetInfo;
+        localStorage.setItem(RESET_CODES_KEY, JSON.stringify(resetCodes));
+        throw new Error(`Código de verificação incorreto. Tentativas restantes: ${3 - resetInfo.attempts}`);
+    }
+
+    // Buscar usuário
     const users = JSON.parse(localStorage.getItem(AUTH_KEY) || '[]');
     const userIndex = users.findIndex(u => u.email === email);
 
@@ -207,7 +288,14 @@ function resetPassword(email, code, newPassword) {
         throw new Error('Usuário não encontrado');
     }
 
+    // Atualizar senha
     users[userIndex].password = btoa(newPassword);
+    users[userIndex].passwordUpdatedAt = new Date().toISOString();
     localStorage.setItem(AUTH_KEY, JSON.stringify(users));
+    
+    // Limpar código de reset após sucesso
+    delete resetCodes[email];
+    localStorage.setItem(RESET_CODES_KEY, JSON.stringify(resetCodes));
+    
     return true;
 } 
