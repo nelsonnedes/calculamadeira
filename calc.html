@@ -319,17 +319,83 @@
         }
 
         .delete-btn {
-            display: none;
-            background: none;
+            background: #ff4444;
+            color: white;
             border: none;
-            color: #ff0000;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
             cursor: pointer;
-            padding: 5px;
-            font-size: 1.2rem;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .list-item:hover .delete-btn {
-            display: block;
+        .delete-btn:hover {
+            background: #cc0000;
+        }
+
+        .edit-btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 5px;
+        }
+
+        .edit-btn:hover {
+            background: #45a049;
+        }
+
+        .list-item > div:last-child {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .autocomplete-item {
+            padding: 10px;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+        }
+
+        .autocomplete-item:hover {
+            background-color: #f5f5f5;
+        }
+
+        .autocomplete-item .client-name {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .autocomplete-item .client-phone {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 2px;
+        }
+
+        .autocomplete-items {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            display: none;
         }
 
         .total-row {
@@ -663,7 +729,7 @@
                 <input type="text" id="clientContact" placeholder="(00) 0 0000-0000" autocomplete="off">
             </div>
             <div class="input-group">
-                <label for="paymentTerms">Condições de Pagamento:</label>
+                <label for="paymentTerms">Condições:</label>
                 <input type="text" id="paymentTerms" placeholder="Ex: 50% entrada, 50% na entrega" autocomplete="off">
                 <div class="autocomplete-items" id="paymentTermsAutocomplete"></div>
             </div>
@@ -794,6 +860,10 @@
             window.location.href = 'planos.html';
         }
         */
+
+        // Variáveis globais para controle de edição
+        let isEditMode = false;
+        let editingItemIndex = -1;
 
         // Funções de fallback para auth.js caso não seja carregado
         if (typeof isUserLoggedIn !== 'function') {
@@ -1037,7 +1107,10 @@
                     <div>${quantityDisplay}</div>
                     <div>${item.volume}</div>
                     <div>${item.price}</div>
-                    <button class="delete-btn" aria-label="Excluir item">×</button>
+                    <div>
+                        <button class="edit-btn" onclick="editItem(this)" title="Editar item">✏️</button>
+                        <button class="delete-btn" onclick="deleteItem(this)" title="Excluir item">×</button>
+                    </div>
                 `;
 
                 // Adicionar evento de exclusão
@@ -1126,27 +1199,94 @@
                 // Configurar autocompletar para Cliente
                 const clientInput = document.getElementById('clientName');
                 const clientAutocomplete = document.getElementById('clientAutocomplete');
+                const clientContactInput = document.getElementById('clientContact');
                 
-                clientInput.addEventListener('input', function() {
+                if (!clientInput) {
+                    console.error("Elemento de input do cliente não encontrado!");
+                    return;
+                }
+                
+                if (!clientAutocomplete) {
+                    console.error("Elemento de autocomplete do cliente não encontrado!");
+                    // Tentar criar o elemento se ele não existir
+                    if (clientInput.parentNode) {
+                        const newAutocomplete = document.createElement('div');
+                        newAutocomplete.id = 'clientAutocomplete';
+                        newAutocomplete.className = 'autocomplete-items';
+                        clientInput.parentNode.appendChild(newAutocomplete);
+                        console.log("Criado elemento de autocomplete para cliente");
+                    }
+                    return;
+                }
+                
+                // Inicializar lista de clientes com telefone se não existir
+                let clientsWithPhone = JSON.parse(localStorage.getItem('clientsWithPhone')) || [];
+                
+                // Remover eventos existentes para evitar duplicação clonando o elemento
+                const newClientInput = clientInput.cloneNode(true);
+                clientInput.parentNode.replaceChild(newClientInput, clientInput);
+                
+                // Adicionar evento de foco para mostrar todas as opções quando o campo está vazio
+                newClientInput.addEventListener('focus', function() {
+                    if (!this.value.trim()) {
+                        // Limpar sugestões anteriores
+                        clientAutocomplete.innerHTML = '';
+                        
+                        // Mostrar até 10 sugestões
+                        clientsWithPhone.slice(0, 10).forEach(client => {
+                            const item = document.createElement('div');
+                            item.className = 'autocomplete-item';
+                            item.innerHTML = `
+                                <div class="client-name">${client.name}</div>
+                                ${client.phone ? `<div class="client-phone">${client.phone}</div>` : ''}
+                            `;
+                            item.addEventListener('click', function() {
+                                newClientInput.value = client.name;
+                                if (client.phone && clientContactInput) {
+                                    clientContactInput.value = client.phone;
+                                }
+                                clientAutocomplete.innerHTML = '';
+                                clientAutocomplete.style.display = 'none';
+                            });
+                            clientAutocomplete.appendChild(item);
+                        });
+                        
+                        // Mostrar o container de autocompletar somente se houver sugestões
+                        if (clientsWithPhone.length > 0) {
+                            clientAutocomplete.style.display = 'block';
+                        }
+                    }
+                });
+                
+                // Evento de input para filtrar as sugestões conforme o usuário digita
+                newClientInput.addEventListener('input', function() {
                     const term = this.value.trim().toLowerCase();
-                    const clients = JSON.parse(localStorage.getItem('clients')) || [];
+                    
+                    console.log("Pesquisando clientes com termo:", term);
                     
                     // Limpar sugestões anteriores
                     clientAutocomplete.innerHTML = '';
                     
-                    if (!term) return;
-                    
                     // Filtrar clientes que correspondem ao termo
-                    const matchingClients = clients.filter(client => 
-                        client.toLowerCase().includes(term)
+                    const matchingClients = clientsWithPhone.filter(client => 
+                        client.name && client.name.toLowerCase().includes(term)
                     );
+                    
+                    console.log("Clientes correspondentes:", matchingClients);
                     
                     // Mostrar até 5 sugestões
                     matchingClients.slice(0, 5).forEach(client => {
                         const item = document.createElement('div');
-                        item.textContent = client;
+                        item.className = 'autocomplete-item';
+                        item.innerHTML = `
+                            <div class="client-name">${client.name}</div>
+                            ${client.phone ? `<div class="client-phone">${client.phone}</div>` : ''}
+                        `;
                         item.addEventListener('click', function() {
-                            clientInput.value = client;
+                            newClientInput.value = client.name;
+                            if (client.phone && clientContactInput) {
+                                clientContactInput.value = client.phone;
+                            }
                             clientAutocomplete.innerHTML = '';
                             clientAutocomplete.style.display = 'none';
                         });
@@ -1160,6 +1300,94 @@
                         clientAutocomplete.style.display = 'none';
                     }
                 });
+
+                // Salvar cliente com telefone quando perder o foco
+                newClientInput.addEventListener('blur', function() {
+                    setTimeout(() => {
+                        const clientName = this.value.trim();
+                        const clientPhone = clientContactInput ? clientContactInput.value.trim() : '';
+                        
+                        if (clientName) {
+                            saveClientWithPhoneToLocalStorage(clientName, clientPhone);
+                        }
+                        
+                        clientAutocomplete.style.display = 'none';
+                    }, 200);
+                });
+
+                // CONDIÇÕES DE PAGAMENTO: Configurar autocomplete melhorado
+                const paymentTermsInput = document.getElementById('paymentTerms');
+                const paymentTermsAutocomplete = document.getElementById('paymentTermsAutocomplete');
+                
+                if (paymentTermsInput && paymentTermsAutocomplete) {
+                    // Remover eventos existentes
+                    const newPaymentTermsInput = paymentTermsInput.cloneNode(true);
+                    paymentTermsInput.parentNode.replaceChild(newPaymentTermsInput, paymentTermsInput);
+                    
+                    // Evento de foco para mostrar todas as condições
+                    newPaymentTermsInput.addEventListener('focus', function() {
+                        let paymentConditions = JSON.parse(localStorage.getItem('paymentConditions')) || [];
+                        
+                        // Limpar sugestões anteriores
+                        paymentTermsAutocomplete.innerHTML = '';
+                        
+                        // Mostrar todas as condições
+                        paymentConditions.forEach(condition => {
+                            const item = document.createElement('div');
+                            item.className = 'autocomplete-item';
+                            item.textContent = condition;
+                            item.addEventListener('click', function() {
+                                newPaymentTermsInput.value = condition;
+                                paymentTermsAutocomplete.innerHTML = '';
+                                paymentTermsAutocomplete.style.display = 'none';
+                            });
+                            paymentTermsAutocomplete.appendChild(item);
+                        });
+                        
+                        if (paymentConditions.length > 0) {
+                            paymentTermsAutocomplete.style.display = 'block';
+                        }
+                    });
+                    
+                    // Evento de input para filtrar
+                    newPaymentTermsInput.addEventListener('input', function() {
+                        const term = this.value.trim().toLowerCase();
+                        let paymentConditions = JSON.parse(localStorage.getItem('paymentConditions')) || [];
+                        
+                        // Limpar sugestões anteriores
+                        paymentTermsAutocomplete.innerHTML = '';
+                        
+                        // Filtrar condições
+                        const matchingConditions = paymentConditions.filter(condition => 
+                            condition.toLowerCase().includes(term)
+                        );
+                        
+                        matchingConditions.forEach(condition => {
+                            const item = document.createElement('div');
+                            item.className = 'autocomplete-item';
+                            item.textContent = condition;
+                            item.addEventListener('click', function() {
+                                newPaymentTermsInput.value = condition;
+                                paymentTermsAutocomplete.innerHTML = '';
+                                paymentTermsAutocomplete.style.display = 'none';
+                            });
+                            paymentTermsAutocomplete.appendChild(item);
+                        });
+                        
+                        if (matchingConditions.length > 0) {
+                            paymentTermsAutocomplete.style.display = 'block';
+                        } else {
+                            paymentTermsAutocomplete.style.display = 'none';
+                        }
+                    });
+                    
+                    // Esconder ao perder foco
+                    newPaymentTermsInput.addEventListener('blur', function() {
+                        setTimeout(() => {
+                            paymentTermsAutocomplete.style.display = 'none';
+                        }, 200);
+                    });
+                }
                 
                 // Configurar autocompletar para Espécie
                 const speciesInput = document.getElementById('species');
@@ -1196,44 +1424,6 @@
                         speciesAutocomplete.style.display = 'block';
                     } else {
                         speciesAutocomplete.style.display = 'none';
-                    }
-                });
-                
-                // Configurar autocompletar para Condições de Pagamento
-                const paymentTermsInput = document.getElementById('paymentTerms');
-                const paymentTermsAutocomplete = document.getElementById('paymentTermsAutocomplete');
-                
-                paymentTermsInput.addEventListener('input', function() {
-                    const term = this.value.trim().toLowerCase();
-                    const paymentTerms = JSON.parse(localStorage.getItem('paymentTerms')) || [];
-                    
-                    // Limpar sugestões anteriores
-                    paymentTermsAutocomplete.innerHTML = '';
-                    
-                    if (!term) return;
-                    
-                    // Filtrar condições que correspondem ao termo
-                    const matchingTerms = paymentTerms.filter(term_item => 
-                        term_item.toLowerCase().includes(term)
-                    );
-                    
-                    // Mostrar até 5 sugestões
-                    matchingTerms.slice(0, 5).forEach(term_item => {
-                        const item = document.createElement('div');
-                        item.textContent = term_item;
-                        item.addEventListener('click', function() {
-                            paymentTermsInput.value = term_item;
-                            paymentTermsAutocomplete.innerHTML = '';
-                            paymentTermsAutocomplete.style.display = 'none';
-                        });
-                        paymentTermsAutocomplete.appendChild(item);
-                    });
-                    
-                    // Mostrar o container de autocompletar
-                    if (matchingTerms.length > 0) {
-                        paymentTermsAutocomplete.style.display = 'block';
-                    } else {
-                        paymentTermsAutocomplete.style.display = 'none';
                     }
                 });
                 
@@ -1387,7 +1577,8 @@
                     <div>${volume.toFixed(3).replace('.', ',')}m³</div>
                     <div>${formatters.currency.format(cost)}</div>
                     <div>
-                                    <button class="delete-btn" onclick="deleteItem(this)">×</button>
+                        <button class="edit-btn" onclick="editItem(this)" title="Editar item">✏️</button>
+                        <button class="delete-btn" onclick="deleteItem(this)" title="Excluir item">×</button>
                     </div>
                                 ${species ? `<div class="species-tag" style="position: absolute; top: 2px; right: 40px; font-size: 10px; background-color: #f0f0f0; padding: 2px 5px; border-radius: 3px; color: #666;">${species}</div>` : ''}
                 `;
@@ -1506,7 +1697,10 @@
                     <div>${quantityDisplay}</div>
                     <div>${item.volume}</div>
                     <div>${item.price}</div>
-                    <button class="delete-btn" onclick="deleteItem(this)">×</button>
+                    <div>
+                        <button class="edit-btn" onclick="editItem(this)" title="Editar item">✏️</button>
+                        <button class="delete-btn" onclick="deleteItem(this)" title="Excluir item">×</button>
+                    </div>
                 `;
 
                 document.getElementById('itemsList').appendChild(listItem);
@@ -1640,7 +1834,8 @@
                 <div>${volume.toFixed(3).replace('.', ',')}m³</div>
                 <div>${formatters.currency.format(cost)}</div>
                 <div>
-                    <button class="delete-btn" onclick="deleteItem(this)">×</button>
+                    <button class="edit-btn" onclick="editItem(this)" title="Editar item">✏️</button>
+                    <button class="delete-btn" onclick="deleteItem(this)" title="Excluir item">×</button>
                 </div>
             `;
 
@@ -1651,9 +1846,22 @@
             }
 
             try {
-                // Adicionar o item à lista
-                itemsList.appendChild(item);
-                console.log("Item adicionado à lista com sucesso");
+                if (isEditMode && editingItemIndex >= 0) {
+                    // Modo edição: substituir o item existente
+                    const existingItems = itemsList.children;
+                    if (existingItems[editingItemIndex]) {
+                        itemsList.replaceChild(item, existingItems[editingItemIndex]);
+                        showFeedback('Item atualizado com sucesso!', 'success');
+                    }
+                    
+                    // Sair do modo edição
+                    exitEditMode();
+                } else {
+                    // Modo normal: adicionar novo item
+                    itemsList.appendChild(item);
+                    console.log("Item adicionado à lista com sucesso");
+                    showFeedback('Item adicionado com sucesso!', 'success');
+                }
                 
                 // Atualizar totais
                 calcularTotal();
@@ -1661,23 +1869,86 @@
                 
                 // Salvar lista
                 saveList();
-                
-                // Mostrar feedback visual sem popup
-                showFeedback('Item adicionado com sucesso!', 'success');
 
                 // Limpar campos
-                document.getElementById('width').value = '';
-                document.getElementById('thickness').value = '';
-                document.getElementById('length').value = '';
-                document.getElementById('quantity').value = '1';
-                // Não limpar packageQuantity, que mantém o último valor usado
-                document.getElementById('price').value = 'R$ 0,00';
+                clearFormFields();
 
                 // Focar no campo de espessura
                 document.getElementById('thickness').focus();
                 console.log("Campos limpos e foco definido");
             } catch (error) {
                 console.error("Erro ao processar adição de item:", error);
+            }
+        }
+
+        // Função para limpar os campos do formulário
+        function clearFormFields() {
+            document.getElementById('width').value = '';
+            document.getElementById('thickness').value = '';
+            document.getElementById('length').value = '';
+            document.getElementById('quantity').value = '1';
+            // Não limpar packageQuantity, que mantém o último valor usado
+            document.getElementById('price').value = 'R$ 0,00';
+            
+            // Limpar também a espécie se estiver em modo edição
+            if (isEditMode) {
+                document.getElementById('species').value = '';
+            }
+        }
+
+        // Função para editar um item
+        function editItem(button) {
+            const item = button.closest('.list-item');
+            const itemsList = document.getElementById('itemsList');
+            const items = Array.from(itemsList.children);
+            
+            // Encontrar o índice do item
+            editingItemIndex = items.indexOf(item);
+            
+            // Entrar no modo edição
+            isEditMode = true;
+            updateAddButton();
+            
+            // Preencher os campos com os dados do item
+            document.getElementById('thickness').value = item.dataset.thickness || '';
+            document.getElementById('width').value = item.dataset.width || '';
+            document.getElementById('length').value = item.dataset.length || '';
+            document.getElementById('quantity').value = item.dataset.quantity || '1';
+            document.getElementById('packageQuantity').value = item.dataset.packageQuantity || '1';
+            document.getElementById('species').value = item.dataset.species || '';
+            
+            // Preencher o preço formatado
+            const priceValue = item.dataset.price || '0';
+            const formattedPrice = parseFloat(priceValue).toLocaleString('pt-BR', {
+                style: 'currency',
+                currency: 'BRL'
+            });
+            document.getElementById('price').value = formattedPrice;
+            
+            // Focar no primeiro campo
+            document.getElementById('thickness').focus();
+            
+            showFeedback('Item carregado para edição', 'info');
+        }
+
+        // Função para sair do modo edição
+        function exitEditMode() {
+            isEditMode = false;
+            editingItemIndex = -1;
+            updateAddButton();
+        }
+
+        // Função para atualizar o texto do botão de adicionar
+        function updateAddButton() {
+            const addButton = document.getElementById('addButton');
+            if (addButton) {
+                if (isEditMode) {
+                    addButton.textContent = 'ATUALIZAR ITEM';
+                    addButton.style.backgroundColor = '#FF9800'; // Cor laranja para indicar edição
+                } else {
+                    addButton.textContent = 'ADICIONAR À LISTA';
+                    addButton.style.backgroundColor = ''; // Voltar à cor padrão
+                }
             }
         }
 
@@ -2877,6 +3148,7 @@
                 // CLIENTE: Configurar autocomplete com validação de elementos
                 const clientInput = document.getElementById('clientName');
                 const clientAutocomplete = document.getElementById('clientAutocomplete');
+                const clientContactInput = document.getElementById('clientContact');
                 
                 if (!clientInput) {
                     console.error("Elemento de input do cliente não encontrado!");
@@ -2896,6 +3168,9 @@
                     return;
                 }
                 
+                // Inicializar lista de clientes com telefone se não existir
+                let clientsWithPhone = JSON.parse(localStorage.getItem('clientsWithPhone')) || [];
+                
                 // Remover eventos existentes para evitar duplicação clonando o elemento
                 const newClientInput = clientInput.cloneNode(true);
                 clientInput.parentNode.replaceChild(newClientInput, clientInput);
@@ -2903,17 +3178,22 @@
                 // Adicionar evento de foco para mostrar todas as opções quando o campo está vazio
                 newClientInput.addEventListener('focus', function() {
                     if (!this.value.trim()) {
-                        const allClients = JSON.parse(localStorage.getItem('clients')) || [];
-                        
                         // Limpar sugestões anteriores
                         clientAutocomplete.innerHTML = '';
                         
                         // Mostrar até 10 sugestões
-                        allClients.slice(0, 10).forEach(client => {
+                        clientsWithPhone.slice(0, 10).forEach(client => {
                             const item = document.createElement('div');
-                            item.textContent = client;
+                            item.className = 'autocomplete-item';
+                            item.innerHTML = `
+                                <div class="client-name">${client.name}</div>
+                                ${client.phone ? `<div class="client-phone">${client.phone}</div>` : ''}
+                            `;
                             item.addEventListener('click', function() {
-                                newClientInput.value = client;
+                                newClientInput.value = client.name;
+                                if (client.phone && clientContactInput) {
+                                    clientContactInput.value = client.phone;
+                                }
                                 clientAutocomplete.innerHTML = '';
                                 clientAutocomplete.style.display = 'none';
                             });
@@ -2921,7 +3201,7 @@
                         });
                         
                         // Mostrar o container de autocompletar somente se houver sugestões
-                        if (allClients.length > 0) {
+                        if (clientsWithPhone.length > 0) {
                             clientAutocomplete.style.display = 'block';
                         }
                     }
@@ -2930,14 +3210,6 @@
                 // Evento de input para filtrar as sugestões conforme o usuário digita
                 newClientInput.addEventListener('input', function() {
                     const term = this.value.trim().toLowerCase();
-                    let clients = [];
-                    
-                    try {
-                        clients = JSON.parse(localStorage.getItem('clients')) || [];
-                    } catch (e) {
-                        console.error("Erro ao carregar clientes:", e);
-                        clients = [];
-                    }
                     
                     console.log("Pesquisando clientes com termo:", term);
                     
@@ -2945,8 +3217,8 @@
                     clientAutocomplete.innerHTML = '';
                     
                     // Filtrar clientes que correspondem ao termo
-                    const matchingClients = clients.filter(client => 
-                        client && client.toLowerCase().includes(term)
+                    const matchingClients = clientsWithPhone.filter(client => 
+                        client.name && client.name.toLowerCase().includes(term)
                     );
                     
                     console.log("Clientes correspondentes:", matchingClients);
@@ -2954,9 +3226,16 @@
                     // Mostrar até 5 sugestões
                     matchingClients.slice(0, 5).forEach(client => {
                         const item = document.createElement('div');
-                        item.textContent = client;
+                        item.className = 'autocomplete-item';
+                        item.innerHTML = `
+                            <div class="client-name">${client.name}</div>
+                            ${client.phone ? `<div class="client-phone">${client.phone}</div>` : ''}
+                        `;
                         item.addEventListener('click', function() {
-                            newClientInput.value = client;
+                            newClientInput.value = client.name;
+                            if (client.phone && clientContactInput) {
+                                clientContactInput.value = client.phone;
+                            }
                             clientAutocomplete.innerHTML = '';
                             clientAutocomplete.style.display = 'none';
                         });
@@ -2970,6 +3249,94 @@
                         clientAutocomplete.style.display = 'none';
                     }
                 });
+
+                // Salvar cliente com telefone quando perder o foco
+                newClientInput.addEventListener('blur', function() {
+                    setTimeout(() => {
+                        const clientName = this.value.trim();
+                        const clientPhone = clientContactInput ? clientContactInput.value.trim() : '';
+                        
+                        if (clientName) {
+                            saveClientWithPhoneToLocalStorage(clientName, clientPhone);
+                        }
+                        
+                        clientAutocomplete.style.display = 'none';
+                    }, 200);
+                });
+
+                // CONDIÇÕES DE PAGAMENTO: Configurar autocomplete melhorado
+                const paymentTermsInput = document.getElementById('paymentTerms');
+                const paymentTermsAutocomplete = document.getElementById('paymentTermsAutocomplete');
+                
+                if (paymentTermsInput && paymentTermsAutocomplete) {
+                    // Remover eventos existentes
+                    const newPaymentTermsInput = paymentTermsInput.cloneNode(true);
+                    paymentTermsInput.parentNode.replaceChild(newPaymentTermsInput, paymentTermsInput);
+                    
+                    // Evento de foco para mostrar todas as condições
+                    newPaymentTermsInput.addEventListener('focus', function() {
+                        let paymentConditions = JSON.parse(localStorage.getItem('paymentConditions')) || [];
+                        
+                        // Limpar sugestões anteriores
+                        paymentTermsAutocomplete.innerHTML = '';
+                        
+                        // Mostrar todas as condições
+                        paymentConditions.forEach(condition => {
+                            const item = document.createElement('div');
+                            item.className = 'autocomplete-item';
+                            item.textContent = condition;
+                            item.addEventListener('click', function() {
+                                newPaymentTermsInput.value = condition;
+                                paymentTermsAutocomplete.innerHTML = '';
+                                paymentTermsAutocomplete.style.display = 'none';
+                            });
+                            paymentTermsAutocomplete.appendChild(item);
+                        });
+                        
+                        if (paymentConditions.length > 0) {
+                            paymentTermsAutocomplete.style.display = 'block';
+                        }
+                    });
+                    
+                    // Evento de input para filtrar
+                    newPaymentTermsInput.addEventListener('input', function() {
+                        const term = this.value.trim().toLowerCase();
+                        let paymentConditions = JSON.parse(localStorage.getItem('paymentConditions')) || [];
+                        
+                        // Limpar sugestões anteriores
+                        paymentTermsAutocomplete.innerHTML = '';
+                        
+                        // Filtrar condições
+                        const matchingConditions = paymentConditions.filter(condition => 
+                            condition.toLowerCase().includes(term)
+                        );
+                        
+                        matchingConditions.forEach(condition => {
+                            const item = document.createElement('div');
+                            item.className = 'autocomplete-item';
+                            item.textContent = condition;
+                            item.addEventListener('click', function() {
+                                newPaymentTermsInput.value = condition;
+                                paymentTermsAutocomplete.innerHTML = '';
+                                paymentTermsAutocomplete.style.display = 'none';
+                            });
+                            paymentTermsAutocomplete.appendChild(item);
+                        });
+                        
+                        if (matchingConditions.length > 0) {
+                            paymentTermsAutocomplete.style.display = 'block';
+                        } else {
+                            paymentTermsAutocomplete.style.display = 'none';
+                        }
+                    });
+                    
+                    // Esconder ao perder foco
+                    newPaymentTermsInput.addEventListener('blur', function() {
+                        setTimeout(() => {
+                            paymentTermsAutocomplete.style.display = 'none';
+                        }, 200);
+                    });
+                }
                 
                 // ESPÉCIE: Configurar autocomplete com validação de elementos
                 const speciesInput = document.getElementById('species');
@@ -3197,6 +3564,53 @@
                 console.error("Erro ao salvar espécie:", error);
             }
         }
+
+        // Função para salvar cliente com telefone no localStorage
+        function saveClientWithPhoneToLocalStorage(clientName, clientPhone) {
+            try {
+                if (!clientName || clientName.trim() === '') {
+                    console.log("Nome de cliente vazio, ignorando salvamento");
+                    return;
+                }
+                
+                let clientsWithPhone = JSON.parse(localStorage.getItem('clientsWithPhone')) || [];
+                
+                // Verifica se o cliente já existe
+                const existingClientIndex = clientsWithPhone.findIndex(client => 
+                    client.name.toLowerCase() === clientName.toLowerCase()
+                );
+                
+                if (existingClientIndex >= 0) {
+                    // Atualizar telefone se fornecido
+                    if (clientPhone && clientPhone.trim() !== '') {
+                        clientsWithPhone[existingClientIndex].phone = clientPhone.trim();
+                        console.log("Telefone do cliente atualizado:", clientName);
+                    }
+                } else {
+                    // Adicionar novo cliente
+                    clientsWithPhone.push({
+                        name: clientName.trim(),
+                        phone: clientPhone ? clientPhone.trim() : ''
+                    });
+                    console.log("Novo cliente salvo:", clientName);
+                }
+                
+                localStorage.setItem('clientsWithPhone', JSON.stringify(clientsWithPhone));
+            } catch (error) {
+                console.error("Erro ao salvar cliente com telefone:", error);
+            }
+        }
+
+        // Chamar funções de inicialização quando a página carregar
+        document.addEventListener('DOMContentLoaded', function() {
+            loadUserInfo();
+            setupEvents();
+            initializeCurrencyInput();
+            initializeAutocomplete();
+            loadList();
+            updateAddButton(); // Inicializar o botão corretamente
+            calculate();
+        });
     </script>
 </body>
 </html> 
