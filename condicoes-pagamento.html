@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#8B0000">
+    <meta name="description" content="Condições de Pagamento - Calculadora de Madeira">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="CalcMadeira">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+    <title>Condições de Pagamento - Calculadora de Madeira</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+        }
+
+        .header {
+            background-color: #8B0000;
+            color: white;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .app-name {
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        
+        .page-title {
+            font-size: 1.3rem;
+            margin: 0;
+        }
+        
+        .home-btn {
+            color: white;
+            font-size: 1.2rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+            text-decoration: none;
+        }
+        
+        .home-btn:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .menu-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .menu-panel {
+            position: fixed;
+            top: 0;
+            left: -300px;
+            width: 300px;
+            height: 100vh;
+            background-color: white;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            z-index: 1000;
+            transition: left 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .menu-panel.active {
+            left: 0;
+        }
+
+        .menu-header {
+            background-color: #8B0000;
+            color: white;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .menu-avatar {
+            width: 50px;
+            height: 50px;
+            background-color: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .menu-user-info {
+            flex: 1;
+        }
+
+        .menu-user-name {
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+
+        .menu-user-email {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .menu-items {
+            flex: 1;
+            padding: 20px 0;
+            overflow-y: auto;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            color: #333;
+            text-decoration: none;
+            transition: background-color 0.2s;
+            gap: 15px;
+        }
+
+        .menu-item:hover {
+            background-color: #f5f5f5;
+        }
+
+        .menu-item i {
+            width: 20px;
+            color: #8B0000;
+        }
+
+        .menu-item.logout {
+            color: #dc3545;
+            cursor: pointer;
+        }
+
+        .menu-item.logout i {
+            color: #dc3545;
+        }
+
+        .menu-item.logout:hover {
+            background-color: #fff5f5;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .overlay.active {
+            display: block;
+            opacity: 1;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+
+        .payment-terms-section {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .section-title {
+            color: #8B0000;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .add-form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .add-form input {
+            flex: 1;
+            min-width: 300px;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .add-form button {
+            padding: 12px 20px;
+            background-color: #8B0000;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+
+        .add-form button:hover {
+            background-color: #660000;
+        }
+
+        .payment-terms-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .payment-term-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 6px;
+            border-left: 4px solid #8B0000;
+        }
+
+        .payment-term-text {
+            flex: 1;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .payment-term-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background-color 0.3s;
+        }
+
+        .edit-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .edit-btn:hover {
+            background-color: #45a049;
+        }
+
+        .delete-btn {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .delete-btn:hover {
+            background-color: #da190b;
+        }
+
+        .default-terms {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e8f5e8;
+            border-radius: 6px;
+            border-left: 4px solid #4CAF50;
+        }
+
+        .default-terms h4 {
+            color: #2e7d32;
+            margin-bottom: 10px;
+        }
+
+        .default-terms ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .default-terms li {
+            padding: 5px 0;
+            color: #2e7d32;
+            font-size: 14px;
+        }
+
+        .default-terms li:before {
+            content: "✓ ";
+            color: #4CAF50;
+            font-weight: bold;
+        }
+
+        .feedback {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 24px;
+            border-radius: 8px;
+            background-color: #4CAF50;
+            color: white;
+            font-size: 16px;
+            z-index: 1000;
+            animation: fadeInOut 3s ease-in-out;
+        }
+
+        .feedback.error {
+            background-color: #f44336;
+        }
+
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translate(-50%, 20px); }
+            10% { opacity: 1; transform: translate(-50%, 0); }
+            90% { opacity: 1; transform: translate(-50%, 0); }
+            100% { opacity: 0; transform: translate(-50%, -20px); }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                padding: 15px;
+            }
+
+            .add-form {
+                flex-direction: column;
+            }
+
+            .add-form input {
+                min-width: auto;
+            }
+
+            .payment-term-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .payment-term-actions {
+                align-self: flex-end;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="overlay" id="overlay"></div>
+    
+    <div class="menu-panel" id="menuPanel">
+        <div class="menu-header">
+            <div class="menu-avatar">👤</div>
+            <div class="menu-user-info">
+                <div class="menu-user-name">Usuário Padrão</div>
+                <div class="menu-user-email">usuario@email.com</div>
+            </div>
+        </div>
+        <div class="menu-items">
+            <a href="calc.html" class="menu-item">
+                <i class="fas fa-calculator"></i>
+                <span>Calculadora</span>
+            </a>
+            <a href="perfil.html" class="menu-item">
+                <i class="fas fa-user"></i>
+                <span>Meu Perfil</span>
+            </a>
+            <a href="orcamentos.html" class="menu-item">
+                <i class="fas fa-file-invoice-dollar"></i>
+                <span>Orçamentos</span>
+            </a>
+            <a href="condicoes-pagamento.html" class="menu-item">
+                <i class="fas fa-credit-card"></i>
+                <span>Condições de Pagamentos</span>
+            </a>
+            <a href="configuracoes.html" class="menu-item">
+                <i class="fas fa-cog"></i>
+                <span>Configurações</span>
+            </a>
+            <a href="notificacoes.html" class="menu-item">
+                <i class="fas fa-bell"></i>
+                <span>Notificações</span>
+            </a>
+            <a href="ajuda.html" class="menu-item">
+                <i class="fas fa-question-circle"></i>
+                <span>Ajuda</span>
+            </a>
+            <div class="menu-item logout">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Sair</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="header">
+        <button class="menu-btn" id="menuBtn" aria-label="Abrir menu">☰</button>
+        <div class="header-content">
+            <div class="app-name">Sistema de Gestão de Madeiras Serrada</div>
+            <h1 class="page-title">Condições de Pagamento</h1>
+        </div>
+        <div class="header-actions">
+            <a href="calc.html" class="home-btn" aria-label="Página inicial"><i class="fas fa-home"></i></a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="payment-terms-section">
+            <h2 class="section-title">
+                <i class="fas fa-credit-card"></i>
+                Gerenciar Condições de Pagamento
+            </h2>
+            
+            <div class="add-form">
+                <input type="text" id="newPaymentTerm" placeholder="Ex: 50% entrada, 50% na entrega" maxlength="100">
+                <button onclick="addPaymentTerm()">
+                    <i class="fas fa-plus"></i> Adicionar
+                </button>
+            </div>
+
+            <div class="payment-terms-list" id="paymentTermsList">
+                <!-- Lista será carregada dinamicamente -->
+            </div>
+
+            <div class="default-terms">
+                <h4><i class="fas fa-info-circle"></i> Condições Padrão do Sistema</h4>
+                <ul>
+                    <li>50% entrada, 50% na entrega</li>
+                    <li>À vista</li>
+                    <li>30% entrada, 70% na entrega</li>
+                    <li>Pagamento na entrega</li>
+                    <li>1+2 (33% entrada, 33% em 30 dias, 34% em 60 dias)</li>
+                    <li>1+3 (25% entrada, 25% em 30 dias, 25% em 60 dias, 25% em 90 dias)</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script src="auth.js"></script>
+    <script>
+        // Verificar autenticação
+        if (!isUserLoggedIn()) {
+            window.location.href = 'index.html';
+        }
+
+        // Funções de fallback para auth.js caso não seja carregado
+        if (typeof isUserLoggedIn !== 'function') {
+            console.warn("Função isUserLoggedIn não encontrada. Usando fallback.");
+            function isUserLoggedIn() {
+                return true;
+            }
+        }
+
+        if (typeof logoutUser !== 'function') {
+            console.warn("Função logoutUser não encontrada. Usando fallback.");
+            function logoutUser() {
+                console.log("Logout simulado");
+                localStorage.removeItem('paymentTerms');
+                window.location.href = 'index.html';
+            }
+        }
+
+        // Menu functionality
+        const menuBtn = document.getElementById('menuBtn');
+        const menuPanel = document.getElementById('menuPanel');
+        const overlay = document.getElementById('overlay');
+
+        function toggleMenu() {
+            menuPanel.classList.toggle('active');
+            overlay.classList.toggle('active');
+            document.body.style.overflow = menuPanel.classList.contains('active') ? 'hidden' : '';
+        }
+
+        menuBtn.addEventListener('click', toggleMenu);
+        overlay.addEventListener('click', toggleMenu);
+
+        // Fechar menu ao clicar em um link
+        document.querySelectorAll('.menu-item').forEach(item => {
+            if (item.tagName === 'A') {
+                item.addEventListener('click', () => {
+                    toggleMenu();
+                });
+            }
+        });
+
+        // Logout functionality
+        document.querySelector('.menu-item.logout').addEventListener('click', function() {
+            logoutUser();
+            window.location.href = 'index.html';
+        });
+
+        // Inicializar condições de pagamento padrão
+        function initializeDefaultPaymentTerms() {
+            const defaultTerms = [
+                '50% entrada, 50% na entrega',
+                'À vista',
+                '30% entrada, 70% na entrega',
+                'Pagamento na entrega',
+                '1+2 (33% entrada, 33% em 30 dias, 34% em 60 dias)',
+                '1+3 (25% entrada, 25% em 30 dias, 25% em 60 dias, 25% em 90 dias)'
+            ];
+
+            const existingTerms = JSON.parse(localStorage.getItem('paymentTerms')) || [];
+            
+            // Adicionar termos padrão que não existem
+            let updated = false;
+            defaultTerms.forEach(term => {
+                if (!existingTerms.includes(term)) {
+                    existingTerms.push(term);
+                    updated = true;
+                }
+            });
+
+            if (updated) {
+                localStorage.setItem('paymentTerms', JSON.stringify(existingTerms));
+            }
+        }
+
+        // Carregar e exibir condições de pagamento
+        function loadPaymentTerms() {
+            const paymentTerms = JSON.parse(localStorage.getItem('paymentTerms')) || [];
+            const container = document.getElementById('paymentTermsList');
+            
+            if (paymentTerms.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">Nenhuma condição de pagamento personalizada cadastrada.</p>';
+                return;
+            }
+
+            container.innerHTML = paymentTerms.map((term, index) => `
+                <div class="payment-term-item">
+                    <span class="payment-term-text">${term}</span>
+                    <div class="payment-term-actions">
+                        <button class="action-btn edit-btn" onclick="editPaymentTerm(${index})">
+                            <i class="fas fa-edit"></i> Editar
+                        </button>
+                        <button class="action-btn delete-btn" onclick="deletePaymentTerm(${index})">
+                            <i class="fas fa-trash"></i> Excluir
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Adicionar nova condição de pagamento
+        function addPaymentTerm() {
+            const input = document.getElementById('newPaymentTerm');
+            const term = input.value.trim();
+
+            if (!term) {
+                showFeedback('Por favor, digite uma condição de pagamento', 'error');
+                return;
+            }
+
+            const paymentTerms = JSON.parse(localStorage.getItem('paymentTerms')) || [];
+            
+            if (paymentTerms.includes(term)) {
+                showFeedback('Esta condição de pagamento já existe', 'error');
+                return;
+            }
+
+            paymentTerms.push(term);
+            localStorage.setItem('paymentTerms', JSON.stringify(paymentTerms));
+            
+            input.value = '';
+            loadPaymentTerms();
+            showFeedback('Condição de pagamento adicionada com sucesso!');
+        }
+
+        // Editar condição de pagamento
+        function editPaymentTerm(index) {
+            const paymentTerms = JSON.parse(localStorage.getItem('paymentTerms')) || [];
+            const currentTerm = paymentTerms[index];
+            
+            const newTerm = prompt('Editar condição de pagamento:', currentTerm);
+            
+            if (newTerm === null) return; // Cancelou
+            
+            if (!newTerm.trim()) {
+                showFeedback('A condição de pagamento não pode estar vazia', 'error');
+                return;
+            }
+
+            if (newTerm.trim() !== currentTerm && paymentTerms.includes(newTerm.trim())) {
+                showFeedback('Esta condição de pagamento já existe', 'error');
+                return;
+            }
+
+            paymentTerms[index] = newTerm.trim();
+            localStorage.setItem('paymentTerms', JSON.stringify(paymentTerms));
+            
+            loadPaymentTerms();
+            showFeedback('Condição de pagamento atualizada com sucesso!');
+        }
+
+        // Excluir condição de pagamento
+        function deletePaymentTerm(index) {
+            if (!confirm('Tem certeza que deseja excluir esta condição de pagamento?')) {
+                return;
+            }
+
+            const paymentTerms = JSON.parse(localStorage.getItem('paymentTerms')) || [];
+            paymentTerms.splice(index, 1);
+            localStorage.setItem('paymentTerms', JSON.stringify(paymentTerms));
+            
+            loadPaymentTerms();
+            showFeedback('Condição de pagamento excluída com sucesso!');
+        }
+
+        // Mostrar feedback
+        function showFeedback(message, type = 'success') {
+            // Remover feedback anterior se existir
+            const existingFeedback = document.querySelector('.feedback');
+            if (existingFeedback) {
+                existingFeedback.remove();
+            }
+
+            const feedback = document.createElement('div');
+            feedback.className = `feedback ${type}`;
+            feedback.textContent = message;
+            document.body.appendChild(feedback);
+
+            setTimeout(() => {
+                if (feedback.parentNode) {
+                    feedback.parentNode.removeChild(feedback);
+                }
+            }, 3000);
+        }
+
+        // Permitir adicionar com Enter
+        document.getElementById('newPaymentTerm').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addPaymentTerm();
+            }
+        });
+
+        // Inicializar página
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeDefaultPaymentTerms();
+            loadPaymentTerms();
+        });
+    </script>
+</body>
+</html> 

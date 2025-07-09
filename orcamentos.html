@@ -627,6 +627,123 @@
             border-radius: 4px;
             font-size: 0.9rem;
         }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            table-layout: fixed;
+        }
+        
+        th {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 500;
+            text-align: left;
+            padding: 12px 8px;
+            font-size: 12px;
+        }
+        
+        td {
+            padding: 10px 8px;
+            border-bottom: 1px solid #eee;
+            vertical-align: top;
+            font-size: 11px;
+            word-wrap: break-word;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        .narrow {
+            width: 8%;
+            text-align: center;
+        }
+        
+        .dimensions {
+            width: 20%;
+        }
+        
+        .qty {
+            width: 12%;
+            text-align: center;
+        }
+        
+        .volume {
+            width: 15%;
+            text-align: right;
+        }
+        
+        .species {
+            width: 15%;
+        }
+        
+        .unit-price {
+            width: 15%;
+            text-align: right;
+        }
+        
+        .total-price {
+            width: 15%;
+            text-align: right;
+        }
+        
+        .text-right {
+            text-align: right;
+        }
+
+        .simple-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            table-layout: fixed;
+        }
+        
+        .simple-table th {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 500;
+            text-align: left;
+            padding: 12px 8px;
+            font-size: 12px;
+        }
+        
+        .simple-table td {
+            padding: 10px 8px;
+            border-bottom: 1px solid #eee;
+            vertical-align: top;
+            font-size: 11px;
+            word-wrap: break-word;
+        }
+        
+        .simple-table .num {
+            width: 8%;
+            text-align: center;
+        }
+        
+        .simple-table .dim {
+            width: 25%;
+        }
+        
+        .simple-table .qty {
+            width: 15%;
+            text-align: center;
+        }
+        
+        .simple-table .vol {
+            width: 17%;
+            text-align: right;
+        }
+        
+        .simple-table .species {
+            width: 20%;
+        }
+        
+        .simple-table .total {
+            width: 15%;
+            text-align: right;
+        }
     </style>
 </head>
 <body>
@@ -652,6 +769,10 @@
             <a href="orcamentos.html" class="menu-item">
                 <i class="fas fa-file-invoice-dollar"></i>
                 <span>Orçamentos</span>
+            </a>
+            <a href="condicoes-pagamento.html" class="menu-item">
+                <i class="fas fa-credit-card"></i>
+                <span>Condições de Pagamentos</span>
             </a>
             <a href="configuracoes.html" class="menu-item">
                 <i class="fas fa-cog"></i>
@@ -1133,6 +1254,7 @@
                                 width: 100%;
                                 border-collapse: collapse;
                                 margin-bottom: 20px;
+                                table-layout: fixed;
                             }
                             
                             th {
@@ -1141,12 +1263,15 @@
                                 font-weight: 500;
                                 text-align: left;
                                 padding: 12px 8px;
+                                font-size: 12px;
                             }
                             
                             td {
                                 padding: 10px 8px;
                                 border-bottom: 1px solid #eee;
                                 vertical-align: top;
+                                font-size: 11px;
+                                word-wrap: break-word;
                             }
                             
                             tr:nth-child(even) {
@@ -1154,8 +1279,36 @@
                             }
                             
                             .narrow {
-                                width: 50px;
+                                width: 8%;
                                 text-align: center;
+                            }
+                            
+                            .dimensions {
+                                width: 20%;
+                            }
+                            
+                            .qty {
+                                width: 12%;
+                                text-align: center;
+                            }
+                            
+                            .volume {
+                                width: 15%;
+                                text-align: right;
+                            }
+                            
+                            .species {
+                                width: 15%;
+                            }
+                            
+                            .unit-price {
+                                width: 15%;
+                                text-align: right;
+                            }
+                            
+                            .total-price {
+                                width: 15%;
+                                text-align: right;
                             }
                             
                             .text-right {
@@ -1269,12 +1422,12 @@
                                 <thead>
                                     <tr>
                                         <th class="narrow">Nº</th>
-                                        <th>Dimensões</th>
-                                        <th>Qtd</th>
-                                        <th>Volume</th>
-                                        <th>Espécie</th>
-                                        <th class="text-right">Preço Unit.</th>
-                                        <th class="text-right">Total</th>
+                                        <th class="dimensions">Dimensões</th>
+                                        <th class="qty">Qtd</th>
+                                        <th class="volume">Volume</th>
+                                        <th class="species">Espécie</th>
+                                        <th class="unit-price">Preço Unit.</th>
+                                        <th class="total-price">Total</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -1316,12 +1469,12 @@
                                         return `
                                         <tr>
                                             <td class="narrow">${index + 1}</td>
-                                            <td>${sizeText}</td>
-                                            <td>${item.quantity || 0}</td>
-                                            <td>${item.volume || '0,000m³'}</td>
-                                            <td>${item.species || 'Não informado'}</td>
-                                            <td class="text-right">${unitPriceFormatted}/m³</td>
-                                            <td class="text-right">${totalPriceFormatted}</td>
+                                            <td class="dimensions">${sizeText}</td>
+                                            <td class="qty">${item.quantity || 0}</td>
+                                            <td class="volume">${item.volume || '0,000m³'}</td>
+                                            <td class="species">${item.species || 'Não informado'}</td>
+                                            <td class="unit-price">${unitPriceFormatted}/m³</td>
+                                            <td class="total-price">${totalPriceFormatted}</td>
                                         </tr>
                                         `;
                                     }).join('') : '<tr><td colspan="7">Nenhum item encontrado</td></tr>'}
@@ -1332,15 +1485,22 @@
                                 <table class="totals-table">
                                     <tr>
                                         <td class="totals-label">Volume Total</td>
-                                        <td class="totals-value">${quote.totalVolume || '0,000m³'}</td>
+                                        <td class="totals-value">${(() => {
+                                            const volumeText = quote.totalVolume || '0,000m³';
+                                            if (volumeText.includes('m³')) {
+                                                const volumeNumber = parseFloat(volumeText.replace(/[^0-9,.]/g, '').replace(',', '.'));
+                                                return volumeNumber.toLocaleString('pt-BR', {minimumFractionDigits: 3, maximumFractionDigits: 3}) + ' m³';
+                                            }
+                                            return volumeText;
+                                        })()}</td>
                                     </tr>
                                     <tr>
                                         <td class="totals-label">Valor Total</td>
                                         <td class="totals-value">${typeof quote.totalPrice === 'number' 
-                                            ? new Intl.NumberFormat('pt-BR', {
+                                            ? quote.totalPrice.toLocaleString('pt-BR', {
                                                 style: 'currency',
                                                 currency: 'BRL'
-                                              }).format(quote.totalPrice)
+                                              })
                                             : quote.totalPrice || 'R$ 0,00'}</td>
                                     </tr>
                                 </table>
@@ -1640,7 +1800,7 @@
                                 </div>
                                 <div class="quote-info">
                                     <div class="subtitle">CONDIÇÕES</div>
-                                    <p><strong>Pagamento:</strong> 50% entrada, 50% na entrega</p>
+                                    <p><strong>Pagamento:</strong> ${quote.paymentTerms || '50% entrada, 50% na entrega'}</p>
                                     <p><strong>Entrega:</strong> 5-7 dias após confirmação</p>
                                 </div>
                             </div>
@@ -1649,11 +1809,12 @@
                                 <thead>
                                     <tr>
                                         <th class="narrow">Nº</th>
-                                        <th>Dimensões</th>
-                                        <th>Qtd</th>
-                                        <th>Volume</th>
-                                        <th>Espécie</th>
-                                        <th class="text-right">Total</th>
+                                        <th class="dimensions">Dimensões</th>
+                                        <th class="qty">Qtd</th>
+                                        <th class="volume">Volume</th>
+                                        <th class="species">Espécie</th>
+                                        <th class="unit-price">Preço Unit.</th>
+                                        <th class="total-price">Total</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -1687,10 +1848,10 @@
                                             <td>${item.quantity || 0}</td>
                                             <td>${item.volume || '0,000m³'}</td>
                                             <td>${item.species || 'Não informado'}</td>
-                                            <td class="text-right">${priceText}</td>
+                                            <td>${priceText}</td>
                                         </tr>
                                         `;
-                                    }).join('') : '<tr><td colspan="6">Nenhum item encontrado</td></tr>'}
+                                    }).join('') : '<tr><td colspan="7">Nenhum item encontrado</td></tr>'}
                                 </tbody>
                             </table>
 
@@ -1698,15 +1859,22 @@
                                 <table class="totals-table">
                                     <tr>
                                         <td class="totals-label">Volume Total</td>
-                                        <td class="totals-value">${quote.totalVolume || '0,000m³'}</td>
+                                        <td class="totals-value">${(() => {
+                                            const volumeText = quote.totalVolume || '0,000m³';
+                                            if (volumeText.includes('m³')) {
+                                                const volumeNumber = parseFloat(volumeText.replace(/[^0-9,.]/g, '').replace(',', '.'));
+                                                return volumeNumber.toLocaleString('pt-BR', {minimumFractionDigits: 3, maximumFractionDigits: 3}) + ' m³';
+                                            }
+                                            return volumeText;
+                                        })()}</td>
                                     </tr>
                                     <tr>
                                         <td class="totals-label">Valor Total</td>
                                         <td class="totals-value">${typeof quote.totalPrice === 'number' 
-                                            ? new Intl.NumberFormat('pt-BR', {
+                                            ? quote.totalPrice.toLocaleString('pt-BR', {
                                                 style: 'currency',
                                                 currency: 'BRL'
-                                              }).format(quote.totalPrice)
+                                              })
                                             : quote.totalPrice || 'R$ 0,00'}</td>
                                     </tr>
                                 </table>
@@ -2004,7 +2172,7 @@
                                 </div>
                                 <div class="quote-info">
                                     <div class="subtitle">CONDIÇÕES</div>
-                                    <p><strong>Pagamento:</strong> 50% entrada, 50% na entrega</p>
+                                    <p><strong>Pagamento:</strong> ${quote.paymentTerms || '50% entrada, 50% na entrega'}</p>
                                     <p><strong>Entrega:</strong> 5-7 dias após confirmação</p>
                                 </div>
                             </div>
@@ -2058,11 +2226,23 @@
                                 <table class="totals-table">
                                     <tr>
                                         <td class="totals-label">Volume Total</td>
-                                        <td class="totals-value">${quote.totalVolume}</td>
+                                        <td class="totals-value">${(() => {
+                                            const volumeText = quote.totalVolume || '0,000m³';
+                                            if (volumeText.includes('m³')) {
+                                                const volumeNumber = parseFloat(volumeText.replace(/[^0-9,.]/g, '').replace(',', '.'));
+                                                return volumeNumber.toLocaleString('pt-BR', {minimumFractionDigits: 3, maximumFractionDigits: 3}) + ' m³';
+                                            }
+                                            return volumeText;
+                                        })()}</td>
                                     </tr>
                                     <tr>
                                         <td class="totals-label">Valor Total</td>
-                                        <td class="totals-value">${quote.totalPrice}</td>
+                                        <td class="totals-value">${typeof quote.totalPrice === 'number' 
+                                            ? quote.totalPrice.toLocaleString('pt-BR', {
+                                                style: 'currency',
+                                                currency: 'BRL'
+                                              })
+                                            : quote.totalPrice || 'R$ 0,00'}</td>
                                     </tr>
                                 </table>
                             </div>

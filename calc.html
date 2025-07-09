@@ -615,6 +615,10 @@
                 <i class="fas fa-file-invoice-dollar"></i>
                 <span>Orçamentos</span>
             </a>
+            <a href="condicoes-pagamento.html" class="menu-item">
+                <i class="fas fa-credit-card"></i>
+                <span>Condições de Pagamentos</span>
+            </a>
             <a href="configuracoes.html" class="menu-item">
                 <i class="fas fa-cog"></i>
                 <span>Configurações</span>
@@ -657,6 +661,11 @@
             <div class="input-group">
                 <label for="clientContact">Contato:</label>
                 <input type="text" id="clientContact" placeholder="(00) 0 0000-0000" autocomplete="off">
+            </div>
+            <div class="input-group">
+                <label for="paymentTerms">Condições de Pagamento:</label>
+                <input type="text" id="paymentTerms" placeholder="Ex: 50% entrada, 50% na entrega" autocomplete="off">
+                <div class="autocomplete-items" id="paymentTermsAutocomplete"></div>
             </div>
             <div class="input-group">
                 <label for="species">Espécie:</label>
@@ -1102,6 +1111,18 @@
                     localStorage.setItem('species', JSON.stringify([]));
                 }
                 
+                // Inicializar lista de condições de pagamento se não existir
+                if (!localStorage.getItem('paymentTerms')) {
+                    localStorage.setItem('paymentTerms', JSON.stringify([
+                        '50% entrada, 50% na entrega',
+                        'À vista',
+                        '30% entrada, 70% na entrega',
+                        'Pagamento na entrega',
+                        '1+2 (33% entrada, 33% em 30 dias, 34% em 60 dias)',
+                        '1+3 (25% entrada, 25% em 30 dias, 25% em 60 dias, 25% em 90 dias)'
+                    ]));
+                }
+                
                 // Configurar autocompletar para Cliente
                 const clientInput = document.getElementById('clientName');
                 const clientAutocomplete = document.getElementById('clientAutocomplete');
@@ -1146,7 +1167,7 @@
                 
                 speciesInput.addEventListener('input', function() {
                     const term = this.value.trim().toLowerCase();
-                    const speciesList = JSON.parse(localStorage.getItem('species')) || [];
+                    const species = JSON.parse(localStorage.getItem('species')) || [];
                     
                     // Limpar sugestões anteriores
                     speciesAutocomplete.innerHTML = '';
@@ -1154,16 +1175,16 @@
                     if (!term) return;
                     
                     // Filtrar espécies que correspondem ao termo
-                    const matchingSpecies = speciesList.filter(species => 
-                        species.toLowerCase().includes(term)
+                    const matchingSpecies = species.filter(specie => 
+                        specie.toLowerCase().includes(term)
                     );
                     
                     // Mostrar até 5 sugestões
-                    matchingSpecies.slice(0, 5).forEach(species => {
+                    matchingSpecies.slice(0, 5).forEach(specie => {
                         const item = document.createElement('div');
-                        item.textContent = species;
+                        item.textContent = specie;
                         item.addEventListener('click', function() {
-                            speciesInput.value = species;
+                            speciesInput.value = specie;
                             speciesAutocomplete.innerHTML = '';
                             speciesAutocomplete.style.display = 'none';
                         });
@@ -1175,6 +1196,57 @@
                         speciesAutocomplete.style.display = 'block';
                     } else {
                         speciesAutocomplete.style.display = 'none';
+                    }
+                });
+                
+                // Configurar autocompletar para Condições de Pagamento
+                const paymentTermsInput = document.getElementById('paymentTerms');
+                const paymentTermsAutocomplete = document.getElementById('paymentTermsAutocomplete');
+                
+                paymentTermsInput.addEventListener('input', function() {
+                    const term = this.value.trim().toLowerCase();
+                    const paymentTerms = JSON.parse(localStorage.getItem('paymentTerms')) || [];
+                    
+                    // Limpar sugestões anteriores
+                    paymentTermsAutocomplete.innerHTML = '';
+                    
+                    if (!term) return;
+                    
+                    // Filtrar condições que correspondem ao termo
+                    const matchingTerms = paymentTerms.filter(term_item => 
+                        term_item.toLowerCase().includes(term)
+                    );
+                    
+                    // Mostrar até 5 sugestões
+                    matchingTerms.slice(0, 5).forEach(term_item => {
+                        const item = document.createElement('div');
+                        item.textContent = term_item;
+                        item.addEventListener('click', function() {
+                            paymentTermsInput.value = term_item;
+                            paymentTermsAutocomplete.innerHTML = '';
+                            paymentTermsAutocomplete.style.display = 'none';
+                        });
+                        paymentTermsAutocomplete.appendChild(item);
+                    });
+                    
+                    // Mostrar o container de autocompletar
+                    if (matchingTerms.length > 0) {
+                        paymentTermsAutocomplete.style.display = 'block';
+                    } else {
+                        paymentTermsAutocomplete.style.display = 'none';
+                    }
+                });
+                
+                // Esconder autocompletar quando clicar fora
+                document.addEventListener('click', function(e) {
+                    if (!clientInput.contains(e.target) && !clientAutocomplete.contains(e.target)) {
+                        clientAutocomplete.style.display = 'none';
+                    }
+                    if (!speciesInput.contains(e.target) && !speciesAutocomplete.contains(e.target)) {
+                        speciesAutocomplete.style.display = 'none';
+                    }
+                    if (!paymentTermsInput.contains(e.target) && !paymentTermsAutocomplete.contains(e.target)) {
+                        paymentTermsAutocomplete.style.display = 'none';
                     }
                 });
                 
@@ -1381,6 +1453,9 @@
             // Preencher dados do cliente
             document.getElementById('clientName').value = quote.clientName;
             document.getElementById('clientContact').value = quote.clientContact || '';
+            
+            // Preencher condições de pagamento se existir
+            document.getElementById('paymentTerms').value = quote.paymentTerms || '';
             
             // Preencher espécie se existir
             if (quote.species) {
@@ -1977,10 +2052,19 @@
             // Obter informações do cliente
             let clientName = document.getElementById('clientName').value.trim();
             const clientContact = document.getElementById('clientContact').value.trim();
+            const paymentTerms = document.getElementById('paymentTerms').value.trim();
             
             // Se o cliente não for informado, usar "Consumidor Final"
             if (!clientName) {
                 clientName = "Consumidor Final";
+            }
+            
+            const species = document.getElementById('species').value.trim();
+            
+            // Verificar se o cliente foi preenchido
+            if (!clientName) {
+                showFeedback("Preencha o nome do cliente para salvar como orçamento", "error");
+                return;
             }
 
             // Gerar número único para o orçamento
@@ -2223,7 +2307,7 @@
                             </div>
                             <div class="quote-info">
                                 <div class="subtitle">CONDIÇÕES</div>
-                                <p><strong>Pagamento:</strong> 50% entrada, 50% na entrega</p>
+                                <p><strong>Pagamento:</strong> ${paymentTerms || '50% entrada, 50% na entrega'}</p>
                                 <p><strong>Entrega:</strong> 5-7 dias após confirmação</p>
                             </div>
                     </div>
@@ -2266,7 +2350,7 @@
                                         <td>${sizeText}</td>
                                         <td>${quantityDisplay}</td>
                                         <td>${volume}</td>
-                                        <td class="text-right">R$ ${unitPrice.toFixed(2).replace('.', ',')}</td>
+                                        <td class="text-right">R$ ${unitPrice.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
                                         <td class="text-right">${priceText}</td>
                                 </tr>
                                     `;
@@ -2284,8 +2368,11 @@
                                     
                                     return `
                                     <div>Peças: ${totalPieces}</div>
-                                    <div>Volume: ${totalVolume}</div>
-                                    <div>Total: ${totalPrice}</div>
+                                    <div>Volume: ${totalVolume.replace(/(\d+\.\d+)/, (match) => parseFloat(match).toLocaleString('pt-BR', {minimumFractionDigits: 3, maximumFractionDigits: 3}) + ' m³')}</div>
+                                    <div>Total: ${totalPrice.replace(/R\$\s*(\d+(?:\.\d+)*)(?:,(\d{2}))?/, (match, intPart, decPart) => {
+                                        const numValue = parseFloat(intPart.replace(/\./g, '') + '.' + (decPart || '00'));
+                                        return numValue.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+                                    })}</div>
                                     `;
                                 }
                                 return '';
@@ -2545,6 +2632,7 @@
                 // Obter informações do cliente
                 const clientName = document.getElementById('clientName').value.trim();
                 const clientContact = document.getElementById('clientContact').value.trim();
+                const paymentTerms = document.getElementById('paymentTerms').value.trim();
                 const species = document.getElementById('species').value.trim();
                 
                 // Verificar se o cliente foi preenchido
@@ -2570,6 +2658,7 @@
                     id: editingQuoteId || `quote_${Date.now()}`,
                     clientName: clientName,
                     clientContact: clientContact,
+                    paymentTerms: paymentTerms,
                     species: species,
                     date: formattedDate,
                     items: items,
@@ -2578,6 +2667,15 @@
                 };
 
                 console.log("Orçamento preparado:", quote);
+
+                // Salvar condições de pagamento no localStorage se não estiver vazia
+                if (paymentTerms) {
+                    const existingTerms = JSON.parse(localStorage.getItem('paymentTerms')) || [];
+                    if (!existingTerms.includes(paymentTerms)) {
+                        existingTerms.push(paymentTerms);
+                        localStorage.setItem('paymentTerms', JSON.stringify(existingTerms));
+                    }
+                }
 
                 // Salvar o orçamento
                 saveQuote(quote);
