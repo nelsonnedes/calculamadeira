@@ -1905,6 +1905,17 @@
             // Encontrar o índice do item
             editingItemIndex = items.indexOf(item);
             
+            console.log('Editando item:', editingItemIndex);
+            console.log('Dados do item:', {
+                thickness: item.dataset.thickness,
+                width: item.dataset.width,
+                length: item.dataset.length,
+                quantity: item.dataset.quantity,
+                packageQuantity: item.dataset.packageQuantity,
+                species: item.dataset.species,
+                price: item.dataset.price
+            });
+            
             // Entrar no modo edição
             isEditMode = true;
             updateAddButton();
@@ -1919,11 +1930,27 @@
             
             // Preencher o preço formatado
             const priceValue = item.dataset.price || '0';
-            const formattedPrice = parseFloat(priceValue).toLocaleString('pt-BR', {
-                style: 'currency',
-                currency: 'BRL'
-            });
+            let formattedPrice;
+            try {
+                // Limpar o valor do preço e converter para número
+                const cleanPrice = priceValue.toString().replace(/[^0-9,.]/g, '').replace(',', '.');
+                const numericPrice = parseFloat(cleanPrice) || 0;
+                
+                formattedPrice = numericPrice.toLocaleString('pt-BR', {
+                    style: 'currency',
+                    currency: 'BRL'
+                });
+            } catch (error) {
+                console.error('Erro ao formatar preço:', error);
+                formattedPrice = 'R$ 0,00';
+            }
             document.getElementById('price').value = formattedPrice;
+            
+            // Atualizar o label da quantidade após carregar os dados
+            updateQuantityLabel();
+            
+            // Recalcular os valores após carregar os dados
+            calculate();
             
             // Focar no primeiro campo
             document.getElementById('thickness').focus();
