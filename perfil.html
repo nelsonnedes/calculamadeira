@@ -318,29 +318,126 @@
             background: #b71c1c;
         }
 
-        .feedback {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
+        /* Estilos da seção de planos */
+        .plan-info-container {
+            margin-bottom: 20px;
+        }
+
+        .current-plan-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: 1px solid #dee2e6;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .plan-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .plan-header h3 {
+            margin: 0;
+            color: #495057;
+            font-size: 1.4em;
+        }
+
+        .plan-status {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .plan-status.active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .plan-status.expired {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .plan-status.pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .plan-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .plan-dates p {
+            margin: 8px 0;
+            color: #6c757d;
+        }
+
+        .plan-dates strong {
+            color: #495057;
+        }
+
+        .plan-features h4 {
+            margin: 0 0 12px 0;
+            color: #495057;
+            font-size: 1.1em;
+        }
+
+        .plan-features ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .plan-features li {
+            padding: 6px 0;
+            color: #6c757d;
+            position: relative;
+            padding-left: 20px;
+        }
+
+        .plan-features li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .plan-actions {
+            text-align: center;
+            padding-top: 15px;
+            border-top: 1px solid #dee2e6;
+        }
+
+        .btn-upgrade {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white;
+            border: none;
             padding: 12px 24px;
             border-radius: 8px;
-            background-color: #4CAF50;
-            color: white;
-            font-size: 16px;
-            z-index: 1000;
-            animation: fadeInOut 3s ease-in-out;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .feedback.error {
-            background-color: #f44336;
-        }
-
-        @keyframes fadeInOut {
-            0% { opacity: 0; transform: translate(-50%, 20px); }
-            10% { opacity: 1; transform: translate(-50%, 0); }
-            90% { opacity: 1; transform: translate(-50%, 0); }
-            100% { opacity: 0; transform: translate(-50%, -20px); }
+        .btn-upgrade:hover {
+            background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
         }
 
         @media (max-width: 768px) {
@@ -369,6 +466,36 @@
             .container {
                 padding-top: 120px; /* Mais espaço para o header em modo mobile */
             }
+
+            .plan-details {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+        }
+
+        .feedback {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 24px;
+            border-radius: 8px;
+            background-color: #4CAF50;
+            color: white;
+            font-size: 16px;
+            z-index: 1000;
+            animation: fadeInOut 3s ease-in-out;
+        }
+
+        .feedback.error {
+            background-color: #f44336;
+        }
+
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translate(-50%, 20px); }
+            10% { opacity: 1; transform: translate(-50%, 0); }
+            90% { opacity: 1; transform: translate(-50%, 0); }
+            100% { opacity: 0; transform: translate(-50%, -20px); }
         }
     </style>
 </head>
@@ -442,6 +569,37 @@
             </div>
 
             <div class="profile-section">
+                <h2>Informações do Plano</h2>
+                <div class="plan-info-container">
+                    <div class="current-plan-card">
+                        <div class="plan-header">
+                            <h3 id="currentPlanName">Plano Gratuito</h3>
+                            <span class="plan-status" id="planStatus">Ativo</span>
+                        </div>
+                        <div class="plan-details">
+                            <div class="plan-dates">
+                                <p><strong>Data de Início:</strong> <span id="planStartDate">--</span></p>
+                                <p><strong>Data de Término:</strong> <span id="planEndDate">--</span></p>
+                            </div>
+                            <div class="plan-features">
+                                <h4>Benefícios inclusos:</h4>
+                                <ul id="planFeaturesList">
+                                    <li>Cálculos básicos</li>
+                                    <li>Relatórios simples</li>
+                                    <li>Suporte por email</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="plan-actions">
+                            <button class="btn-upgrade" onclick="window.location.href='planos.html'">
+                                <i class="fas fa-arrow-up"></i> Fazer Upgrade
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="profile-section">
                 <h2>Alterar Senha</h2>
                 <form id="passwordForm">
                     <div class="form-group">
@@ -491,7 +649,9 @@
             // Atualizar informações do cabeçalho do perfil
             document.querySelector('.profile-name').textContent = user.name || menuInfo.name || 'Nome do Usuário';
             document.querySelector('.profile-email').textContent = user.email || menuInfo.email || 'usuario@email.com';
-            document.querySelector('.profile-plan').textContent = `Plano ${user.plan || 'Gratuito'}`;
+            
+            // Carregar informações do plano
+            loadPlanData();
 
             // Carregar logo da empresa
             const companyLogo = localStorage.getItem('companyLogo');
@@ -511,6 +671,133 @@
             document.querySelectorAll('.stat-value')[2].textContent = '100%';
 
             console.log('Perfil carregado:', user);
+        }
+
+        // Carregar dados do plano
+        function loadPlanData() {
+            try {
+                // Obter dados do usuário atual
+                const currentUser = getCurrentUser();
+                const userId = localStorage.getItem('currentUserId') || (currentUser && currentUser.id);
+                
+                if (!userId) {
+                    console.warn('ID do usuário não encontrado');
+                    return;
+                }
+
+                // Definir planos disponíveis
+                const PLAN_DEFINITIONS = {
+                    'free': {
+                        name: 'Plano Gratuito',
+                        features: ['Cálculos básicos', 'Relatórios simples', 'Suporte por email']
+                    },
+                    'monthly': {
+                        name: 'Plano Mensal',
+                        features: ['Cálculos avançados', 'Relatórios detalhados', 'Suporte prioritário', 'Backup automático']
+                    },
+                    'yearly': {
+                        name: 'Plano Anual',
+                        features: ['Cálculos avançados', 'Relatórios detalhados', 'Suporte prioritário', 'Backup automático', 'Desconto de 50%']
+                    },
+                    'Premium': {
+                        name: 'Plano Premium',
+                        features: ['Cálculos avançados', 'Relatórios detalhados', 'Suporte prioritário', 'Backup automático']
+                    },
+                    'Empresarial': {
+                        name: 'Plano Empresarial',
+                        features: ['Todas as funcionalidades Premium', 'Usuários ilimitados', 'Suporte 24/7', 'API personalizada']
+                    }
+                };
+
+                // Buscar dados do plano do usuário
+                let planData = null;
+                
+                // Tentar diferentes fontes de dados do plano
+                if (currentUser && currentUser.plan) {
+                    planData = {
+                        type: currentUser.plan.type,
+                        startDate: currentUser.plan.startDate,
+                        endDate: currentUser.plan.endDate
+                    };
+                } else {
+                    // Buscar por chave específica do usuário
+                    const userPlanData = localStorage.getItem(`plan_${userId}`);
+                    if (userPlanData) {
+                        const parsed = JSON.parse(userPlanData);
+                        planData = {
+                            type: parsed.plan || 'free',
+                            startDate: parsed.startDate,
+                            endDate: parsed.expiryDate || parsed.endDate
+                        };
+                    }
+                }
+
+                // Se não encontrou dados do plano, usar padrão
+                if (!planData) {
+                    planData = {
+                        type: 'free',
+                        startDate: new Date().toISOString(),
+                        endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+                    };
+                }
+
+                // Obter definição do plano
+                const planDefinition = PLAN_DEFINITIONS[planData.type] || PLAN_DEFINITIONS['free'];
+
+                // Atualizar UI
+                document.getElementById('currentPlanName').textContent = planDefinition.name;
+                
+                // Verificar status do plano
+                const now = new Date();
+                const endDate = planData.endDate ? new Date(planData.endDate) : null;
+                const statusElement = document.getElementById('planStatus');
+                
+                if (!endDate) {
+                    statusElement.textContent = 'Ativo';
+                    statusElement.className = 'plan-status active';
+                } else if (now <= endDate) {
+                    statusElement.textContent = 'Ativo';
+                    statusElement.className = 'plan-status active';
+                } else {
+                    statusElement.textContent = 'Expirado';
+                    statusElement.className = 'plan-status expired';
+                }
+
+                // Atualizar datas
+                if (planData.startDate) {
+                    const startDate = new Date(planData.startDate);
+                    document.getElementById('planStartDate').textContent = startDate.toLocaleDateString('pt-BR');
+                } else {
+                    document.getElementById('planStartDate').textContent = '--';
+                }
+
+                if (planData.endDate) {
+                    const endDate = new Date(planData.endDate);
+                    document.getElementById('planEndDate').textContent = endDate.toLocaleDateString('pt-BR');
+                } else {
+                    document.getElementById('planEndDate').textContent = 'Sem expiração';
+                }
+
+                // Atualizar lista de benefícios
+                const featuresList = document.getElementById('planFeaturesList');
+                featuresList.innerHTML = '';
+                planDefinition.features.forEach(feature => {
+                    const li = document.createElement('li');
+                    li.textContent = feature;
+                    featuresList.appendChild(li);
+                });
+
+                // Atualizar badge do plano no cabeçalho
+                document.querySelector('.profile-plan').textContent = planDefinition.name;
+
+                console.log('Dados do plano carregados:', planData);
+            } catch (error) {
+                console.error('Erro ao carregar dados do plano:', error);
+                // Usar valores padrão em caso de erro
+                document.getElementById('currentPlanName').textContent = 'Plano Gratuito';
+                document.getElementById('planStatus').textContent = 'Ativo';
+                document.getElementById('planStatus').className = 'plan-status active';
+            }
         }
 
         // Manipular upload da logo

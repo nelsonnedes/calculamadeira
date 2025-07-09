@@ -304,7 +304,7 @@
         if (isUserLoggedIn()) {
             const user = getCurrentUser();
             if (isPlanActive()) {
-                window.location.href = 'calc.html';
+                window.location.href = 'orcamentos.html';
             } else {
                 window.location.href = 'planos.html';
             }
@@ -339,8 +339,11 @@
                 const updatedUsers = users.map(u => u.id === user.id ? user : u);
                 localStorage.setItem(AUTH_KEY, JSON.stringify(updatedUsers));
 
+                // Armazenar ID do usuário atual
+                localStorage.setItem('currentUserId', user.id);
+
                 if (isPlanActive()) {
-                    window.location.href = 'calc.html';
+                    window.location.href = 'orcamentos.html';
                 } else {
                     window.location.href = 'planos.html';
                 }
@@ -366,7 +369,11 @@
                 const users = JSON.parse(localStorage.getItem(AUTH_KEY) || '[]');
                 const updatedUsers = users.map(u => u.id === user.id ? user : u);
                 localStorage.setItem(AUTH_KEY, JSON.stringify(updatedUsers));
-                window.location.href = 'calc.html';
+                
+                // Armazenar ID do usuário atual
+                localStorage.setItem('currentUserId', user.id);
+                
+                window.location.href = 'orcamentos.html';
             } catch (error) {
                 showError('register', error.message);
             }
