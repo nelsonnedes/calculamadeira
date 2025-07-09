@@ -265,21 +265,25 @@
 
         .quote-actions {
             display: flex;
-            justify-content: flex-end;
-            gap: 10px;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 15px;
         }
 
         .action-btn {
             background-color: #8B0000;
             color: white;
             border: none;
-            padding: 8px 15px;
+            padding: 10px 15px;
             border-radius: 4px;
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 5px;
+            justify-content: center;
+            gap: 8px;
             font-size: 0.9rem;
+            transition: all 0.3s ease;
+            width: 100%;
         }
 
         .action-btn.edit {
@@ -292,6 +296,7 @@
 
         .action-btn:hover {
             opacity: 0.9;
+            transform: translateY(-1px);
         }
 
         .feedback {
@@ -573,6 +578,55 @@
                 margin: 0.5cm;
             }
         }
+
+        /* Estilos de paginação */
+        .pagination-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+            gap: 10px;
+        }
+
+        .pagination-btn {
+            background-color: #8B0000;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background-color 0.3s;
+        }
+
+        .pagination-btn:hover {
+            background-color: #660000;
+        }
+
+        .pagination-btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .pagination-info {
+            color: #666;
+            font-size: 0.9rem;
+            margin: 0 10px;
+        }
+
+        .page-size-selector {
+            margin-left: 20px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .page-size-selector select {
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
     </style>
 </head>
 <body>
@@ -634,6 +688,20 @@
         <div class="quotes-container" id="quotesContainer">
             <!-- Os orçamentos serão carregados aqui dinamicamente -->
         </div>
+        <div class="pagination-container" id="paginationContainer" style="display: none;">
+            <button class="pagination-btn" id="prevBtn" onclick="changePage(-1)">« Anterior</button>
+            <span class="pagination-info" id="paginationInfo">Página 1 de 1</span>
+            <button class="pagination-btn" id="nextBtn" onclick="changePage(1)">Próxima »</button>
+            <div class="page-size-selector">
+                <label for="pageSize">Itens por página:</label>
+                <select id="pageSize" onchange="changePageSize()">
+                    <option value="5">5</option>
+                    <option value="10" selected>10</option>
+                    <option value="20">20</option>
+                    <option value="50">50</option>
+                </select>
+            </div>
+        </div>
     </div>
 
     <script src="auth.js"></script>
@@ -649,6 +717,12 @@
         const overlay = document.getElementById('overlay');
         const quotesContainer = document.getElementById('quotesContainer');
         const refreshBtn = document.getElementById('refreshBtn');
+
+        // Variáveis de paginação
+        let currentPage = 1;
+        let pageSize = 10;
+        let totalQuotes = 0;
+        let allQuotes = [];
 
         // Toggle menu
         function toggleMenu() {
@@ -696,11 +770,11 @@
                     return;
                 }
                 
-                const quotes = JSON.parse(storedQuotes);
-                console.log("Orçamentos encontrados:", quotes.length, quotes);
+                allQuotes = JSON.parse(storedQuotes);
+                console.log("Orçamentos encontrados:", allQuotes.length, allQuotes);
                 
                 // Ordenar por data, do mais recente para o mais antigo
-                quotes.sort((a, b) => {
+                allQuotes.sort((a, b) => {
                     // Tentar ordenar por data se existir
                     if (a.date && b.date) {
                         return new Date(b.date) - new Date(a.date);
@@ -708,77 +782,130 @@
                     return 0; // Sem ordenação se não tiver data
                 });
                 
-                quotesContainer.innerHTML = '';
+                totalQuotes = allQuotes.length;
                 
-                if (quotes.length === 0) {
+                if (totalQuotes === 0) {
                     showEmptyState();
                     return;
                 }
                 
-                quotes.forEach(quote => {
-                    // Log para depuração
-                    console.log("Processando orçamento:", quote.id);
-                    
-                    const quoteElement = document.createElement('div');
-                    quoteElement.className = 'quote-card';
-                    
-                    // Calcular total do orçamento (use totalPrice se disponível)
-                    let totalValue = 0;
-                    if (quote.totalPrice) {
-                        // Se já temos o preço total no objeto, usar diretamente
-                        totalValue = typeof quote.totalPrice === 'string' 
-                            ? parseFloat(quote.totalPrice.replace(/[^0-9,.]/g, '').replace('.', '').replace(',', '.'))
-                            : quote.totalPrice;
-                    } else if (quote.items && Array.isArray(quote.items)) {
-                        // Caso contrário, calcular somando os itens
-                        quote.items.forEach(item => {
-                            const itemPrice = item.finalPrice || item.price;
-                            if (typeof itemPrice === 'string') {
-                                totalValue += parseFloat(itemPrice.replace(/[^0-9,.]/g, '').replace('.', '').replace(',', '.'));
-                            } else if (typeof itemPrice === 'number') {
-                                totalValue += itemPrice;
-                            }
-                        });
-                    }
-                    
-                    // Formatar o valor total
-                    const formattedTotal = new Intl.NumberFormat('pt-BR', {
-                        style: 'currency',
-                        currency: 'BRL'
-                    }).format(totalValue);
-                    
-                    quoteElement.innerHTML = `
-                        <div class="quote-header">
-                            <div class="quote-client">${quote.clientName || 'Cliente não informado'}</div>
-                            <div class="quote-date">${formatDate(quote.date)}</div>
-                        </div>
-                        <div class="quote-details">
-                            <div class="quote-items">${quote.items ? quote.items.length : 0} itens</div>
-                            <div class="quote-total">${formattedTotal}</div>
-                        </div>
-                        <div class="quote-actions">
-                            <button onclick="viewQuote('${quote.id}')" class="action-btn">
-                                <i class="fas fa-eye"></i> PDF C/Preço
-                            </button>
-                            <button onclick="generateSimplePDF('${quote.id}')" class="action-btn">
-                                <i class="fas fa-file-pdf"></i> PDF s/ preço unit.
-                            </button>
-                            <button onclick="editQuote('${quote.id}')" class="action-btn edit">
-                                <i class="fas fa-edit"></i> Editar
-                            </button>
-                            <button onclick="deleteQuote('${quote.id}')" class="action-btn delete">
-                                <i class="fas fa-trash"></i> Excluir
-                            </button>
-                        </div>
-                    `;
-                    
-                    quotesContainer.appendChild(quoteElement);
-                });
+                // Implementar paginação
+                displayQuotesPage();
+                updatePaginationControls();
+                
             } catch (error) {
                 console.error("Erro ao carregar orçamentos:", error);
                 showFeedback('Erro ao carregar orçamentos', 'error');
                 showEmptyState();
             }
+        }
+
+        // Exibir página específica de orçamentos
+        function displayQuotesPage() {
+            quotesContainer.innerHTML = '';
+            
+            const startIndex = (currentPage - 1) * pageSize;
+            const endIndex = Math.min(startIndex + pageSize, totalQuotes);
+            const quotesToShow = allQuotes.slice(startIndex, endIndex);
+            
+            quotesToShow.forEach(quote => {
+                // Log para depuração
+                console.log("Processando orçamento:", quote.id);
+                
+                const quoteElement = document.createElement('div');
+                quoteElement.className = 'quote-card';
+                
+                // Calcular total do orçamento (use totalPrice se disponível)
+                let totalValue = 0;
+                if (quote.totalPrice) {
+                    // Se já temos o preço total no objeto, usar diretamente
+                    totalValue = typeof quote.totalPrice === 'string' 
+                        ? parseFloat(quote.totalPrice.replace(/[^0-9,.]/g, '').replace('.', '').replace(',', '.'))
+                        : quote.totalPrice;
+                } else if (quote.items && Array.isArray(quote.items)) {
+                    // Caso contrário, calcular somando os itens
+                    quote.items.forEach(item => {
+                        const itemPrice = item.finalPrice || item.price;
+                        if (typeof itemPrice === 'string') {
+                            totalValue += parseFloat(itemPrice.replace(/[^0-9,.]/g, '').replace('.', '').replace(',', '.'));
+                        } else if (typeof itemPrice === 'number') {
+                            totalValue += itemPrice;
+                        }
+                    });
+                }
+                
+                // Formatar o valor total
+                const formattedTotal = new Intl.NumberFormat('pt-BR', {
+                    style: 'currency',
+                    currency: 'BRL'
+                }).format(totalValue);
+                
+                quoteElement.innerHTML = `
+                    <div class="quote-header">
+                        <div class="quote-client">${quote.clientName || 'Cliente não informado'}</div>
+                        <div class="quote-date">${formatDate(quote.date)}</div>
+                    </div>
+                    <div class="quote-details">
+                        <div class="quote-items">${quote.items ? quote.items.length : 0} itens</div>
+                        <div class="quote-total">${formattedTotal}</div>
+                    </div>
+                    <div class="quote-actions">
+                        <button onclick="generatePDFWithUnitPrice('${quote.id}')" class="action-btn">
+                            <i class="fas fa-file-pdf"></i> PDF C/Preço
+                        </button>
+                        <button onclick="generateSimplePDF('${quote.id}')" class="action-btn">
+                            <i class="fas fa-file-pdf"></i> PDF S/Preço
+                        </button>
+                        <button onclick="editQuote('${quote.id}')" class="action-btn edit">
+                            <i class="fas fa-edit"></i> Editar
+                        </button>
+                        <button onclick="deleteQuote('${quote.id}')" class="action-btn delete">
+                            <i class="fas fa-trash"></i> Excluir
+                        </button>
+                    </div>
+                `;
+                
+                quotesContainer.appendChild(quoteElement);
+            });
+        }
+
+        // Atualizar controles de paginação
+        function updatePaginationControls() {
+            const totalPages = Math.ceil(totalQuotes / pageSize);
+            const paginationContainer = document.getElementById('paginationContainer');
+            const paginationInfo = document.getElementById('paginationInfo');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            
+            if (totalPages > 1) {
+                paginationContainer.style.display = 'flex';
+                paginationInfo.textContent = `Página ${currentPage} de ${totalPages} (${totalQuotes} orçamentos)`;
+                prevBtn.disabled = currentPage === 1;
+                nextBtn.disabled = currentPage === totalPages;
+            } else {
+                paginationContainer.style.display = 'none';
+            }
+        }
+
+        // Mudar página
+        function changePage(direction) {
+            const totalPages = Math.ceil(totalQuotes / pageSize);
+            const newPage = currentPage + direction;
+            
+            if (newPage >= 1 && newPage <= totalPages) {
+                currentPage = newPage;
+                displayQuotesPage();
+                updatePaginationControls();
+            }
+        }
+
+        // Mudar tamanho da página
+        function changePageSize() {
+            const pageSizeSelect = document.getElementById('pageSize');
+            pageSize = parseInt(pageSizeSelect.value);
+            currentPage = 1; // Resetar para primeira página
+            displayQuotesPage();
+            updatePaginationControls();
         }
 
         // Exibir estado vazio
@@ -791,33 +918,6 @@
                     <a href="calc.html" class="btn">Criar orçamento</a>
                 </div>
             `;
-        }
-
-        // Visualizar orçamento
-        function viewQuote(id) {
-            try {
-                console.log("Visualizando orçamento:", id);
-                
-                const userId = localStorage.getItem('currentUserId');
-                if (!userId) {
-                    showFeedback('ID de usuário não encontrado', 'error');
-                    return;
-                }
-                
-                const quotes = JSON.parse(localStorage.getItem(`quotes_${userId}`) || '[]');
-                const quote = quotes.find(q => q.id === id);
-                
-                if (!quote) {
-                    showFeedback('Orçamento não encontrado', 'error');
-                    return;
-                }
-                
-                // Redirecionar para uma visualização detalhada ou abrir modal
-                generatePDF(id);
-            } catch (error) {
-                console.error("Erro ao visualizar orçamento:", error);
-                showFeedback('Erro ao visualizar orçamento', 'error');
-            }
         }
 
         // Editar orçamento
@@ -881,6 +981,388 @@
             } catch (error) {
                 console.error("Erro ao excluir orçamento:", error);
                 showFeedback('Erro ao excluir orçamento', 'error');
+            }
+        }
+
+        // Gerar PDF do orçamento COM preço unitário (nova função)
+        function generatePDFWithUnitPrice(id) {
+            try {
+                console.log("Gerando PDF com preço unitário para orçamento:", id);
+                
+                const userId = localStorage.getItem('currentUserId');
+                if (!userId) {
+                    showFeedback('ID de usuário não encontrado', 'error');
+                    return;
+                }
+                
+                const quotes = JSON.parse(localStorage.getItem(`quotes_${userId}`) || '[]');
+                const quote = quotes.find(q => q.id === id);
+                
+                if (!quote) {
+                    showFeedback('Orçamento não encontrado', 'error');
+                    return;
+                }
+                
+                console.log("Dados do orçamento para PDF:", quote);
+                
+                // Buscar dados do usuário e da empresa
+                const user = JSON.parse(localStorage.getItem('user') || '{}');
+                const companyName = user.company || 'Nome da Empresa';
+                const companyPhone = user.phone || 'Telefone não informado';
+                const companyAddress = user.address || 'Endereço não informado';
+                const companyEmail = user.email || 'Email não informado';
+                const companyCNPJ = user.cnpj || 'CNPJ não informado';
+                const companyLogo = localStorage.getItem('companyLogo') || '';
+                
+                // Formatar data
+                const issueDate = new Date(quote.date);
+                const formattedDate = issueDate.toLocaleDateString('pt-BR');
+                
+                // Calcular data de validade (15 dias a partir da data de emissão)
+                const validUntil = new Date(issueDate);
+                validUntil.setDate(validUntil.getDate() + 15);
+                const validUntilFormatted = validUntil.toLocaleDateString('pt-BR');
+                
+                // Gerar número de orçamento se não existir
+                const quoteNumber = quote.number || 'ORÇ-' + quote.id.substring(0, 6);
+                
+                // Preparar relatório com preço unitário
+                const reportWindow = window.open('', '_blank');
+                const reportContent = `
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <title>Orçamento - ${quote.clientName}</title>
+                        <meta charset="UTF-8">
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                        <style>
+                            @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+                            
+                            :root {
+                                --primary-color: #8B0000;
+                                --secondary-color: #f5f5f5;
+                                --text-color: #333;
+                                --border-color: #ddd;
+                            }
+                            
+                            * {
+                                margin: 0;
+                                padding: 0;
+                                box-sizing: border-box;
+                            }
+                            
+                            body {
+                                font-family: 'Roboto', Arial, sans-serif;
+                                margin: 0;
+                                padding: 20px;
+                                color: var(--text-color);
+                                font-size: 14px;
+                                line-height: 1.5;
+                            }
+                            
+                            .container {
+                                max-width: 1000px;
+                                margin: 0 auto;
+                            }
+                            
+                            .header {
+                                display: flex;
+                                justify-content: space-between;
+                                align-items: center;
+                                border-bottom: 2px solid var(--primary-color);
+                                padding-bottom: 15px;
+                                margin-bottom: 20px;
+                            }
+                            
+                            .logo-container {
+                                width: 150px;
+                            }
+                            
+                            .logo {
+                                max-width: 100%;
+                                max-height: 80px;
+                            }
+                            
+                            .company-info {
+                                flex: 1;
+                                padding-left: 20px;
+                            }
+                            
+                            .company-info h1 {
+                                font-size: 24px;
+                                color: var(--primary-color);
+                                margin-bottom: 8px;
+                            }
+                            
+                            .company-info p {
+                                margin: 2px 0;
+                                font-size: 12px;
+                            }
+                            
+                            .document-details {
+                                text-align: right;
+                            }
+                            
+                            .document-details h2 {
+                                font-size: 20px;
+                                color: var(--primary-color);
+                                margin-bottom: 8px;
+                            }
+                            
+                            .client-section {
+                                background-color: var(--secondary-color);
+                                padding: 15px;
+                                display: flex;
+                                justify-content: space-between;
+                                margin-bottom: 20px;
+                            }
+                            
+                            .client-info, .quote-info {
+                                flex: 1;
+                            }
+                            
+                            .subtitle {
+                                font-weight: 700;
+                                color: var(--primary-color);
+                                margin-bottom: 8px;
+                            }
+                            
+                            table {
+                                width: 100%;
+                                border-collapse: collapse;
+                                margin-bottom: 20px;
+                            }
+                            
+                            th {
+                                background-color: var(--primary-color);
+                                color: white;
+                                font-weight: 500;
+                                text-align: left;
+                                padding: 12px 8px;
+                            }
+                            
+                            td {
+                                padding: 10px 8px;
+                                border-bottom: 1px solid #eee;
+                                vertical-align: top;
+                            }
+                            
+                            tr:nth-child(even) {
+                                background-color: #f9f9f9;
+                            }
+                            
+                            .narrow {
+                                width: 50px;
+                                text-align: center;
+                            }
+                            
+                            .text-right {
+                                text-align: right;
+                            }
+                            
+                            .totals-footer {
+                                display: flex;
+                                justify-content: flex-end;
+                                margin-top: 20px;
+                            }
+                            
+                            .totals-table {
+                                width: 300px;
+                                margin-bottom: 0;
+                            }
+                            
+                            .totals-table td {
+                                border-bottom: 1px solid #ddd;
+                                padding: 8px;
+                            }
+                            
+                            .totals-label {
+                                font-weight: 600;
+                                text-align: right;
+                                width: 60%;
+                            }
+                            
+                            .totals-value {
+                                font-weight: 700;
+                                text-align: right;
+                                color: var(--primary-color);
+                                width: 40%;
+                            }
+                            
+                            .footer {
+                                margin-top: 30px;
+                                text-align: center;
+                                color: #666;
+                                font-size: 12px;
+                            }
+                            
+                            .print-buttons {
+                                text-align: center;
+                                margin-top: 20px;
+                            }
+                            
+                            button {
+                                padding: 10px 20px;
+                                background-color: var(--primary-color);
+                                color: white;
+                                border: none;
+                                border-radius: 4px;
+                                cursor: pointer;
+                                margin: 0 5px;
+                            }
+                            
+                            @media print {
+                                .print-buttons {
+                                    display: none;
+                                }
+                                
+                                body {
+                                    padding: 0;
+                                }
+                                
+                                @page {
+                                    margin: 1cm;
+                                }
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="container">
+                            <div class="header">
+                                <div class="logo-container">
+                                    ${companyLogo ? `<img src="${companyLogo}" alt="Logo" class="logo">` : ''}
+                                </div>
+                                <div class="company-info">
+                                    <h1>${companyName}</h1>
+                                    <p><strong>Endereço:</strong> ${companyAddress}</p>
+                                    <p><strong>Telefone:</strong> ${companyPhone}</p>
+                                    <p><strong>Email:</strong> ${companyEmail}</p>
+                                    <p><strong>CNPJ:</strong> ${companyCNPJ}</p>
+                                </div>
+                                <div class="document-details">
+                                    <h2>ORÇAMENTO</h2>
+                                    <p><strong>Nº:</strong> ${quoteNumber}</p>
+                                    <p><strong>Data:</strong> ${formattedDate}</p>
+                                    <p><strong>Válido até:</strong> ${validUntilFormatted}</p>
+                                </div>
+                            </div>
+                            
+                            <div class="client-section">
+                                <div class="client-info">
+                                    <div class="subtitle">DADOS DO CLIENTE</div>
+                                    <p><strong>Nome:</strong> ${quote.clientName || 'Cliente não informado'}</p>
+                                    <p><strong>Telefone:</strong> ${quote.clientPhone || 'Não informado'}</p>
+                                    <p><strong>Email:</strong> ${quote.clientEmail || 'Não informado'}</p>
+                                    <p><strong>Endereço:</strong> ${quote.clientAddress || 'Não informado'}</p>
+                                </div>
+                                <div class="quote-info">
+                                    <div class="subtitle">INFORMAÇÕES DO ORÇAMENTO</div>
+                                    <p><strong>Observações:</strong> ${quote.observations || 'Nenhuma observação'}</p>
+                                    <p><strong>Condições de Pagamento:</strong> ${quote.paymentTerms || 'A combinar'}</p>
+                                    <p><strong>Prazo de Entrega:</strong> ${quote.deliveryTime || 'A combinar'}</p>
+                                </div>
+                            </div>
+                            
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th class="narrow">Nº</th>
+                                        <th>Dimensões</th>
+                                        <th>Qtd</th>
+                                        <th>Volume</th>
+                                        <th>Espécie</th>
+                                        <th class="text-right">Preço Unit.</th>
+                                        <th class="text-right">Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${quote.items ? quote.items.map((item, index) => {
+                                        // Extrair informações do item
+                                        let sizeText = item.size || '';
+                                        
+                                        // Calcular preço unitário
+                                        let unitPrice = 0;
+                                        let totalPrice = 0;
+                                        
+                                        if (typeof item.price === 'string') {
+                                            totalPrice = parseFloat(item.price.replace(/[^0-9,.]/g, '').replace('.', '').replace(',', '.'));
+                                        } else if (typeof item.finalPrice === 'string') {
+                                            totalPrice = parseFloat(item.finalPrice.replace(/[^0-9,.]/g, '').replace('.', '').replace(',', '.'));
+                                        } else if (typeof item.finalPrice === 'number') {
+                                            totalPrice = item.finalPrice;
+                                        } else if (typeof item.price === 'number') {
+                                            totalPrice = item.price;
+                                        }
+                                        
+                                        // Calcular preço unitário baseado no volume
+                                        const volumeValue = parseFloat((item.volume || '0').replace(/[^0-9,.]/g, '').replace(',', '.'));
+                                        if (volumeValue > 0) {
+                                            unitPrice = totalPrice / volumeValue;
+                                        }
+                                        
+                                        // Formatar preços
+                                        const unitPriceFormatted = new Intl.NumberFormat('pt-BR', {
+                                            style: 'currency',
+                                            currency: 'BRL'
+                                        }).format(unitPrice);
+                                        
+                                        const totalPriceFormatted = new Intl.NumberFormat('pt-BR', {
+                                            style: 'currency',
+                                            currency: 'BRL'
+                                        }).format(totalPrice);
+                                        
+                                        return `
+                                        <tr>
+                                            <td class="narrow">${index + 1}</td>
+                                            <td>${sizeText}</td>
+                                            <td>${item.quantity || 0}</td>
+                                            <td>${item.volume || '0,000m³'}</td>
+                                            <td>${item.species || 'Não informado'}</td>
+                                            <td class="text-right">${unitPriceFormatted}/m³</td>
+                                            <td class="text-right">${totalPriceFormatted}</td>
+                                        </tr>
+                                        `;
+                                    }).join('') : '<tr><td colspan="7">Nenhum item encontrado</td></tr>'}
+                                </tbody>
+                            </table>
+
+                            <div class="totals-footer">
+                                <table class="totals-table">
+                                    <tr>
+                                        <td class="totals-label">Volume Total</td>
+                                        <td class="totals-value">${quote.totalVolume || '0,000m³'}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="totals-label">Valor Total</td>
+                                        <td class="totals-value">${typeof quote.totalPrice === 'number' 
+                                            ? new Intl.NumberFormat('pt-BR', {
+                                                style: 'currency',
+                                                currency: 'BRL'
+                                              }).format(quote.totalPrice)
+                                            : quote.totalPrice || 'R$ 0,00'}</td>
+                                    </tr>
+                                </table>
+                            </div>
+                            
+                            <div class="footer">
+                                <p>Agradecemos sua preferência! Para mais informações: ${companyPhone}</p>
+                                <p>Este documento não possui valor fiscal - Gerado em ${new Date().toLocaleString()}</p>
+                            </div>
+                            
+                            <div class="print-buttons">
+                                <button onclick="window.print()">Imprimir Orçamento</button>
+                                <button onclick="window.close()" style="margin-left: 10px; background-color: #333;">Fechar</button>
+                            </div>
+                        </div>
+                    </body>
+                    </html>
+                `;
+                
+                reportWindow.document.write(reportContent);
+                reportWindow.document.close();
+            } catch (error) {
+                console.error("Erro ao gerar PDF:", error);
+                showFeedback('Erro ao gerar o PDF', 'error');
             }
         }
 
@@ -1126,43 +1608,6 @@
                                 font-size: 9px;
                                 font-weight: 700;
                             }
-                            
-                            .totals-footer {
-                                margin-top: 20px;
-                                background-color: #f9f9f9;
-                                border: 1px solid #eaeaea;
-                                border-radius: 8px;
-                                padding: 0;
-                                overflow: hidden;
-                            }
-                            
-                            .totals-table {
-                                width: 100%;
-                                border-collapse: collapse;
-                            }
-                            
-                            .totals-table tr td {
-                                padding: 10px 20px;
-                                border-bottom: 1px solid #eee;
-                            }
-                            
-                            .totals-table tr:last-child td {
-                                border-bottom: none;
-                                background-color: #f0f0f0;
-                                color: #8B0000;
-                                font-size: 16px;
-                                font-weight: 700;
-                            }
-                            
-                            .totals-label {
-                                text-align: left;
-                                font-weight: 500;
-                            }
-                            
-                            .totals-value {
-                                text-align: right;
-                                font-weight: 700;
-                            }
                         </style>
                     </head>
                     <body>
@@ -1235,6 +1680,7 @@
                                         return `
                                         <tr>
                                             <td class="narrow">${index + 1}</td>
+                                            <td class="dim">${sizeText}</td>
                                             <td>${sizeText}</td>
                                             <td>${item.quantity || 0}</td>
                                             <td>${item.volume || '0,000m³'}</td>
@@ -1288,526 +1734,358 @@
 
         // Gerar PDF do orçamento sem preço unitário
         function generateSimplePDF(id) {
-            const quotes = JSON.parse(localStorage.getItem('quotes') || '[]');
-            const quote = quotes.find(q => q.id === id);
-            
-            if (!quote) {
-                showFeedback('Orçamento não encontrado', 'error');
-                return;
-            }
-            
-            // Buscar dados do usuário e da empresa
-            const user = JSON.parse(localStorage.getItem('user') || '{}');
-            const companyName = user.company || 'Nome da Empresa';
-            const companyPhone = user.phone || 'Telefone não informado';
-            const companyAddress = user.address || 'Endereço não informado';
-            const companyEmail = user.email || 'Email não informado';
-            const companyCNPJ = user.cnpj || 'CNPJ não informado';
-            const companyLogo = localStorage.getItem('companyLogo') || '';
-            
-            // Formatar data
-            const issueDate = new Date(quote.date);
-            const formattedDate = issueDate.toLocaleDateString('pt-BR');
-            
-            // Calcular data de validade (15 dias a partir da data de emissão)
-            const validUntil = new Date(issueDate);
-            validUntil.setDate(validUntil.getDate() + 15);
-            const validUntilFormatted = validUntil.toLocaleDateString('pt-BR');
-            
-            // Gerar número de orçamento se não existir
-            const quoteNumber = quote.number || 'ORÇ-' + quote.id.substring(0, 6);
-            
-            // Preparar relatório condensado
-            const reportWindow = window.open('', '_blank');
-            const reportContent = `
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <title>Orçamento - ${quote.clientName}</title>
-                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                    <style>
-                        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
-                        
-                        :root {
-                            --primary-color: #8B0000;
-                            --secondary-color: #f5f5f5;
-                            --text-color: #333;
-                            --border-color: #ddd;
-                        }
-                        
-                        * {
-                            margin: 0;
-                            padding: 0;
-                            box-sizing: border-box;
-                        }
-                        
-                        body {
-                            font-family: 'Roboto', Arial, sans-serif;
-                            margin: 0;
-                            padding: 15px;
-                            color: var(--text-color);
-                            font-size: 12px;
-                            line-height: 1.4;
-                        }
-                        
-                        .container {
-                            max-width: 1000px;
-                            margin: 0 auto;
-                        }
-                        
-                        .compact-header {
-                            display: flex;
-                            justify-content: space-between;
-                            border-bottom: 1px solid var(--primary-color);
-                            padding-bottom: 8px;
-                            margin-bottom: 10px;
-                        }
-                        
-                        .logo-container {
-                            width: 120px;
-                        }
-                        
-                        .logo {
-                            max-width: 100%;
-                            max-height: 60px;
-                        }
-                        
-                        .company-info {
-                            flex: 1;
-                            padding-left: 15px;
-                        }
-                        
-                        .company-info h1 {
-                            font-size: 18px;
-                            color: var(--primary-color);
-                            margin-bottom: 4px;
-                        }
-                        
-                        .company-info p {
-                            margin: 0;
-                            font-size: 10px;
-                            line-height: 1.3;
-                        }
-                        
-                        .document-details {
-                            text-align: right;
-                            font-size: 10px;
-                        }
-                        
-                        .document-details h2 {
-                            font-size: 14px;
-                            color: var(--primary-color);
-                            margin-bottom: 4px;
-                        }
-                        
-                        .client-section {
-                            background-color: var(--secondary-color);
-                            padding: 8px;
-                            display: flex;
-                            justify-content: space-between;
-                            margin-bottom: 10px;
-                            font-size: 11px;
-                        }
-                        
-                        .client-info, .quote-info {
-                            flex: 1;
-                        }
-                        
-                        .subtitle {
-                            font-weight: 700;
-                            color: var(--primary-color);
-                            font-size: 11px;
-                            margin-bottom: 4px;
-                        }
-                        
-                        table {
-                            width: 100%;
-                            border-collapse: collapse;
-                            font-size: 10px;
-                            table-layout: fixed;
-                        }
-                        
-                        th {
-                            background-color: var(--primary-color);
-                            color: white;
-                            font-weight: 500;
-                            text-align: left;
-                            padding: 5px 3px;
-                        }
-                        
-                        td {
-                            padding: 4px 3px;
-                            border-bottom: 1px solid #eee;
-                            vertical-align: top;
-                        }
-                        
-                        tr:nth-child(even) {
-                            background-color: #f9f9f9;
-                        }
-                        
-                        /* Estilos específicos para a tabela simples */
-                        .simple-table th.num {
-                            width: 5%;
-                            text-align: center;
-                        }
-                        
-                        .simple-table th.dim {
-                            width: 30%;
-                        }
-                        
-                        .simple-table th.qty {
-                            width: 12%;
-                        }
-                        
-                        .simple-table th.vol {
-                            width: 15%;
-                        }
-                        
-                        .simple-table th.species {
-                            width: 23%;
-                        }
-                        
-                        .simple-table th.total {
-                            width: 15%;
-                            text-align: right;
-                        }
-                        
-                        .simple-table td.total {
-                            text-align: right;
-                            padding-right: 8px;
-                        }
-                        
-                        /* Estilos para o rodapé de totais */
-                        .totals-footer {
-                            margin-top: 20px;
-                            background-color: #f9f9f9;
-                            border: 1px solid #eaeaea;
-                            border-radius: 8px;
-                            padding: 0;
-                            overflow: hidden;
-                        }
-                        
-                        .totals-table {
-                            width: 100%;
-                            border-collapse: collapse;
-                        }
-                        
-                        .totals-table tr td {
-                            padding: 10px 20px;
-                            border-bottom: 1px solid #eee;
-                        }
-                        
-                        .totals-table tr:last-child td {
-                            border-bottom: none;
-                            background-color: #f0f0f0;
-                            color: #8B0000;
-                            font-size: 16px;
-                            font-weight: 700;
-                        }
-                        
-                        .totals-label {
-                            text-align: left;
-                            font-weight: 500;
-                        }
-                        
-                        .totals-value {
-                            text-align: right;
-                            font-weight: 700;
-                        }
-                        
-                        .summary-heading {
-                            font-size: 12px;
-                            font-weight: 700;
-                            margin: 15px 0 5px 0;
-                            color: var(--primary-color);
-                            border-bottom: 1px solid var(--border-color);
-                            padding-bottom: 3px;
-                        }
-                        
-                        .species-cards {
-                            display: flex;
-                            flex-wrap: wrap;
-                            gap: 20px;
-                            margin-bottom: 20px;
-                        }
-                        
-                        .species-card {
-                            flex: 1;
-                            min-width: 300px;
-                            background-color: #f9f9f9;
-                            border-radius: 8px;
-                            padding: 15px;
-                            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-                            border: 1px solid #eaeaea;
-                        }
-                        
-                        .species-title {
-                            font-weight: bold;
-                            color: var(--primary-color);
-                            padding-bottom: 5px;
-                            margin-bottom: 10px;
-                            border-bottom: 1px solid #ddd;
-                        }
-                        
-                        .dimension-table {
-                            width: 100%;
-                            border-collapse: collapse;
-                        }
-                        
-                        .dimension-table td {
-                            padding: 2px 0;
-                            border: none;
-                        }
-                        
-                        .dimension-col-1 {
-                            width: 50%;
-                            text-align: left;
-                        }
-                        
-                        .dimension-col-2 {
-                            width: 25%;
-                            text-align: right;
-                        }
-                        
-                        .dimension-col-3 {
-                            width: 25%;
-                            text-align: right;
-                        }
-                        
-                        .species-total {
-                            margin-top: 10px;
-                            padding-top: 5px;
-                            border-top: 1px solid #ddd;
-                            font-weight: bold;
-                            text-align: right;
-                        }
-                        
-                        .footer {
-                            margin-top: 20px;
-                            font-size: 10px;
-                            color: #666;
-                            text-align: center;
-                        }
-                        
-                        .print-buttons {
-                            text-align: center;
-                            margin-top: 20px;
-                        }
-                        
-                        button {
-                            padding: 8px 15px;
-                            background-color: var(--primary-color);
-                            color: white;
-                            border: none;
-                            border-radius: 4px;
-                            cursor: pointer;
-                        }
-                        
-                        .status-badge {
-                            display: inline-block;
-                            padding: 2px 5px;
-                            background-color: var(--primary-color);
-                            color: white;
-                            border-radius: 3px;
-                            font-size: 9px;
-                            font-weight: 700;
-                        }
-                    </style>
-                </head>
-                <body>
-                    <div class="container">
-                        <div class="compact-header">
-                            <div class="logo-container">
-                                ${companyLogo ? `<img src="${companyLogo}" alt="Logo" class="logo">` : ''}
+            try {
+                console.log("Gerando PDF simples para orçamento:", id);
+                
+                const userId = localStorage.getItem('currentUserId');
+                if (!userId) {
+                    showFeedback('ID de usuário não encontrado', 'error');
+                    return;
+                }
+                
+                const quotes = JSON.parse(localStorage.getItem(`quotes_${userId}`) || '[]');
+                const quote = quotes.find(q => q.id === id);
+                
+                if (!quote) {
+                    showFeedback('Orçamento não encontrado', 'error');
+                    return;
+                }
+                
+                // Buscar dados do usuário e da empresa
+                const user = JSON.parse(localStorage.getItem('user') || '{}');
+                const companyName = user.company || 'Nome da Empresa';
+                const companyPhone = user.phone || 'Telefone não informado';
+                const companyAddress = user.address || 'Endereço não informado';
+                const companyEmail = user.email || 'Email não informado';
+                const companyCNPJ = user.cnpj || 'CNPJ não informado';
+                const companyLogo = localStorage.getItem('companyLogo') || '';
+                
+                // Formatar data
+                const issueDate = new Date(quote.date);
+                const formattedDate = issueDate.toLocaleDateString('pt-BR');
+                
+                // Calcular data de validade (15 dias a partir da data de emissão)
+                const validUntil = new Date(issueDate);
+                validUntil.setDate(validUntil.getDate() + 15);
+                const validUntilFormatted = validUntil.toLocaleDateString('pt-BR');
+                
+                // Gerar número de orçamento se não existir
+                const quoteNumber = quote.number || 'ORÇ-' + quote.id.substring(0, 6);
+                
+                // Preparar relatório condensado
+                const reportWindow = window.open('', '_blank');
+                const reportContent = `
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <title>Orçamento - ${quote.clientName}</title>
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                        <style>
+                            @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+                            
+                            :root {
+                                --primary-color: #8B0000;
+                                --secondary-color: #f5f5f5;
+                                --text-color: #333;
+                                --border-color: #ddd;
+                            }
+                            
+                            * {
+                                margin: 0;
+                                padding: 0;
+                                box-sizing: border-box;
+                            }
+                            
+                            body {
+                                font-family: 'Roboto', Arial, sans-serif;
+                                margin: 0;
+                                padding: 15px;
+                                color: var(--text-color);
+                                font-size: 12px;
+                                line-height: 1.4;
+                            }
+                            
+                            .container {
+                                max-width: 1000px;
+                                margin: 0 auto;
+                            }
+                            
+                            .compact-header {
+                                display: flex;
+                                justify-content: space-between;
+                                border-bottom: 1px solid var(--primary-color);
+                                padding-bottom: 8px;
+                                margin-bottom: 10px;
+                            }
+                            
+                            .logo-container {
+                                width: 120px;
+                            }
+                            
+                            .logo {
+                                max-width: 100%;
+                                max-height: 60px;
+                            }
+                            
+                            .company-info {
+                                flex: 1;
+                                padding-left: 15px;
+                            }
+                            
+                            .company-info h1 {
+                                font-size: 18px;
+                                color: var(--primary-color);
+                                margin-bottom: 4px;
+                            }
+                            
+                            .company-info p {
+                                margin: 0;
+                                font-size: 10px;
+                                line-height: 1.3;
+                            }
+                            
+                            .document-details {
+                                text-align: right;
+                                font-size: 10px;
+                            }
+                            
+                            .document-details h2 {
+                                font-size: 14px;
+                                color: var(--primary-color);
+                                margin-bottom: 4px;
+                            }
+                            
+                            .client-section {
+                                background-color: var(--secondary-color);
+                                padding: 8px;
+                                display: flex;
+                                justify-content: space-between;
+                                margin-bottom: 10px;
+                                font-size: 11px;
+                            }
+                            
+                            .client-info, .quote-info {
+                                flex: 1;
+                            }
+                            
+                            .subtitle {
+                                font-weight: 700;
+                                color: var(--primary-color);
+                                font-size: 11px;
+                                margin-bottom: 4px;
+                            }
+                            
+                            table {
+                                width: 100%;
+                                border-collapse: collapse;
+                                font-size: 10px;
+                            }
+                            
+                            th {
+                                background-color: var(--primary-color);
+                                color: white;
+                                font-weight: 500;
+                                text-align: left;
+                                padding: 5px 3px;
+                            }
+                            
+                            td {
+                                padding: 4px 3px;
+                                border-bottom: 1px solid #eee;
+                                vertical-align: top;
+                            }
+                            
+                            tr:nth-child(even) {
+                                background-color: #f9f9f9;
+                            }
+                            
+                            .narrow {
+                                width: 35px;
+                                text-align: center;
+                            }
+                            
+                            .text-right {
+                                text-align: right;
+                            }
+                            
+                            .totals {
+                                display: flex;
+                                justify-content: flex-end;
+                                margin-top: 10px;
+                                font-weight: 700;
+                            }
+                            
+                            .totals div {
+                                margin-left: 20px;
+                            }
+                            
+                            .summary-heading {
+                                font-size: 12px;
+                                font-weight: 700;
+                                margin: 15px 0 5px 0;
+                                color: var(--primary-color);
+                                border-bottom: 1px solid var(--border-color);
+                                padding-bottom: 3px;
+                            }
+                            
+                            .summary-container {
+                                display: flex;
+                                flex-wrap: wrap;
+                                gap: 10px;
+                            }
+                            
+                            .summary-item {
+                                background-color: #f5f5f5;
+                                padding: 4px 8px;
+                                border-radius: 4px;
+                                white-space: nowrap;
+                                font-size: 11px;
+                            }
+                            
+                            .footer {
+                                margin-top: 20px;
+                                font-size: 10px;
+                                color: #666;
+                                text-align: center;
+                            }
+                            
+                            .print-buttons {
+                                text-align: center;
+                                margin-top: 20px;
+                            }
+                            
+                            button {
+                                padding: 8px 15px;
+                                background-color: var(--primary-color);
+                                color: white;
+                                border: none;
+                                border-radius: 4px;
+                                cursor: pointer;
+                            }
+                            
+                            .status-badge {
+                                display: inline-block;
+                                padding: 2px 5px;
+                                background-color: var(--primary-color);
+                                color: white;
+                                border-radius: 3px;
+                                font-size: 9px;
+                                font-weight: 700;
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="container">
+                            <div class="compact-header">
+                                <div class="logo-container">
+                                    ${companyLogo ? `<img src="${companyLogo}" alt="Logo" class="logo">` : ''}
+                                </div>
+                                <div class="company-info">
+                                    <h1>${companyName}</h1>
+                                    <p>${companyAddress}</p>
+                                    <p>Tel: ${companyPhone} | Email: ${companyEmail}</p>
+                                    <p>CNPJ: ${companyCNPJ}</p>
+                                </div>
+                                <div class="document-details">
+                                    <h2>ORÇAMENTO <span class="status-badge">ATIVO</span></h2>
+                                    <p><strong>Nº:</strong> ${quoteNumber}</p>
+                                    <p><strong>Data:</strong> ${formattedDate}</p>
+                                    <p><strong>Validade:</strong> ${validUntilFormatted}</p>
+                                </div>
                             </div>
-                            <div class="company-info">
-                                <h1>${companyName}</h1>
-                                <p>${companyAddress}</p>
-                                <p>Tel: ${companyPhone} | Email: ${companyEmail}</p>
-                                <p>CNPJ: ${companyCNPJ}</p>
+                            
+                            <div class="client-section">
+                                <div class="client-info">
+                                    <div class="subtitle">CLIENTE</div>
+                                    <p><strong>Nome:</strong> ${quote.clientName}</p>
+                                    ${quote.clientContact ? `<p><strong>Contato:</strong> ${quote.clientContact}</p>` : ''}
+                                </div>
+                                <div class="quote-info">
+                                    <div class="subtitle">CONDIÇÕES</div>
+                                    <p><strong>Pagamento:</strong> 50% entrada, 50% na entrega</p>
+                                    <p><strong>Entrega:</strong> 5-7 dias após confirmação</p>
+                                </div>
                             </div>
-                            <div class="document-details">
-                                <h2>ORÇAMENTO <span class="status-badge">ATIVO</span></h2>
-                                <p><strong>Nº:</strong> ${quoteNumber}</p>
-                                <p><strong>Data:</strong> ${formattedDate}</p>
-                                <p><strong>Validade:</strong> ${validUntilFormatted}</p>
-                            </div>
-                        </div>
-                        
-                        <div class="client-section">
-                            <div class="client-info">
-                                <div class="subtitle">CLIENTE</div>
-                                <p><strong>Nome:</strong> ${quote.clientName}</p>
-                                ${quote.clientContact ? `<p><strong>Contato:</strong> ${quote.clientContact}</p>` : ''}
-                            </div>
-                            <div class="quote-info">
-                                <div class="subtitle">CONDIÇÕES</div>
-                                <p><strong>Pagamento:</strong> 50% entrada, 50% na entrega</p>
-                                <p><strong>Entrega:</strong> 5-7 dias após confirmação</p>
-                            </div>
-                        </div>
 
-                        <table class="simple-table">
-                            <thead>
-                                <tr>
-                                    <th class="num">Nº</th>
-                                    <th class="dim">Dimensões</th>
-                                    <th class="qty">Qtd</th>
-                                    <th class="vol">Volume</th>
-                                    <th class="species">Espécie</th>
-                                    <th class="total">Total</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${quote.items.map((item, index) => {
-                                    // Extrair informações do item
-                                    let sizeText = item.size;
-                                    // Formatar dimensões com X maiúsculo
-                                    if (sizeText.includes('x')) {
-                                        const parts = sizeText.split('x');
-                                        sizeText = parts.join(' X ');
-                                    }
-                                    
-                                    const packageQuantity = parseInt(item.packageQuantity || 1);
-                                    const quantity = item.quantity;
-                                    const volume = item.volume;
-                                    const priceText = item.price;
-                                    
-                                    // Calcular quantidade total de peças
-                                    const totalQuantity = packageQuantity > 1 ? parseInt(quantity) * packageQuantity : quantity;
-                                    
-                                    // Calcular preço unitário aproximado (preço total dividido pelo volume)
-                                    // Isso pode não ser 100% preciso dependendo de como os valores foram armazenados
-                                    const totalPrice = parseFloat(priceText.replace(/[^0-9,.]/g, '').replace('.', '').replace(',', '.'));
-                                    const volumeValue = parseFloat(volume.replace(/[^0-9,.]/g, '').replace(',', '.'));
-                                    const unitPrice = volumeValue ? totalPrice / volumeValue : 0;
-                                    
-                                    // Determinar formato de exibição para quantidade
-                                    let quantityDisplay = quantity;
-                                    if (packageQuantity > 1) {
-                                        quantityDisplay = `${quantity}×${packageQuantity}`;
-                                    }
-                                    
-                                    return `
+                            <table class="simple-table">
+                                <thead>
                                     <tr>
-                                        <td class="num">${index + 1}</td>
-                                        <td class="dim">${sizeText}</td>
-                                        <td class="qty">${quantityDisplay}</td>
-                                        <td class="vol">${volume}</td>
-                                        <td class="species">${item.species || 'Não informado'}</td>
-                                        <td class="total">${priceText}</td>
+                                        <th class="num">Nº</th>
+                                        <th class="dim">Dimensões</th>
+                                        <th class="qty">Qtd</th>
+                                        <th class="vol">Volume</th>
+                                        <th class="species">Espécie</th>
+                                        <th class="total">Total</th>
                                     </tr>
-                                    `;
-                                }).join('')}
-                            </tbody>
-                        </table>
-
-                        <div class="totals-footer">
-                            <table class="totals-table">
-                                <tr>
-                                    <td class="totals-label">Volume Total</td>
-                                    <td class="totals-value">${quote.totalVolume}</td>
-                                </tr>
-                                <tr>
-                                    <td class="totals-label">Valor Total</td>
-                                    <td class="totals-value">${quote.totalPrice}</td>
-                                </tr>
-                            </table>
-                        </div>
-                        
-                        <div class="summary-heading">Resumo por dimensões</div>
-                        <div class="summary-container">
-                            ${(() => {
-                                // Criar resumo agrupado por espécies (primeiro) e dimensões (segundo)
-                                const speciesMap = new Map();
-                                
-                                quote.items.forEach(item => {
-                                    // Obter e formatar dimensões com X maiúsculo
-                                    let size = item.size;
-                                    if (size.includes('x')) {
-                                        const parts = size.split('x');
-                                        size = parts.join(' X ');
-                                    }
-                                    
-                                    // Calcular quantidade total de peças por item
-                                    const packageQuantity = parseInt(item.packageQuantity || 1);
-                                    const quantity = parseInt(item.quantity);
-                                    const totalQuantity = packageQuantity > 1 ? quantity * packageQuantity : quantity;
-                                    
-                                    // Calcular volume sem a unidade "m³"
-                                    const volumeText = item.volume;
-                                    const volumeValue = parseFloat(volumeText.replace(/[^0-9,.]/g, '').replace(',', '.'));
-                                    
-                                    // Obter a espécie, se não tiver usar "Sem Espécie"
-                                    const species = item.species || "Sem Espécie";
-                                    
-                                    // Se a espécie não existe no mapa, criar
-                                    if (!speciesMap.has(species)) {
-                                        speciesMap.set(species, new Map());
-                                    }
-                                    
-                                    // Obter o mapa de dimensões para esta espécie
-                                    const dimensionMap = speciesMap.get(species);
-                                    
-                                    // Adicionar ou atualizar informações da dimensão
-                                    if (dimensionMap.has(size)) {
-                                        const existing = dimensionMap.get(size);
-                                        existing.quantity += totalQuantity;
-                                        existing.volume += volumeValue;
-                                    } else {
-                                        dimensionMap.set(size, {
-                                            quantity: totalQuantity,
-                                            volume: volumeValue
-                                        });
-                                    }
-                                });
-                                
-                                return `<div class="species-cards">
-                                    ${Array.from(speciesMap.entries()).map(([species, dimensionMap]) => {
-                                        // Somar o volume total da espécie
-                                        let speciesVolume = 0;
-                                        Array.from(dimensionMap.values()).forEach(data => {
-                                            speciesVolume += data.volume;
-                                        });
+                                </thead>
+                                <tbody>
+                                    ${quote.items.map((item, index) => {
+                                        let sizeText = item.size;
+                                        if (sizeText.includes('x')) {
+                                            const parts = sizeText.split('x');
+                                            sizeText = parts.join(' X ');
+                                        }
+                                        
+                                        const packageQuantity = parseInt(item.packageQuantity || 1);
+                                        const quantity = item.quantity;
+                                        const volume = item.volume;
+                                        const priceText = item.price;
+                                        
+                                        const totalQuantity = packageQuantity > 1 ? parseInt(quantity) * packageQuantity : quantity;
+                                        
+                                        let quantityDisplay = quantity;
+                                        if (packageQuantity > 1) {
+                                            quantityDisplay = `${quantity}×${packageQuantity}`;
+                                        }
                                         
                                         return `
-                                        <div class="species-card">
-                                            <div class="species-title">Resumo: ${species}</div>
-                                            <table class="dimension-table">
-                                                ${Array.from(dimensionMap.entries()).map(([size, data]) => `
-                                                <tr>
-                                                    <td class="dimension-col-1">${size}</td>
-                                                    <td class="dimension-col-2">${data.quantity} PEÇAS</td>
-                                                    <td class="dimension-col-3">${data.volume.toFixed(3).replace('.', ',')}m³</td>
-                                                </tr>
-                                                `).join('')}
-                                                <tr>
-                                                    <td colspan="3" class="species-total">TOTAL: ${speciesVolume.toFixed(3).replace('.', ',')}m³</td>
-                                                </tr>
-                                            </table>
-                                        </div>
+                                        <tr>
+                                            <td class="num">${index + 1}</td>
+                                            <td class="dim">${sizeText}</td>
+                                            <td class="qty">${quantityDisplay}</td>
+                                            <td class="vol">${volume}</td>
+                                            <td class="species">${item.species || 'Não informado'}</td>
+                                            <td class="total">${priceText}</td>
+                                        </tr>
                                         `;
                                     }).join('')}
-                                </div>`;
-                            })()}
+                                </tbody>
+                            </table>
+
+                            <div class="totals-footer">
+                                <table class="totals-table">
+                                    <tr>
+                                        <td class="totals-label">Volume Total</td>
+                                        <td class="totals-value">${quote.totalVolume}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="totals-label">Valor Total</td>
+                                        <td class="totals-value">${quote.totalPrice}</td>
+                                    </tr>
+                                </table>
+                            </div>
+                            
+                            <div class="footer">
+                                <p>Agradecemos sua preferência! Para mais informações: ${companyPhone}</p>
+                                <p>Este documento não possui valor fiscal - Gerado em ${new Date().toLocaleString()}</p>
+                            </div>
+                            
+                            <div class="print-buttons">
+                                <button onclick="window.print()">Imprimir Orçamento</button>
+                                <button onclick="window.close()" style="margin-left: 10px; background-color: #333;">Fechar</button>
+                            </div>
                         </div>
-                        
-                        <div class="footer">
-                            <p>Agradecemos sua preferência! Para mais informações: ${companyPhone}</p>
-                            <p>Este documento não possui valor fiscal - Gerado em ${new Date().toLocaleString()}</p>
-                        </div>
-                        
-                        <div class="print-buttons">
-                            <button onclick="window.print()">Imprimir Orçamento</button>
-                            <button onclick="window.close()" style="margin-left: 10px; background-color: #333;">Fechar</button>
-                        </div>
-                    </div>
-                </body>
-                </html>
-            `;
-            
-            reportWindow.document.write(reportContent);
-            reportWindow.document.close();
+                    </body>
+                    </html>
+                `;
+                
+                reportWindow.document.write(reportContent);
+                reportWindow.document.close();
+            } catch (error) {
+                console.error("Erro ao gerar PDF simples:", error);
+                showFeedback('Erro ao gerar o PDF', 'error');
+                return;
+            }
         }
 
         // Mostrar feedback
