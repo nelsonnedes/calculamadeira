@@ -1,132 +1,94 @@
-const CACHE_NAME = 'calc-madeira-v2.1.0';
+const CACHE_NAME = 'calculadora-madeira-v2.0.0';
 const urlsToCache = [
     '/',
     '/index.html',
     '/calc.html',
-    '/perfil.html',
     '/orcamentos.html',
-    '/planos.html',
+    '/perfil.html',
     '/configuracoes.html',
-    '/notificacoes.html',
-    '/ajuda.html',
     '/styles.css',
-    '/auth.js',
-    '/pwa-updater.js',
-    '/update-checker.js',
     '/manifest.json',
     '/icons/icon-192x192.png',
-    '/icons/icon-512x512.png',
-    '/logo.png'
+    '/icons/icon-512x512.png'
 ];
 
 self.addEventListener('install', event => {
-    console.log('Service Worker: Instalando versão', CACHE_NAME);
+    console.log('Service Worker: Instalando...');
     event.waitUntil(
         caches.open(CACHE_NAME)
             .then(cache => {
                 console.log('Service Worker: Cache aberto');
                 return cache.addAll(urlsToCache);
             })
-            .then(() => {
-                console.log('Service Worker: Pulando espera para ativação imediata');
-                return self.skipWaiting();
-            })
-            .catch(error => {
-                console.error('Service Worker: Erro durante instalação:', error);
-            })
     );
 });
 
 self.addEventListener('activate', event => {
-    console.log('Service Worker: Ativando versão', CACHE_NAME);
+    console.log('Service Worker: Ativando...');
     event.waitUntil(
         caches.keys().then(cacheNames => {
             return Promise.all(
                 cacheNames.map(cacheName => {
-                    if (cacheName !== CACHE_NAME && cacheName.startsWith('calc-madeira-')) {
-                        console.log('Service Worker: Removendo cache antigo', cacheName);
+                    if (cacheName !== CACHE_NAME) {
+                        console.log('Service Worker: Removendo cache antigo:', cacheName);
                         return caches.delete(cacheName);
                     }
                 })
             );
-        }).then(() => {
-            console.log('Service Worker: Assumindo controle de todas as abas');
-            return self.clients.claim();
-        }).then(() => {
-            return self.clients.matchAll().then(clients => {
-                clients.forEach(client => {
-                    client.postMessage({
-                        type: 'SW_UPDATED',
-                        version: CACHE_NAME
-                    });
-                });
-            });
         })
     );
 });
 
 self.addEventListener('fetch', event => {
-    // Estratégia Network First para HTML (sempre buscar versão mais recente)
-    if (event.request.mode === 'navigate' || event.request.destination === 'document') {
-        event.respondWith(
-            fetch(event.request)
-                .then(response => {
-                    // Se conseguiu buscar online, atualizar cache
-                    if (response.status === 200) {
-                        const responseClone = response.clone();
-                        caches.open(CACHE_NAME)
-                            .then(cache => {
-                                cache.put(event.request, responseClone);
-                            });
-                    }
-                    return response;
-                })
-                .catch(() => {
-                    // Se offline, usar cache
-                    return caches.match(event.request);
-                })
-        );
+    // Filtrar URLs problemáticas
+    const url = event.request.url;
+    
+    // Ignorar URLs de chrome-extension e outros protocolos não suportados
+    if (url.startsWith('chrome-extension://') || 
+        url.startsWith('chrome://') ||
+        url.startsWith('moz-extension://') ||
+        url.startsWith('safari-extension://') ||
+        url.startsWith('edge-extension://')) {
         return;
     }
-
-    // Estratégia Cache First para outros recursos
+    
+    // Ignorar requests que não são GET
+    if (event.request.method !== 'GET') {
+        return;
+    }
+    
     event.respondWith(
         caches.match(event.request)
             .then(response => {
                 if (response) {
-                    // Buscar atualização em background
-                    fetch(event.request)
-                        .then(fetchResponse => {
-                            if (fetchResponse && fetchResponse.status === 200) {
-                                const responseToCache = fetchResponse.clone();
-                                caches.open(CACHE_NAME)
-                                    .then(cache => {
-                                        cache.put(event.request, responseToCache);
-                                    });
-                            }
-                        })
-                        .catch(() => {
-                            // Ignorar erros de rede
-                        });
-                    
+                    console.log('Service Worker: Servindo do cache:', event.request.url);
                     return response;
                 }
                 
-                // Se não está em cache, buscar online
-                return fetch(event.request)
-                    .then(response => {
-                        if (!response || response.status !== 200 || response.type !== 'basic') {
-                            return response;
-                        }
-                        
-                        const responseToCache = response.clone();
-                        caches.open(CACHE_NAME)
-                            .then(cache => {
-                                cache.put(event.request, responseToCache);
-                            });
-                        
+                console.log('Service Worker: Buscando da rede:', event.request.url);
+                return fetch(event.request).then(response => {
+                    if (!response || response.status !== 200 || response.type !== 'basic') {
                         return response;
-                    });
+                    }
+                    
+                    const responseToCache = response.clone();
+                    caches.open(CACHE_NAME)
+                        .then(cache => {
+                            // Verificar novamente se a URL é cacheable
+                            if (!event.request.url.startsWith('chrome-extension://') &&
+                                !event.request.url.startsWith('chrome://') &&
+                                !event.request.url.startsWith('moz-extension://') &&
+                                !event.request.url.startsWith('safari-extension://') &&
+                                !event.request.url.startsWith('edge-extension://')) {
+                                cache.put(event.request, responseToCache);
+                            }
+                        })
+                        .catch(error => {
+                            console.log('Service Worker: Erro ao cachear:', error);
+                        });
+                    
+                    return response;
+                });
             })
     );
 });
