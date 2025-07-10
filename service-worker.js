@@ -1,4 +1,4 @@
-const CACHE_NAME = 'calc-madeira-v2.0.0';
+const CACHE_NAME = 'calc-madeira-v2.1.0';
 const urlsToCache = [
     '/',
     '/index.html',
@@ -11,9 +11,11 @@ const urlsToCache = [
     '/ajuda.html',
     '/styles.css',
     '/auth.js',
+    '/pwa-updater.js',
+    '/update-checker.js',
     '/manifest.json',
-    '/icon-192x192.png',
-    '/icon-512x512.png',
+    '/icons/icon-192x192.png',
+    '/icons/icon-512x512.png',
     '/logo.png'
 ];
 
@@ -26,7 +28,11 @@ self.addEventListener('install', event => {
                 return cache.addAll(urlsToCache);
             })
             .then(() => {
+                console.log('Service Worker: Pulando espera para ativação imediata');
                 return self.skipWaiting();
+            })
+            .catch(error => {
+                console.error('Service Worker: Erro durante instalação:', error);
             })
     );
 });
@@ -37,13 +43,14 @@ self.addEventListener('activate', event => {
         caches.keys().then(cacheNames => {
             return Promise.all(
                 cacheNames.map(cacheName => {
-                    if (cacheName !== CACHE_NAME) {
+                    if (cacheName !== CACHE_NAME && cacheName.startsWith('calc-madeira-')) {
                         console.log('Service Worker: Removendo cache antigo', cacheName);
                         return caches.delete(cacheName);
                     }
                 })
             );
         }).then(() => {
+            console.log('Service Worker: Assumindo controle de todas as abas');
             return self.clients.claim();
         }).then(() => {
             return self.clients.matchAll().then(clients => {
@@ -59,28 +66,35 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
-    if (event.request.mode === 'navigate') {
+    // Estratégia Network First para HTML (sempre buscar versão mais recente)
+    if (event.request.mode === 'navigate' || event.request.destination === 'document') {
         event.respondWith(
             fetch(event.request)
                 .then(response => {
-                    const responseClone = response.clone();
-                    caches.open(CACHE_NAME)
-                        .then(cache => {
-                            cache.put(event.request, responseClone);
-                        });
+                    // Se conseguiu buscar online, atualizar cache
+                    if (response.status === 200) {
+                        const responseClone = response.clone();
+                        caches.open(CACHE_NAME)
+                            .then(cache => {
+                                cache.put(event.request, responseClone);
+                            });
+                    }
                     return response;
                 })
                 .catch(() => {
+                    // Se offline, usar cache
                     return caches.match(event.request);
                 })
         );
         return;
     }
 
+    // Estratégia Cache First para outros recursos
     event.respondWith(
         caches.match(event.request)
             .then(response => {
                 if (response) {
+                    // Buscar atualização em background
                     fetch(event.request)
                         .then(fetchResponse => {
                             if (fetchResponse && fetchResponse.status === 200) {
@@ -92,11 +106,13 @@ self.addEventListener('fetch', event => {
                             }
                         })
                         .catch(() => {
+                            // Ignorar erros de rede
                         });
                     
                     return response;
                 }
                 
+                // Se não está em cache, buscar online
                 return fetch(event.request)
                     .then(response => {
                         if (!response || response.status !== 200 || response.type !== 'basic') {
@@ -116,16 +132,27 @@ self.addEventListener('fetch', event => {
 });
 
 self.addEventListener('message', event => {
+    console.log('Service Worker: Mensagem recebida:', event.data);
+    
     if (event.data && event.data.type === 'CHECK_UPDATE') {
         console.log('Service Worker: Verificando atualizações...');
         event.ports[0].postMessage({
             type: 'UPDATE_CHECK_COMPLETE',
-            hasUpdate: true
+            hasUpdate: true,
+            version: CACHE_NAME
         });
     }
     
     if (event.data && event.data.type === 'SKIP_WAITING') {
+        console.log('Service Worker: Pulando espera e assumindo controle');
         self.skipWaiting();
+    }
+    
+    if (event.data && event.data.type === 'GET_VERSION') {
+        event.ports[0].postMessage({
+            type: 'VERSION_RESPONSE',
+            version: CACHE_NAME
+        });
     }
 });
 
@@ -150,8 +177,8 @@ self.addEventListener('push', event => {
             event.waitUntil(
                 self.registration.showNotification('Calculadora de Madeira', {
                     body: 'Nova atualização disponível!',
-                    icon: '/icon-192x192.png',
-                    badge: '/icon-192x192.png',
+                    icon: '/icons/icon-192x192.png',
+                    badge: '/icons/icon-192x192.png',
                     tag: 'update',
                     requireInteraction: true,
                     actions: [
@@ -187,4 +214,15 @@ self.addEventListener('notificationclick', event => {
             })
         );
     }
-}); 
+});
+
+// Forçar verificação de atualização periodicamente
+setInterval(() => {
+    self.clients.matchAll().then(clients => {
+        clients.forEach(client => {
+            client.postMessage({
+                type: 'CHECK_UPDATE_AVAILABLE'
+            });
+        });
+    });
+}, 60000); // A cada minuto 

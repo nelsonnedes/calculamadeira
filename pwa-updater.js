@@ -1,7 +1,7 @@
 /**
  * PWA Auto-Updater
  * Sistema de verificação e atualização automática para PWA
- * Versão: 1.0.0
+ * Versão: 1.1.0
  */
 
 class PWAUpdater {
@@ -12,17 +12,21 @@ class PWAUpdater {
         this.lastUpdateCheck = Date.now();
         this.isOnline = navigator.onLine;
         this.updateAvailable = false;
+        this.currentVersion = '2.1.0'; // Incrementar versão para forçar update
         
         this.init();
     }
 
     async init() {
-        console.log('PWA Updater: Inicializando...');
+        console.log('PWA Updater: Inicializando versão', this.currentVersion);
         
         // Registrar Service Worker se disponível
         if ('serviceWorker' in navigator) {
             try {
-                this.registration = await navigator.serviceWorker.register('./service-worker.js');
+                // Forçar atualização do service worker
+                this.registration = await navigator.serviceWorker.register('./service-worker.js', {
+                    updateViaCache: 'none' // Sempre buscar nova versão
+                });
                 console.log('PWA Updater: Service Worker registrado com sucesso');
                 
                 // Configurar listeners
@@ -31,7 +35,7 @@ class PWAUpdater {
                 this.setupVisibilityListeners();
                 
                 // Verificar atualizações imediatamente
-                this.checkForUpdates();
+                await this.checkForUpdates();
                 
                 // Configurar verificação periódica
                 this.startPeriodicUpdateCheck();
@@ -54,10 +58,14 @@ class PWAUpdater {
             
             if (newWorker) {
                 newWorker.addEventListener('statechange', () => {
-                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                        console.log('PWA Updater: Nova versão instalada');
-                        this.updateAvailable = true;
-                        this.showUpdateNotification();
+                    if (newWorker.state === 'installed') {
+                        if (navigator.serviceWorker.controller) {
+                            console.log('PWA Updater: Nova versão instalada, mostrando notificação');
+                            this.updateAvailable = true;
+                            this.showUpdateNotification();
+                        } else {
+                            console.log('PWA Updater: Primeira instalação do Service Worker');
+                        }
                     }
                 });
             }
@@ -74,6 +82,13 @@ class PWAUpdater {
             this.updateAvailable = true;
             this.showUpdateNotification();
         }
+
+        // Listener para controle do service worker
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+            console.log('PWA Updater: Service Worker controller mudou');
+            // Recarregar a página quando o novo service worker assumir controle
+            window.location.reload();
+        });
     }
 
     setupNetworkListeners() {
@@ -112,6 +127,14 @@ class PWAUpdater {
                 }
             }
         });
+
+        // Verificar atualizações quando o app é aberto (mobile)
+        window.addEventListener('pageshow', (event) => {
+            if (event.persisted && this.isOnline) {
+                console.log('PWA Updater: Página restaurada do cache, verificando atualizações');
+                this.checkForUpdates();
+            }
+        });
     }
 
     startPeriodicUpdateCheck() {
@@ -141,17 +164,28 @@ class PWAUpdater {
             // Verificar se o service worker está em estado válido
             if (this.registration.installing || this.registration.waiting) {
                 console.log('PWA Updater: Service worker já está sendo atualizado');
+                if (this.registration.waiting) {
+                    this.updateAvailable = true;
+                    this.showUpdateNotification();
+                }
                 return;
             }
             
-            // Forçar verificação de atualização apenas se o service worker estiver ativo
-            if (this.registration.active) {
-                await this.registration.update();
+            // Forçar verificação de atualização
+            await this.registration.update();
+            
+            // Verificar versão do cache
+            const storedVersion = localStorage.getItem('app-version');
+            if (storedVersion !== this.currentVersion) {
+                console.log('PWA Updater: Nova versão detectada:', this.currentVersion, 'vs', storedVersion);
+                this.updateAvailable = true;
+                this.showUpdateNotification();
+                return;
             }
             
             // Verificar se há cache antigo
             const cacheNames = await caches.keys();
-            const currentCacheName = 'calc-madeira-v2.0.0';
+            const currentCacheName = `calc-madeira-v${this.currentVersion}`;
             const hasOldCache = cacheNames.some(name => name !== currentCacheName && name.startsWith('calc-madeira-'));
             
             if (hasOldCache) {
@@ -173,7 +207,7 @@ class PWAUpdater {
     async clearOldCaches() {
         try {
             const cacheNames = await caches.keys();
-            const currentCacheName = 'calc-madeira-v2.0.0';
+            const currentCacheName = `calc-madeira-v${this.currentVersion}`;
             
             const deletePromises = cacheNames
                 .filter(name => name !== currentCacheName && name.startsWith('calc-madeira-'))
@@ -270,6 +304,9 @@ class PWAUpdater {
             
             // Mostrar indicador de carregamento
             this.showLoadingIndicator();
+            
+            // Atualizar versão no localStorage
+            localStorage.setItem('app-version', this.currentVersion);
             
             // Limpar todos os caches
             await this.clearAllCaches();
