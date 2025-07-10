@@ -479,9 +479,51 @@
     </div>
 
     <script>
-        // Verificar autenticação
-        const user = JSON.parse(localStorage.getItem('user') || '{}');
-        if (!user.email) {
+        // Verificar autenticação e sincronizar IDs
+        function checkAuthAndSyncIds() {
+            try {
+                // Verificar se há um usuário logado no sistema de autenticação
+                const users = JSON.parse(localStorage.getItem('calc_madeira_auth') || '[]');
+                const loggedUser = users.find(u => u.isLoggedIn);
+                
+                if (loggedUser) {
+                    // Sincronizar currentUserId com o sistema de autenticação
+                    const currentUserId = localStorage.getItem('currentUserId');
+                    if (!currentUserId || currentUserId !== loggedUser.id) {
+                        console.log("Sincronizando currentUserId:", loggedUser.id);
+                        localStorage.setItem('currentUserId', loggedUser.id);
+                    }
+                    
+                    // Sincronizar dados do usuário
+                    const userData = {
+                        id: loggedUser.id,
+                        email: loggedUser.email,
+                        name: loggedUser.name
+                    };
+                    localStorage.setItem('user', JSON.stringify(userData));
+                    localStorage.setItem('isLoggedIn', 'true');
+                    
+                    return true;
+                } else {
+                    // Verificar sistema legado
+                    const isLoggedIn = localStorage.getItem('isLoggedIn');
+                    const user = JSON.parse(localStorage.getItem('user') || '{}');
+                    
+                    if (isLoggedIn === 'true' && user.email) {
+                        console.log("Usuário logado pelo sistema legado");
+                        return true;
+                    }
+                }
+                
+                return false;
+            } catch (error) {
+                console.error("Erro ao verificar autenticação:", error);
+                return false;
+            }
+        }
+
+        // Verificar autenticação na inicialização
+        if (!checkAuthAndSyncIds()) {
             window.location.href = 'index.html';
         }
 
@@ -530,16 +572,43 @@
             try {
                 console.log("Carregando orçamentos...");
                 
-                const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
-                const userId = currentUser.email;
+                // Usar o mesmo sistema de identificação que o calc.html
+                let userId = localStorage.getItem('currentUserId');
                 
+                // Se não houver currentUserId, tentar usar user.email como fallback
                 if (!userId) {
-                    console.warn("ID de usuário não encontrado");
-                    showEmptyState();
-                    return;
+                    const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+                    userId = currentUser.email;
+                    
+                    // Se ainda não houver userId, criar um temporário
+                    if (!userId) {
+                        console.warn("ID de usuário não encontrado");
+                        showEmptyState();
+                        return;
+                    }
                 }
                 
-                const storedQuotes = localStorage.getItem(`quotes_${userId}`);
+                console.log("Usando userId:", userId);
+                
+                // Tentar carregar orçamentos com currentUserId primeiro
+                let storedQuotes = localStorage.getItem(`quotes_${userId}`);
+                
+                // Se não encontrar com currentUserId, tentar com user.email como fallback
+                if (!storedQuotes) {
+                    const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+                    if (currentUser.email && currentUser.email !== userId) {
+                        console.log("Tentando carregar com email:", currentUser.email);
+                        storedQuotes = localStorage.getItem(`quotes_${currentUser.email}`);
+                        
+                        // Se encontrar orçamentos com email, migrar para currentUserId
+                        if (storedQuotes) {
+                            console.log("Migrando orçamentos do email para currentUserId");
+                            localStorage.setItem(`quotes_${userId}`, storedQuotes);
+                            // Manter o original por segurança
+                        }
+                    }
+                }
+                
                 if (!storedQuotes) {
                     console.warn("Nenhum orçamento encontrado para o usuário:", userId);
                     showEmptyState();
@@ -680,8 +749,20 @@
         function deleteQuote(id) {
             if (confirm('Tem certeza que deseja excluir este orçamento?')) {
                 try {
-                    const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
-                    const userId = currentUser.email;
+                    // Usar o mesmo sistema de identificação que o calc.html
+                    let userId = localStorage.getItem('currentUserId');
+                    
+                    // Se não houver currentUserId, tentar usar user.email como fallback
+                    if (!userId) {
+                        const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+                        userId = currentUser.email;
+                    }
+                    
+                    if (!userId) {
+                        console.error("ID de usuário não encontrado para exclusão");
+                        showFeedback('Erro: usuário não identificado', 'error');
+                        return;
+                    }
                     
                     let quotes = JSON.parse(localStorage.getItem(`quotes_${userId}`) || '[]');
                     quotes = quotes.filter(quote => quote.id !== id);
