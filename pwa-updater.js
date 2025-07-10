@@ -22,7 +22,7 @@ class PWAUpdater {
         // Registrar Service Worker se disponível
         if ('serviceWorker' in navigator) {
             try {
-                this.registration = await navigator.serviceWorker.register('/service-worker.js');
+                this.registration = await navigator.serviceWorker.register('./service-worker.js');
                 console.log('PWA Updater: Service Worker registrado com sucesso');
                 
                 // Configurar listeners
