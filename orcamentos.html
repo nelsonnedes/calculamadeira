@@ -1228,7 +1228,7 @@
                                     <tr>
                                         <td class="totals-label">Volume Total</td>
                                         <td class="totals-value">${(() => {
-                                            const volumeText = quote.totalVolume || '0,000m³';
+                                            const volumeText = String(quote.totalVolume || '0,000m³');
                                             if (volumeText.includes('m³')) {
                                                 const volumeNumber = parseFloat(volumeText.replace(/[^0-9,.]/g, '').replace(',', '.'));
                                                 return volumeNumber.toLocaleString('pt-BR', {minimumFractionDigits: 3, maximumFractionDigits: 3}) + ' m³';
