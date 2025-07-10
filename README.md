@@ -1,73 +1,171 @@
-# Calculadora de Madeira
+# 🪵 Calculadora de Madeira
 
-Uma aplicação web progressiva (PWA) para calcular volume e custo de madeira serrada.
+Uma aplicação web completa para cálculo de orçamentos de madeira serrada, desenvolvida para madeireiras e profissionais do setor.
 
-## Funcionalidades
+## 📋 Funcionalidades
 
-- Cálculo de volume de madeira serrada
-- Cálculo de custo baseado no preço por m²
-- Lista de itens com totais
-- Compartilhamento de listas
-- Perfil de usuário
-- Armazenamento offline
-- Instalação no celular
+- **Calculadora de Madeira**: Cálculo preciso de volumes e preços de madeira serrada
+- **Gestão de Orçamentos**: Criação, edição e exclusão de orçamentos
+- **Geração de PDFs**: Relatórios profissionais com e sem preços unitários
+- **Sistema de Usuários**: Autenticação e perfis personalizados
+- **Interface Responsiva**: Funciona em desktop e dispositivos móveis
+- **PWA**: Instalável como aplicativo no celular
 
-## Tecnologias Utilizadas
+## 🚀 Tecnologias Utilizadas
 
-- HTML5
-- CSS3
-- JavaScript
-- Progressive Web App (PWA)
-- LocalStorage para persistência de dados
+- **Frontend**: HTML5, CSS3, JavaScript (Vanilla)
+- **Armazenamento**: LocalStorage
+- **Design**: CSS Grid, Flexbox
+- **Ícones**: Font Awesome
+- **PWA**: Service Worker, Web App Manifest
 
-## Como Usar
+## 📱 Capturas de Tela
 
-1. Acesse o site em seu navegador
-2. Para instalar no celular:
-   - No Android: Clique em "Adicionar à Tela Inicial"
-   - No iOS: Use o botão de compartilhar e selecione "Adicionar à Tela de Início"
+### Calculadora Principal
+![Calculadora](screenshots/calculadora.png)
 
-## Estrutura do Projeto
+### Lista de Orçamentos
+![Orçamentos](screenshots/orcamentos.png)
 
-```
-calculamadeira/
-├── index.html
-├── calc.html
-├── perfil.html
-├── configuracoes.html
-├── notificacoes.html
-├── ajuda.html
-├── manifest.json
-├── service-worker.js
-├── css/
-│   └── styles.css
-├── js/
-│   └── app.js
-└── icons/
-    ├── icon-72x72.png
-    ├── icon-96x96.png
-    ├── icon-128x128.png
-    ├── icon-144x144.png
-    ├── icon-152x152.png
-    ├── icon-192x192.png
-    ├── icon-384x384.png
-    └── icon-512x512.png
+### PDF Gerado
+![PDF](screenshots/pdf.png)
+
+## 🔧 Instalação e Uso
+
+### 1. Clone o repositório
+```bash
+git clone https://github.com/seu-usuario/calculadora-madeira.git
+cd calculadora-madeira
 ```
 
-## Como Contribuir
+### 2. Inicie um servidor local
+```bash
+# Usando Python
+python -m http.server 8000
+
+# Usando Node.js
+npx http-server
+
+# Usando Live Server (VS Code)
+# Instale a extensão Live Server e clique com botão direito no index.html
+```
+
+### 3. Acesse a aplicação
+Abra seu navegador e acesse: `http://localhost:8000`
+
+## 📖 Como Usar
+
+### Primeiro Acesso
+1. Acesse a aplicação
+2. Faça login ou crie uma conta
+3. Configure seu perfil e dados da empresa
+
+### Criando um Orçamento
+1. Vá para a **Calculadora**
+2. Adicione as dimensões da madeira
+3. Selecione a espécie e quantidade
+4. Configure os preços
+5. Adicione dados do cliente
+6. Salve o orçamento
+
+### Gerando PDFs
+1. Vá para **Orçamentos**
+2. Escolha o orçamento desejado
+3. Clique em **PDF C/Preço** (com preços unitários) ou **PDF S/Preço** (sem preços unitários)
+
+## 🏗️ Estrutura do Projeto
+
+```
+calculadora-madeira/
+├── index.html              # Página inicial/login
+├── calc.html               # Calculadora principal
+├── orcamentos.html         # Lista de orçamentos
+├── perfil.html             # Perfil do usuário
+├── configuracoes.html      # Configurações
+├── styles.css              # Estilos principais
+├── manifest.json           # Manifest PWA
+├── service-worker.js       # Service Worker
+├── icons/                  # Ícones da aplicação
+│   ├── icon-192x192.png
+│   ├── icon-512x512.png
+│   └── favicon.ico
+├── screenshots/            # Capturas de tela
+└── README.md              # Este arquivo
+```
+
+## 🔒 Funcionalidades de Segurança
+
+- Dados armazenados localmente no navegador
+- Isolamento por usuário
+- Validação de entrada de dados
+- Backup automático de orçamentos
+
+## 🌟 Funcionalidades Avançadas
+
+### Cálculos Suportados
+- **Madeira Serrada**: Tábuas, vigas, caibros
+- **Unidades**: Metros cúbicos (m³), pés quadrados, peças
+- **Preços**: Por m³, por peça, com desconto
+- **Embalagens**: Cálculo automático de quantidades
+
+### Relatórios PDF
+- **Completo**: Com preços unitários detalhados
+- **Simples**: Sem preços unitários
+- **Profissional**: Logo da empresa, dados completos
+- **Impressão**: Otimizado para impressão
+
+## 🔄 Atualizações Recentes
+
+### v2.0.0 (Atual)
+- ✅ Sistema de autenticação melhorado
+- ✅ Interface redesenhada
+- ✅ Geração de PDF otimizada
+- ✅ Suporte a PWA
+- ✅ Responsividade aprimorada
+
+### v1.5.0
+- ✅ Adicionado sistema de usuários
+- ✅ Melhorias na calculadora
+- ✅ Correções de bugs
+
+## 🐛 Problemas Conhecidos
+
+- Pop-ups podem ser bloqueados em alguns navegadores (configurar permissões)
+- Dados são perdidos se o localStorage for limpo
+- Suporte limitado a navegadores muito antigos
+
+## 🤝 Contribuindo
 
 1. Faça um fork do projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
-3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
-4. Push para a branch (`git push origin feature/AmazingFeature`)
+2. Crie uma branch para sua feature (`git checkout -b feature/nova-funcionalidade`)
+3. Commit suas mudanças (`git commit -am 'Adiciona nova funcionalidade'`)
+4. Push para a branch (`git push origin feature/nova-funcionalidade`)
 5. Abra um Pull Request
 
-## Licença
+## 📝 Licença
 
 Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
 
-## Contato
+## 👨‍💻 Autor
 
-Nelson Nedes - [@nelsonnedes](https://github.com/nelsonnedes)
+**Seu Nome**
+- GitHub: [@seu-usuario](https://github.com/seu-usuario)
+- Email: seu.email@exemplo.com
 
-Link do Projeto: [https://github.com/nelsonnedes/calculamadeira](https://github.com/nelsonnedes/calculamadeira) 
+## 🙏 Agradecimentos
+
+- Font Awesome pelos ícones
+- Comunidade JavaScript pelas inspirações
+- Profissionais do setor madeireiro pelos feedbacks
+
+## 📞 Suporte
+
+Se você encontrar algum problema ou tiver sugestões:
+
+1. Abra uma [issue](https://github.com/seu-usuario/calculadora-madeira/issues)
+2. Entre em contato por email
+3. Consulte a [documentação](https://github.com/seu-usuario/calculadora-madeira/wiki)
+
+---
+
+⭐ **Se este projeto te ajudou, considere dar uma estrela!** ⭐ 

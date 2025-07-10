@@ -1,3 +1,8 @@
 [33mf0f09f9[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m)[m Feat: Implementar sistema completo de condições de pagamento e melhorar relatórios PDF
 [33med128b1[m[33m ([m[1;31morigin/master[m[33m)[m Melhoria completa do sistema de recuperação de senha
 [33mb2e82f8[m Feat: Implementar sistema de atualização automática para PWA
+[33mcae71d3[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m)[m Restore PDF generation functionality - Add PDF C/Preço and PDF S/Preço buttons and functions
+[33m9fb03f9[m[33m ([m[1;31morigin/master[m[33m)[m Fix quotes loading system - sync user identification
+[33m67f1d48[m Enhance PWA update system for mobile devices
+[33m1893d73[m Fix: Resolve JavaScript errors and PWA issues
+[33m4cee022[m Fix: Corrigir erros de sintaxe e problemas de PWA no arquivo orcamentos.html

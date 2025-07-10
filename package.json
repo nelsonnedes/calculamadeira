@@ -1,0 +1,74 @@
+{
+  "name": "calculadora-madeira",
+  "version": "2.0.0",
+  "description": "Uma aplicação web completa para cálculo de orçamentos de madeira serrada",
+  "main": "index.html",
+  "scripts": {
+    "start": "python -m http.server 8000",
+    "dev": "python -m http.server 8000",
+    "serve": "npx http-server -p 8000",
+    "build": "echo 'No build process needed for static files'",
+    "test": "echo 'No tests specified yet'",
+    "lint": "echo 'No linting configured yet'",
+    "format": "echo 'No formatting configured yet'"
+  },
+  "keywords": [
+    "calculadora",
+    "madeira",
+    "orcamento",
+    "pwa",
+    "javascript",
+    "html",
+    "css",
+    "madeireira",
+    "construcao",
+    "volume",
+    "calculo"
+  ],
+  "author": {
+    "name": "Seu Nome",
+    "email": "seu.email@exemplo.com",
+    "url": "https://github.com/seu-usuario"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/seu-usuario/calculadora-madeira.git"
+  },
+  "bugs": {
+    "url": "https://github.com/seu-usuario/calculadora-madeira/issues"
+  },
+  "homepage": "https://github.com/seu-usuario/calculadora-madeira#readme",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead",
+    "not ie 11"
+  ],
+  "devDependencies": {},
+  "dependencies": {},
+  "peerDependencies": {},
+  "optionalDependencies": {},
+  "files": [
+    "index.html",
+    "calc.html",
+    "orcamentos.html",
+    "perfil.html",
+    "configuracoes.html",
+    "styles.css",
+    "manifest.json",
+    "service-worker.js",
+    "icons/",
+    "screenshots/"
+  ],
+  "directories": {
+    "doc": "docs",
+    "test": "test"
+  },
+  "config": {
+    "port": 8000
+  }
+} 

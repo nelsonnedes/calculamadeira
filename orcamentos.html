@@ -831,811 +831,155 @@
         // Gerar PDF do orçamento COM preço unitário (nova função)
         function generatePDFWithUnitPrice(id) {
             try {
-                console.log("Gerando PDF com preço unitário para orçamento:", id);
+                console.log("=== DEBUG: Iniciando geração de PDF ===");
+                console.log("ID do orçamento:", id);
                 
                 // Usar o mesmo sistema de identificação que o calc.html
                 let userId = localStorage.getItem('currentUserId');
+                console.log("currentUserId:", userId);
                 
                 // Se não houver currentUserId, tentar usar user.email como fallback
                 if (!userId) {
                     const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
                     userId = currentUser.email;
+                    console.log("Usando fallback - user.email:", userId);
                     
                     if (!userId) {
+                        console.error("Nenhum ID de usuário encontrado");
                         showFeedback('ID de usuário não encontrado', 'error');
                         return;
                     }
                 }
                 
                 const quotes = JSON.parse(localStorage.getItem(`quotes_${userId}`) || '[]');
+                console.log("Orçamentos encontrados:", quotes.length);
+                
                 const quote = quotes.find(q => q.id === id);
+                console.log("Orçamento específico encontrado:", quote ? "SIM" : "NÃO");
                 
                 if (!quote) {
+                    console.error("Orçamento não encontrado com ID:", id);
                     showFeedback('Orçamento não encontrado', 'error');
                     return;
                 }
                 
                 console.log("Dados do orçamento para PDF:", quote);
                 
-                // Buscar dados do usuário e da empresa
-                const user = JSON.parse(localStorage.getItem('user') || '{}');
-                const companyName = user.company || 'Nome da Empresa';
-                const companyPhone = user.phone || 'Telefone não informado';
-                const companyAddress = user.address || 'Endereço não informado';
-                const companyEmail = user.email || 'Email não informado';
-                const companyCNPJ = user.cnpj || 'CNPJ não informado';
-                const companyLogo = localStorage.getItem('companyLogo') || '';
-                
-                // Formatar data
-                const issueDate = new Date(quote.date);
-                const formattedDate = issueDate.toLocaleDateString('pt-BR');
-                
-                // Calcular data de validade (15 dias a partir da data de emissão)
-                const validUntil = new Date(issueDate);
-                validUntil.setDate(validUntil.getDate() + 15);
-                const validUntilFormatted = validUntil.toLocaleDateString('pt-BR');
-                
-                // Gerar número de orçamento se não existir
-                const quoteNumber = quote.number || 'ORÇ-' + quote.id.substring(0, 6);
-                
-                // Preparar relatório com preço unitário
+                // Teste simples: abrir janela com conteúdo mínimo
+                console.log("Tentando abrir nova janela...");
                 const reportWindow = window.open('', '_blank');
-                const reportContent = `
+                
+                if (!reportWindow) {
+                    console.error("Falha ao abrir nova janela - possível bloqueio de pop-up");
+                    showFeedback('Erro: Pop-ups podem estar bloqueados', 'error');
+                    return;
+                }
+                
+                console.log("Janela aberta com sucesso, escrevendo conteúdo...");
+                
+                // Teste com conteúdo simples primeiro
+                const testContent = `
                     <!DOCTYPE html>
                     <html>
                     <head>
-                        <title>Orçamento - ${quote.clientName}</title>
+                        <title>Teste PDF - ${quote.clientName}</title>
                         <meta charset="UTF-8">
-                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                        <style>
-                            @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
-                            
-                            :root {
-                                --primary-color: #8B0000;
-                                --secondary-color: #f5f5f5;
-                                --text-color: #333;
-                                --border-color: #ddd;
-                            }
-                            
-                            * {
-                                margin: 0;
-                                padding: 0;
-                                box-sizing: border-box;
-                            }
-                            
-                            body {
-                                font-family: 'Roboto', Arial, sans-serif;
-                                margin: 0;
-                                padding: 20px;
-                                color: var(--text-color);
-                                font-size: 14px;
-                                line-height: 1.5;
-                            }
-                            
-                            .container {
-                                max-width: 1000px;
-                                margin: 0 auto;
-                            }
-                            
-                            .header {
-                                display: flex;
-                                justify-content: space-between;
-                                align-items: center;
-                                border-bottom: 2px solid var(--primary-color);
-                                padding-bottom: 15px;
-                                margin-bottom: 20px;
-                            }
-                            
-                            .logo-container {
-                                width: 150px;
-                            }
-                            
-                            .logo {
-                                max-width: 100%;
-                                max-height: 80px;
-                            }
-                            
-                            .company-info {
-                                flex: 1;
-                                padding-left: 20px;
-                            }
-                            
-                            .company-info h1 {
-                                font-size: 24px;
-                                color: var(--primary-color);
-                                margin-bottom: 8px;
-                            }
-                            
-                            .company-info p {
-                                margin: 2px 0;
-                                font-size: 12px;
-                            }
-                            
-                            .document-details {
-                                text-align: right;
-                            }
-                            
-                            .document-details h2 {
-                                font-size: 20px;
-                                color: var(--primary-color);
-                                margin-bottom: 8px;
-                            }
-                            
-                            .client-section {
-                                background-color: var(--secondary-color);
-                                padding: 15px;
-                                display: flex;
-                                justify-content: space-between;
-                                margin-bottom: 20px;
-                            }
-                            
-                            .client-info, .quote-info {
-                                flex: 1;
-                            }
-                            
-                            .subtitle {
-                                font-weight: 700;
-                                color: var(--primary-color);
-                                margin-bottom: 8px;
-                            }
-                            
-                            table {
-                                width: 100%;
-                                border-collapse: collapse;
-                                margin-bottom: 20px;
-                                table-layout: fixed;
-                            }
-                            
-                            th {
-                                background-color: var(--primary-color);
-                                color: white;
-                                font-weight: 500;
-                                text-align: left;
-                                padding: 12px 8px;
-                                font-size: 12px;
-                            }
-                            
-                            td {
-                                padding: 10px 8px;
-                                border-bottom: 1px solid #eee;
-                                vertical-align: top;
-                                font-size: 11px;
-                                word-wrap: break-word;
-                            }
-                            
-                            tr:nth-child(even) {
-                                background-color: #f9f9f9;
-                            }
-                            
-                            .narrow {
-                                width: 8%;
-                                text-align: center;
-                            }
-                            
-                            .dimensions {
-                                width: 20%;
-                            }
-                            
-                            .qty {
-                                width: 12%;
-                                text-align: center;
-                            }
-                            
-                            .volume {
-                                width: 15%;
-                                text-align: right;
-                            }
-                            
-                            .species {
-                                width: 15%;
-                            }
-                            
-                            .unit-price {
-                                width: 15%;
-                                text-align: right;
-                            }
-                            
-                            .total-price {
-                                width: 15%;
-                                text-align: right;
-                            }
-                            
-                            .text-right {
-                                text-align: right;
-                            }
-                            
-                            .totals-footer {
-                                display: flex;
-                                justify-content: flex-end;
-                                margin-top: 20px;
-                            }
-                            
-                            .totals-table {
-                                width: 300px;
-                                margin-bottom: 0;
-                            }
-                            
-                            .totals-table td {
-                                border-bottom: 1px solid #ddd;
-                                padding: 8px;
-                            }
-                            
-                            .totals-label {
-                                font-weight: 600;
-                                text-align: right;
-                                width: 60%;
-                            }
-                            
-                            .totals-value {
-                                font-weight: 700;
-                                text-align: right;
-                                color: var(--primary-color);
-                                width: 40%;
-                            }
-                            
-                            .footer {
-                                margin-top: 30px;
-                                text-align: center;
-                                color: #666;
-                                font-size: 12px;
-                            }
-                            
-                            .print-buttons {
-                                text-align: center;
-                                margin-top: 20px;
-                            }
-                            
-                            button {
-                                padding: 10px 20px;
-                                background-color: var(--primary-color);
-                                color: white;
-                                border: none;
-                                border-radius: 4px;
-                                cursor: pointer;
-                                margin: 0 5px;
-                            }
-                            
-                            @media print {
-                                .print-buttons {
-                                    display: none;
-                                }
-                                
-                                body {
-                                    padding: 0;
-                                }
-                                
-                                @page {
-                                    margin: 1cm;
-                                }
-                            }
-                        </style>
                     </head>
                     <body>
-                        <div class="container">
-                            <div class="header">
-                                <div class="logo-container">
-                                    ${companyLogo ? `<img src="${companyLogo}" alt="Logo" class="logo">` : ''}
-                                </div>
-                                <div class="company-info">
-                                    <h1>${companyName}</h1>
-                                    <p><strong>Endereço:</strong> ${companyAddress}</p>
-                                    <p><strong>Telefone:</strong> ${companyPhone}</p>
-                                    <p><strong>Email:</strong> ${companyEmail}</p>
-                                    <p><strong>CNPJ:</strong> ${companyCNPJ}</p>
-                                </div>
-                                <div class="document-details">
-                                    <h2>ORÇAMENTO</h2>
-                                    <p><strong>Nº:</strong> ${quoteNumber}</p>
-                                    <p><strong>Data:</strong> ${formattedDate}</p>
-                                    <p><strong>Válido até:</strong> ${validUntilFormatted}</p>
-                                </div>
-                            </div>
-                            
-                            <div class="client-section">
-                                <div class="client-info">
-                                    <div class="subtitle">DADOS DO CLIENTE</div>
-                                    <p><strong>Nome:</strong> ${quote.clientName || 'Cliente não informado'}</p>
-                                    <p><strong>Telefone:</strong> ${quote.clientPhone || 'Não informado'}</p>
-                                    <p><strong>Email:</strong> ${quote.clientEmail || 'Não informado'}</p>
-                                    <p><strong>Endereço:</strong> ${quote.clientAddress || 'Não informado'}</p>
-                                </div>
-                                <div class="quote-info">
-                                    <div class="subtitle">INFORMAÇÕES DO ORÇAMENTO</div>
-                                    <p><strong>Observações:</strong> ${quote.observations || 'Nenhuma observação'}</p>
-                                    <p><strong>Condições de Pagamento:</strong> ${quote.paymentTerms || 'A combinar'}</p>
-                                    <p><strong>Prazo de Entrega:</strong> ${quote.deliveryTime || 'A combinar'}</p>
-                                </div>
-                            </div>
-                            
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th class="narrow">Nº</th>
-                                        <th class="dimensions">Dimensões</th>
-                                        <th class="qty">Qtd</th>
-                                        <th class="volume">Volume</th>
-                                        <th class="species">Espécie</th>
-                                        <th class="unit-price">Preço Unit.</th>
-                                        <th class="total-price">Total</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    ${quote.items ? quote.items.map((item, index) => {
-                                        // Extrair informações do item
-                                        let sizeText = item.size || '';
-                                        
-                                        // Calcular preço unitário
-                                        let unitPrice = 0;
-                                        let totalPrice = 0;
-                                        
-                                        if (typeof item.price === 'string') {
-                                            totalPrice = parseFloat(item.price.replace(/[^0-9,.]/g, '').replace('.', '').replace(',', '.'));
-                                        } else if (typeof item.finalPrice === 'string') {
-                                            totalPrice = parseFloat(item.finalPrice.replace(/[^0-9,.]/g, '').replace('.', '').replace(',', '.'));
-                                        } else if (typeof item.finalPrice === 'number') {
-                                            totalPrice = item.finalPrice;
-                                        } else if (typeof item.price === 'number') {
-                                            totalPrice = item.price;
-                                        }
-                                        
-                                        // Calcular preço unitário baseado no volume
-                                        const volumeValue = parseFloat((item.volume || '0').replace(/[^0-9,.]/g, '').replace(',', '.'));
-                                        if (volumeValue > 0) {
-                                            unitPrice = totalPrice / volumeValue;
-                                        }
-                                        
-                                        // Formatar preços
-                                        const unitPriceFormatted = new Intl.NumberFormat('pt-BR', {
-                                            style: 'currency',
-                                            currency: 'BRL'
-                                        }).format(unitPrice);
-                                        
-                                        const totalPriceFormatted = new Intl.NumberFormat('pt-BR', {
-                                            style: 'currency',
-                                            currency: 'BRL'
-                                        }).format(totalPrice);
-                                        
-                                        return `
-                                        <tr>
-                                            <td class="narrow">${index + 1}</td>
-                                            <td class="dimensions">${sizeText}</td>
-                                            <td class="qty">${item.quantity || 0}</td>
-                                            <td class="volume">${item.volume || '0,000m³'}</td>
-                                            <td class="species">${item.species || 'Não informado'}</td>
-                                            <td class="unit-price">${unitPriceFormatted}/m³</td>
-                                            <td class="total-price">${totalPriceFormatted}</td>
-                                        </tr>
-                                        `;
-                                    }).join('') : '<tr><td colspan="7">Nenhum item encontrado</td></tr>'}
-                                </tbody>
-                            </table>
-
-                            <div class="totals-footer">
-                                <table class="totals-table">
-                                    <tr>
-                                        <td class="totals-label">Volume Total</td>
-                                        <td class="totals-value">${(() => {
-                                            const volumeText = quote.totalVolume || '0,000m³';
-                                            if (volumeText.includes('m³')) {
-                                                const volumeNumber = parseFloat(volumeText.replace(/[^0-9,.]/g, '').replace(',', '.'));
-                                                return volumeNumber.toLocaleString('pt-BR', {minimumFractionDigits: 3, maximumFractionDigits: 3}) + ' m³';
-                                            }
-                                            return volumeText;
-                                        })()}</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="totals-label">Valor Total</td>
-                                        <td class="totals-value">${typeof quote.totalPrice === 'number' 
-                                            ? quote.totalPrice.toLocaleString('pt-BR', {
-                                                style: 'currency',
-                                                currency: 'BRL'
-                                              })
-                                            : quote.totalPrice || 'R$ 0,00'}</td>
-                                    </tr>
-                                </table>
-                            </div>
-                            
-                            <div class="footer">
-                                <p>Agradecemos sua preferência! Para mais informações: ${companyPhone}</p>
-                                <p>Este documento não possui valor fiscal - Gerado em ${new Date().toLocaleString()}</p>
-                            </div>
-                            
-                            <div class="print-buttons">
-                                <button onclick="window.print()">Imprimir Orçamento</button>
-                                <button onclick="window.close()" style="margin-left: 10px; background-color: #333;">Fechar</button>
-                            </div>
-                        </div>
+                        <h1>TESTE DE PDF</h1>
+                        <p>Orçamento ID: ${id}</p>
+                        <p>Cliente: ${quote.clientName}</p>
+                        <p>Data: ${new Date(quote.date).toLocaleDateString('pt-BR')}</p>
+                        <button onclick="window.close()">Fechar</button>
                     </body>
                     </html>
                 `;
                 
-                reportWindow.document.write(reportContent);
+                reportWindow.document.write(testContent);
                 reportWindow.document.close();
+                
+                console.log("Conteúdo escrito na janela");
+                
             } catch (error) {
-                console.error("Erro ao gerar PDF:", error);
-                showFeedback('Erro ao gerar o PDF', 'error');
+                console.error("Erro detalhado ao gerar PDF:", error);
+                showFeedback('Erro ao gerar o PDF: ' + error.message, 'error');
             }
         }
 
         // Gerar PDF do orçamento sem preço unitário
         function generateSimplePDF(id) {
             try {
-                console.log("Gerando PDF simples para orçamento:", id);
+                console.log("=== DEBUG: Iniciando geração de PDF SIMPLES ===");
+                console.log("ID do orçamento:", id);
                 
                 // Usar o mesmo sistema de identificação que o calc.html
                 let userId = localStorage.getItem('currentUserId');
+                console.log("currentUserId:", userId);
                 
                 // Se não houver currentUserId, tentar usar user.email como fallback
                 if (!userId) {
                     const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
                     userId = currentUser.email;
+                    console.log("Usando fallback - user.email:", userId);
                     
                     if (!userId) {
+                        console.error("Nenhum ID de usuário encontrado");
                         showFeedback('ID de usuário não encontrado', 'error');
                         return;
                     }
                 }
                 
                 const quotes = JSON.parse(localStorage.getItem(`quotes_${userId}`) || '[]');
+                console.log("Orçamentos encontrados:", quotes.length);
+                
                 const quote = quotes.find(q => q.id === id);
+                console.log("Orçamento específico encontrado:", quote ? "SIM" : "NÃO");
                 
                 if (!quote) {
+                    console.error("Orçamento não encontrado com ID:", id);
                     showFeedback('Orçamento não encontrado', 'error');
                     return;
                 }
                 
-                // Buscar dados do usuário e da empresa
-                const user = JSON.parse(localStorage.getItem('user') || '{}');
-                const companyName = user.company || 'Nome da Empresa';
-                const companyPhone = user.phone || 'Telefone não informado';
-                const companyAddress = user.address || 'Endereço não informado';
-                const companyEmail = user.email || 'Email não informado';
-                const companyCNPJ = user.cnpj || 'CNPJ não informado';
-                const companyLogo = localStorage.getItem('companyLogo') || '';
-                
-                // Formatar data
-                const issueDate = new Date(quote.date);
-                const formattedDate = issueDate.toLocaleDateString('pt-BR');
-                
-                // Calcular data de validade (15 dias a partir da data de emissão)
-                const validUntil = new Date(issueDate);
-                validUntil.setDate(validUntil.getDate() + 15);
-                const validUntilFormatted = validUntil.toLocaleDateString('pt-BR');
-                
-                // Gerar número de orçamento se não existir
-                const quoteNumber = quote.number || 'ORÇ-' + quote.id.substring(0, 6);
-                
-                // Preparar relatório condensado
+                // Teste simples: abrir janela com conteúdo mínimo
+                console.log("Tentando abrir nova janela SIMPLES...");
                 const reportWindow = window.open('', '_blank');
-                const reportContent = `
+                
+                if (!reportWindow) {
+                    console.error("Falha ao abrir nova janela - possível bloqueio de pop-up");
+                    showFeedback('Erro: Pop-ups podem estar bloqueados', 'error');
+                    return;
+                }
+                
+                console.log("Janela SIMPLES aberta com sucesso, escrevendo conteúdo...");
+                
+                // Teste com conteúdo simples
+                const testContent = `
                     <!DOCTYPE html>
                     <html>
                     <head>
-                        <title>Orçamento - ${quote.clientName}</title>
-                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                        <style>
-                            @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
-                            
-                            :root {
-                                --primary-color: #8B0000;
-                                --secondary-color: #f5f5f5;
-                                --text-color: #333;
-                                --border-color: #ddd;
-                            }
-                            
-                            * {
-                                margin: 0;
-                                padding: 0;
-                                box-sizing: border-box;
-                            }
-                            
-                            body {
-                                font-family: 'Roboto', Arial, sans-serif;
-                                margin: 0;
-                                padding: 15px;
-                                color: var(--text-color);
-                                font-size: 12px;
-                                line-height: 1.4;
-                            }
-                            
-                            .container {
-                                max-width: 1000px;
-                                margin: 0 auto;
-                            }
-                            
-                            .compact-header {
-                                display: flex;
-                                justify-content: space-between;
-                                border-bottom: 1px solid var(--primary-color);
-                                padding-bottom: 8px;
-                                margin-bottom: 10px;
-                            }
-                            
-                            .logo-container {
-                                width: 120px;
-                            }
-                            
-                            .logo {
-                                max-width: 100%;
-                                max-height: 60px;
-                            }
-                            
-                            .company-info {
-                                flex: 1;
-                                padding-left: 15px;
-                            }
-                            
-                            .company-info h1 {
-                                font-size: 18px;
-                                color: var(--primary-color);
-                                margin-bottom: 4px;
-                            }
-                            
-                            .company-info p {
-                                margin: 0;
-                                font-size: 10px;
-                                line-height: 1.3;
-                            }
-                            
-                            .document-details {
-                                text-align: right;
-                                font-size: 10px;
-                            }
-                            
-                            .document-details h2 {
-                                font-size: 14px;
-                                color: var(--primary-color);
-                                margin-bottom: 4px;
-                            }
-                            
-                            .client-section {
-                                background-color: var(--secondary-color);
-                                padding: 8px;
-                                display: flex;
-                                justify-content: space-between;
-                                margin-bottom: 10px;
-                                font-size: 11px;
-                            }
-                            
-                            .client-info, .quote-info {
-                                flex: 1;
-                            }
-                            
-                            .subtitle {
-                                font-weight: 700;
-                                color: var(--primary-color);
-                                font-size: 11px;
-                                margin-bottom: 4px;
-                            }
-                            
-                            table {
-                                width: 100%;
-                                border-collapse: collapse;
-                                font-size: 10px;
-                            }
-                            
-                            th {
-                                background-color: var(--primary-color);
-                                color: white;
-                                font-weight: 500;
-                                text-align: left;
-                                padding: 5px 3px;
-                            }
-                            
-                            td {
-                                padding: 4px 3px;
-                                border-bottom: 1px solid #eee;
-                                vertical-align: top;
-                            }
-                            
-                            tr:nth-child(even) {
-                                background-color: #f9f9f9;
-                            }
-                            
-                            .narrow {
-                                width: 35px;
-                                text-align: center;
-                            }
-                            
-                            .text-right {
-                                text-align: right;
-                            }
-                            
-                            .totals {
-                                display: flex;
-                                justify-content: flex-end;
-                                margin-top: 10px;
-                                font-weight: 700;
-                            }
-                            
-                            .totals div {
-                                margin-left: 20px;
-                            }
-                            
-                            .totals-footer {
-                                display: flex;
-                                justify-content: flex-end;
-                                margin-top: 20px;
-                            }
-                            
-                            .totals-table {
-                                width: 300px;
-                                margin-bottom: 0;
-                            }
-                            
-                            .totals-table td {
-                                border-bottom: 1px solid #ddd;
-                                padding: 8px;
-                            }
-                            
-                            .totals-label {
-                                font-weight: 600;
-                                text-align: right;
-                                width: 60%;
-                            }
-                            
-                            .totals-value {
-                                font-weight: 700;
-                                text-align: right;
-                                color: var(--primary-color);
-                                width: 40%;
-                            }
-                            
-                            .footer {
-                                margin-top: 20px;
-                                font-size: 10px;
-                                color: #666;
-                                text-align: center;
-                            }
-                            
-                            .print-buttons {
-                                text-align: center;
-                                margin-top: 20px;
-                            }
-                            
-                            button {
-                                padding: 8px 15px;
-                                background-color: var(--primary-color);
-                                color: white;
-                                border: none;
-                                border-radius: 4px;
-                                cursor: pointer;
-                            }
-                            
-                            .status-badge {
-                                display: inline-block;
-                                padding: 2px 5px;
-                                background-color: var(--primary-color);
-                                color: white;
-                                border-radius: 3px;
-                                font-size: 9px;
-                                font-weight: 700;
-                            }
-                        </style>
+                        <title>Teste PDF SIMPLES - ${quote.clientName}</title>
+                        <meta charset="UTF-8">
                     </head>
                     <body>
-                        <div class="container">
-                            <div class="compact-header">
-                                <div class="logo-container">
-                                    ${companyLogo ? `<img src="${companyLogo}" alt="Logo" class="logo">` : ''}
-                                </div>
-                                <div class="company-info">
-                                    <h1>${companyName}</h1>
-                                    <p>${companyAddress}</p>
-                                    <p>Tel: ${companyPhone} | Email: ${companyEmail}</p>
-                                    <p>CNPJ: ${companyCNPJ}</p>
-                                </div>
-                                <div class="document-details">
-                                    <h2>ORÇAMENTO <span class="status-badge">ATIVO</span></h2>
-                                    <p><strong>Nº:</strong> ${quoteNumber}</p>
-                                    <p><strong>Data:</strong> ${formattedDate}</p>
-                                    <p><strong>Validade:</strong> ${validUntilFormatted}</p>
-                                </div>
-                            </div>
-                            
-                            <div class="client-section">
-                                <div class="client-info">
-                                    <div class="subtitle">CLIENTE</div>
-                                    <p><strong>Nome:</strong> ${quote.clientName}</p>
-                                    ${quote.clientContact ? `<p><strong>Contato:</strong> ${quote.clientContact}</p>` : ''}
-                                </div>
-                                <div class="quote-info">
-                                    <div class="subtitle">CONDIÇÕES</div>
-                                    <p><strong>Pagamento:</strong> ${quote.paymentTerms || '50% entrada, 50% na entrega'}</p>
-                                    <p><strong>Entrega:</strong> 5-7 dias após confirmação</p>
-                                </div>
-                            </div>
-
-                            <table class="simple-table">
-                                <thead>
-                                    <tr>
-                                        <th class="num">Nº</th>
-                                        <th class="dim">Dimensões</th>
-                                        <th class="qty">Qtd</th>
-                                        <th class="vol">Volume</th>
-                                        <th class="species">Espécie</th>
-                                        <th class="total">Total</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    ${quote.items && quote.items.length > 0 ? quote.items.map((item, index) => {
-                                        let sizeText = item.size;
-                                        if (sizeText.includes('x')) {
-                                            const parts = sizeText.split('x');
-                                            sizeText = parts.join(' X ');
-                                        }
-                                        
-                                        const packageQuantity = parseInt(item.packageQuantity || 1);
-                                        const quantity = item.quantity;
-                                        const volume = item.volume;
-                                        const priceText = item.price;
-                                        
-                                        const totalQuantity = packageQuantity > 1 ? parseInt(quantity) * packageQuantity : quantity;
-                                        
-                                        let quantityDisplay = quantity;
-                                        if (packageQuantity > 1) {
-                                            quantityDisplay = `${quantity}×${packageQuantity}`;
-                                        }
-                                        
-                                        return `
-                                        <tr>
-                                            <td class="num">${index + 1}</td>
-                                            <td class="dim">${sizeText}</td>
-                                            <td class="qty">${quantityDisplay}</td>
-                                            <td class="vol">${volume}</td>
-                                            <td class="species">${item.species || 'Não informado'}</td>
-                                            <td class="total">${priceText}</td>
-                                        </tr>
-                                        `;
-                                    }).join('') : '<tr><td colspan="6">Nenhum item encontrado</td></tr>'}
-                                </tbody>
-                            </table>
-
-                            <div class="totals-footer">
-                                <table class="totals-table">
-                                    <tr>
-                                        <td class="totals-label">Volume Total</td>
-                                        <td class="totals-value">${(() => {
-                                            const volumeText = quote.totalVolume || '0,000m³';
-                                            if (volumeText.includes('m³')) {
-                                                const volumeNumber = parseFloat(volumeText.replace(/[^0-9,.]/g, '').replace(',', '.'));
-                                                return volumeNumber.toLocaleString('pt-BR', {minimumFractionDigits: 3, maximumFractionDigits: 3}) + ' m³';
-                                            }
-                                            return volumeText;
-                                        })()}</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="totals-label">Valor Total</td>
-                                        <td class="totals-value">${typeof quote.totalPrice === 'number' 
-                                            ? quote.totalPrice.toLocaleString('pt-BR', {
-                                                style: 'currency',
-                                                currency: 'BRL'
-                                              })
-                                            : quote.totalPrice || 'R$ 0,00'}</td>
-                                    </tr>
-                                </table>
-                            </div>
-                            
-                            <div class="footer">
-                                <p>Agradecemos sua preferência! Para mais informações: ${companyPhone}</p>
-                                <p>Este documento não possui valor fiscal - Gerado em ${new Date().toLocaleString()}</p>
-                            </div>
-                            
-                            <div class="print-buttons">
-                                <button onclick="window.print()">Imprimir Orçamento</button>
-                                <button onclick="window.close()" style="margin-left: 10px; background-color: #333;">Fechar</button>
-                            </div>
-                        </div>
+                        <h1>TESTE DE PDF SIMPLES</h1>
+                        <p>Orçamento ID: ${id}</p>
+                        <p>Cliente: ${quote.clientName}</p>
+                        <p>Data: ${new Date(quote.date).toLocaleDateString('pt-BR')}</p>
+                        <p>Itens: ${quote.items ? quote.items.length : 0}</p>
+                        <button onclick="window.close()">Fechar</button>
                     </body>
                     </html>
                 `;
                 
-                reportWindow.document.write(reportContent);
+                reportWindow.document.write(testContent);
                 reportWindow.document.close();
+                
+                console.log("Conteúdo SIMPLES escrito na janela");
+                
             } catch (error) {
-                console.error("Erro ao gerar PDF simples:", error);
-                showFeedback('Erro ao gerar o PDF', 'error');
-                return;
+                console.error("Erro detalhado ao gerar PDF simples:", error);
+                showFeedback('Erro ao gerar o PDF: ' + error.message, 'error');
             }
         }
     </script>
