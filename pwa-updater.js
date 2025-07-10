@@ -138,8 +138,16 @@ class PWAUpdater {
             console.log('PWA Updater: Verificando atualizações...');
             this.lastUpdateCheck = Date.now();
             
-            // Forçar verificação de atualização
-            await this.registration.update();
+            // Verificar se o service worker está em estado válido
+            if (this.registration.installing || this.registration.waiting) {
+                console.log('PWA Updater: Service worker já está sendo atualizado');
+                return;
+            }
+            
+            // Forçar verificação de atualização apenas se o service worker estiver ativo
+            if (this.registration.active) {
+                await this.registration.update();
+            }
             
             // Verificar se há cache antigo
             const cacheNames = await caches.keys();
@@ -155,6 +163,10 @@ class PWAUpdater {
             
         } catch (error) {
             console.error('PWA Updater: Erro ao verificar atualizações:', error);
+            // Não mostrar erro para o usuário se for apenas um problema de estado
+            if (error.name !== 'InvalidStateError') {
+                console.error('PWA Updater: Erro inesperado:', error);
+            }
         }
     }
 
