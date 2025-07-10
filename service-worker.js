@@ -1,4 +1,4 @@
-const CACHE_NAME = 'calculadora-madeira-v2.0.2';
+const CACHE_NAME = 'calculadora-madeira-v2.0.3';
 const urlsToCache = [
     '/',
     '/index.html',
@@ -89,18 +89,26 @@ self.addEventListener('fetch', event => {
                             return response;
                         }
                         
+                        // Verificar NOVAMENTE se é cacheable antes de qualquer operação de cache
+                        if (!isCacheableRequest(event.request)) {
+                            console.log('Service Worker: Pulando cache para URL não cacheable:', event.request.url);
+                            return response;
+                        }
+                        
                         // Clonar a resposta para cache
                         const responseToCache = response.clone();
                         
                         // Cachear a resposta de forma segura
                         caches.open(CACHE_NAME)
                             .then(cache => {
-                                // Verificar novamente se é cacheable antes de adicionar
+                                // Tripla verificação antes de adicionar ao cache
                                 if (isCacheableRequest(event.request)) {
                                     cache.put(event.request, responseToCache)
                                         .catch(error => {
-                                            console.log('Service Worker: Erro ao cachear:', error);
+                                            console.log('Service Worker: Erro ao cachear:', error, 'URL:', event.request.url);
                                         });
+                                } else {
+                                    console.log('Service Worker: Bloqueando cache para URL:', event.request.url);
                                 }
                             })
                             .catch(error => {

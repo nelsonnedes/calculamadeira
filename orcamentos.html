@@ -828,6 +828,42 @@
             document.querySelector('.menu-user-email').textContent = user.email || 'email@exemplo.com';
         });
 
+        // Função auxiliar para formatar volume
+        function formatVolume(volume) {
+            try {
+                console.log("formatVolume: recebido =", volume, "tipo:", typeof volume);
+                
+                // Se for undefined ou null, retornar valor padrão
+                if (volume === undefined || volume === null) {
+                    return '0,000 m³';
+                }
+                
+                // Se for número, formatar diretamente
+                if (typeof volume === 'number') {
+                    return volume.toLocaleString('pt-BR', {minimumFractionDigits: 3, maximumFractionDigits: 3}) + ' m³';
+                }
+                
+                // Se for string, verificar se já contém 'm³'
+                const volumeStr = String(volume);
+                if (volumeStr.includes('m³')) {
+                    const volumeNumber = parseFloat(volumeStr.replace(/[^0-9,.]/g, '').replace(',', '.'));
+                    return volumeNumber.toLocaleString('pt-BR', {minimumFractionDigits: 3, maximumFractionDigits: 3}) + ' m³';
+                }
+                
+                // Se for string sem 'm³', tentar converter para número
+                const volumeNumber = parseFloat(volumeStr.replace(/[^0-9,.]/g, '').replace(',', '.'));
+                if (!isNaN(volumeNumber)) {
+                    return volumeNumber.toLocaleString('pt-BR', {minimumFractionDigits: 3, maximumFractionDigits: 3}) + ' m³';
+                }
+                
+                // Se nada funcionar, retornar o valor original
+                return volumeStr;
+            } catch (error) {
+                console.error("Erro ao formatar volume:", error, "valor:", volume);
+                return '0,000 m³';
+            }
+        }
+
         // Gerar PDF do orçamento COM preço unitário (versão completa)
         function generatePDFWithUnitPrice(id) {
             try {
@@ -1227,16 +1263,7 @@
                                 <table class="totals-table">
                                     <tr>
                                         <td class="totals-label">Volume Total</td>
-                                        <td class="totals-value">${(() => {
-                                            console.log("DEBUG UNIT: quote.totalVolume =", quote.totalVolume, "tipo:", typeof quote.totalVolume);
-                                            const volumeText = String(quote.totalVolume || '0,000m³');
-                                            console.log("DEBUG UNIT: volumeText =", volumeText, "tipo:", typeof volumeText);
-                                            if (volumeText.includes('m³')) {
-                                                const volumeNumber = parseFloat(volumeText.replace(/[^0-9,.]/g, '').replace(',', '.'));
-                                                return volumeNumber.toLocaleString('pt-BR', {minimumFractionDigits: 3, maximumFractionDigits: 3}) + ' m³';
-                                            }
-                                            return volumeText;
-                                        })()}</td>
+                                        <td class="totals-value">${formatVolume(quote.totalVolume)}</td>
                                     </tr>
                                     <tr>
                                         <td class="totals-label">Valor Total</td>
@@ -1619,16 +1646,7 @@
                                 <table class="totals-table">
                                     <tr>
                                         <td class="totals-label">Volume Total</td>
-                                        <td class="totals-value">${(() => {
-                                            console.log("DEBUG SIMPLE: quote.totalVolume =", quote.totalVolume, "tipo:", typeof quote.totalVolume);
-                                            const volumeText = String(quote.totalVolume || '0,000m³');
-                                            console.log("DEBUG SIMPLE: volumeText =", volumeText, "tipo:", typeof volumeText);
-                                            if (volumeText.includes('m³')) {
-                                                const volumeNumber = parseFloat(volumeText.replace(/[^0-9,.]/g, '').replace(',', '.'));
-                                                return volumeNumber.toLocaleString('pt-BR', {minimumFractionDigits: 3, maximumFractionDigits: 3}) + ' m³';
-                                            }
-                                            return volumeText;
-                                        })()}</td>
+                                        <td class="totals-value">${formatVolume(quote.totalVolume)}</td>
                                     </tr>
                                     <tr>
                                         <td class="totals-label">Valor Total</td>
