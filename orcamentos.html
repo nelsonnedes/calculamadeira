@@ -1228,7 +1228,9 @@
                                     <tr>
                                         <td class="totals-label">Volume Total</td>
                                         <td class="totals-value">${(() => {
+                                            console.log("DEBUG UNIT: quote.totalVolume =", quote.totalVolume, "tipo:", typeof quote.totalVolume);
                                             const volumeText = String(quote.totalVolume || '0,000m³');
+                                            console.log("DEBUG UNIT: volumeText =", volumeText, "tipo:", typeof volumeText);
                                             if (volumeText.includes('m³')) {
                                                 const volumeNumber = parseFloat(volumeText.replace(/[^0-9,.]/g, '').replace(',', '.'));
                                                 return volumeNumber.toLocaleString('pt-BR', {minimumFractionDigits: 3, maximumFractionDigits: 3}) + ' m³';
@@ -1618,7 +1620,9 @@
                                     <tr>
                                         <td class="totals-label">Volume Total</td>
                                         <td class="totals-value">${(() => {
+                                            console.log("DEBUG SIMPLE: quote.totalVolume =", quote.totalVolume, "tipo:", typeof quote.totalVolume);
                                             const volumeText = String(quote.totalVolume || '0,000m³');
+                                            console.log("DEBUG SIMPLE: volumeText =", volumeText, "tipo:", typeof volumeText);
                                             if (volumeText.includes('m³')) {
                                                 const volumeNumber = parseFloat(volumeText.replace(/[^0-9,.]/g, '').replace(',', '.'));
                                                 return volumeNumber.toLocaleString('pt-BR', {minimumFractionDigits: 3, maximumFractionDigits: 3}) + ' m³';
