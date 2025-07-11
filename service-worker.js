@@ -1,4 +1,4 @@
-const CACHE_NAME = 'calculadora-madeira-v2.0.4';
+const CACHE_NAME = 'calculadora-madeira-v2.0.6';
 const urlsToCache = [
     '/',
     '/index.html',
@@ -12,23 +12,43 @@ const urlsToCache = [
     '/icons/icon-512x512.png'
 ];
 
-// Função para verificar se a URL é cacheable
+// Função para verificar se a URL é cacheable - versão ultra-robusta
 function isCacheableRequest(request) {
     const url = request.url;
     
     // Log da URL para debug
     console.log('Service Worker: Verificando URL:', url);
     
-    // Ignorar URLs de extensões do navegador
-    if (url.startsWith('chrome-extension://') || 
-        url.startsWith('chrome://') ||
-        url.startsWith('moz-extension://') ||
-        url.startsWith('safari-extension://') ||
-        url.startsWith('edge-extension://') ||
-        url.startsWith('about:') ||
-        url.startsWith('blob:') ||
-        url.startsWith('data:')) {
-        console.log('Service Worker: URL não cacheable (extensão/protocolo especial):', url);
+    // Lista completa de esquemas não cacheáveis
+    const nonCacheableSchemes = [
+        'chrome-extension://',
+        'chrome://',
+        'moz-extension://',
+        'safari-extension://',
+        'edge-extension://',
+        'about:',
+        'blob:',
+        'data:',
+        'file://',
+        'ftp://',
+        'ws://',
+        'wss://'
+    ];
+    
+    // Verificar se a URL começa com qualquer esquema não cacheável
+    for (const scheme of nonCacheableSchemes) {
+        if (url.startsWith(scheme)) {
+            console.log('Service Worker: URL BLOQUEADA (esquema não cacheável):', url);
+            return false;
+        }
+    }
+    
+    // Verificar se contém extensão no meio da URL
+    if (url.includes('chrome-extension') || 
+        url.includes('moz-extension') || 
+        url.includes('safari-extension') || 
+        url.includes('edge-extension')) {
+        console.log('Service Worker: URL BLOQUEADA (contém extensão):', url);
         return false;
     }
     
@@ -38,45 +58,76 @@ function isCacheableRequest(request) {
         return false;
     }
     
+    // Verificar se é uma URL válida HTTP/HTTPS
+    try {
+        const urlObj = new URL(url);
+        if (urlObj.protocol !== 'http:' && urlObj.protocol !== 'https:') {
+            console.log('Service Worker: URL BLOQUEADA (protocolo inválido):', url);
+            return false;
+        }
+    } catch (e) {
+        console.log('Service Worker: URL BLOQUEADA (URL inválida):', url);
+        return false;
+    }
+    
     console.log('Service Worker: URL é cacheable:', url);
     return true;
 }
 
+// Função para limpar todos os caches antigos
+function clearOldCaches() {
+    return caches.keys().then(cacheNames => {
+        return Promise.all(
+            cacheNames.map(cacheName => {
+                if (cacheName !== CACHE_NAME) {
+                    console.log('Service Worker: Removendo cache antigo:', cacheName);
+                    return caches.delete(cacheName);
+                }
+            })
+        );
+    });
+}
+
 self.addEventListener('install', event => {
     console.log('Service Worker: Instalando versão', CACHE_NAME);
+    
+    // Pular espera e assumir controle imediatamente
+    self.skipWaiting();
+    
     event.waitUntil(
-        caches.open(CACHE_NAME)
-            .then(cache => {
-                console.log('Service Worker: Cache aberto');
-                return cache.addAll(urlsToCache);
-            })
-            .catch(error => {
-                console.error('Service Worker: Erro na instalação:', error);
-            })
+        clearOldCaches().then(() => {
+            return caches.open(CACHE_NAME);
+        }).then(cache => {
+            console.log('Service Worker: Cache aberto');
+            return cache.addAll(urlsToCache);
+        }).catch(error => {
+            console.error('Service Worker: Erro na instalação:', error);
+        })
     );
 });
 
 self.addEventListener('activate', event => {
     console.log('Service Worker: Ativando versão', CACHE_NAME);
+    
     event.waitUntil(
-        caches.keys().then(cacheNames => {
-            return Promise.all(
-                cacheNames.map(cacheName => {
-                    if (cacheName !== CACHE_NAME) {
-                        console.log('Service Worker: Removendo cache antigo:', cacheName);
-                        return caches.delete(cacheName);
-                    }
-                })
-            );
+        clearOldCaches().then(() => {
+            console.log('Service Worker: Assumindo controle de todas as abas');
+            return self.clients.claim();
         })
     );
 });
 
 self.addEventListener('fetch', event => {
-    // Verificar se a requisição é cacheable ANTES de qualquer processamento
+    // PRIMEIRA VERIFICAÇÃO: Bloquear imediatamente URLs não cacheáveis
     if (!isCacheableRequest(event.request)) {
-        console.log('Service Worker: Ignorando requisição não cacheable:', event.request.url);
-        // Retornar imediatamente sem processar
+        console.log('Service Worker: IGNORANDO requisição não cacheable:', event.request.url);
+        // Retornar imediatamente sem processar - deixar o navegador lidar com isso
+        return;
+    }
+    
+    // SEGUNDA VERIFICAÇÃO: Dupla verificação para chrome-extension
+    if (event.request.url.includes('chrome-extension')) {
+        console.log('Service Worker: BLOQUEANDO chrome-extension:', event.request.url);
         return;
     }
     
@@ -97,9 +148,15 @@ self.addEventListener('fetch', event => {
                             return response;
                         }
                         
-                        // Verificar NOVAMENTE se é cacheable antes de qualquer operação de cache
+                        // TERCEIRA VERIFICAÇÃO: Antes de cachear, verificar novamente
                         if (!isCacheableRequest(event.request)) {
-                            console.log('Service Worker: Pulando cache para URL não cacheable:', event.request.url);
+                            console.log('Service Worker: FINAL - Pulando cache para URL não cacheable:', event.request.url);
+                            return response;
+                        }
+                        
+                        // QUARTA VERIFICAÇÃO: Última verificação antes do cache
+                        if (event.request.url.includes('chrome-extension')) {
+                            console.log('Service Worker: FINAL - Bloqueando chrome-extension antes do cache:', event.request.url);
                             return response;
                         }
                         
@@ -109,12 +166,12 @@ self.addEventListener('fetch', event => {
                         // Cachear a resposta de forma segura
                         caches.open(CACHE_NAME)
                             .then(cache => {
-                                // Tripla verificação antes de adicionar ao cache
-                                if (isCacheableRequest(event.request)) {
+                                // QUINTA VERIFICAÇÃO: Última verificação antes de adicionar ao cache
+                                if (isCacheableRequest(event.request) && !event.request.url.includes('chrome-extension')) {
                                     console.log('Service Worker: Adicionando ao cache:', event.request.url);
                                     return cache.put(event.request, responseToCache);
                                 } else {
-                                    console.log('Service Worker: Bloqueando cache para URL:', event.request.url);
+                                    console.log('Service Worker: FINAL - Bloqueando cache para URL:', event.request.url);
                                     return Promise.resolve();
                                 }
                             })
@@ -126,7 +183,6 @@ self.addEventListener('fetch', event => {
                     })
                     .catch(error => {
                         console.log('Service Worker: Erro na rede:', error);
-                        // Retornar uma resposta de fallback se necessário
                         return new Response('Offline', {
                             status: 503,
                             statusText: 'Service Unavailable'
@@ -170,78 +226,33 @@ self.addEventListener('message', event => {
     }
 });
 
-self.addEventListener('sync', event => {
-    if (event.tag === 'check-update') {
-        event.waitUntil(
-            self.clients.matchAll().then(clients => {
-                clients.forEach(client => {
-                    client.postMessage({
-                        type: 'CHECK_UPDATE_AVAILABLE'
-                    });
-                });
-            })
-        );
-    }
-});
-
-self.addEventListener('push', event => {
-    if (event.data) {
-        try {
-            const data = event.data.json();
-            if (data.type === 'update') {
-                event.waitUntil(
-                    self.registration.showNotification('Calculadora de Madeira', {
-                        body: 'Nova atualização disponível!',
-                        icon: '/icons/icon-192x192.png',
-                        badge: '/icons/icon-192x192.png',
-                        tag: 'update',
-                        requireInteraction: true,
-                        actions: [
-                            {
-                                action: 'update',
-                                title: 'Atualizar Agora'
-                            },
-                            {
-                                action: 'later',
-                                title: 'Mais Tarde'
-                            }
-                        ]
-                    })
-                );
-            }
-        } catch (error) {
-            console.error('Service Worker: Erro ao processar push:', error);
-        }
-    }
-});
-
+// Evento de notificação (se necessário)
 self.addEventListener('notificationclick', event => {
+    console.log('Service Worker: Clique na notificação');
     event.notification.close();
     
     if (event.action === 'update') {
-        event.waitUntil(
-            self.clients.matchAll().then(clients => {
-                if (clients.length > 0) {
-                    clients[0].focus();
-                    clients[0].postMessage({
-                        type: 'FORCE_UPDATE'
-                    });
-                } else {
-                    self.clients.openWindow('/');
-                }
-            })
-        );
+        console.log('Service Worker: Ação de atualização clicada');
+        // Implementar lógica de atualização se necessário
     }
+    
+    // Focar ou abrir a aplicação
+    event.waitUntil(
+        self.clients.matchAll().then(clients => {
+            if (clients.length > 0) {
+                clients[0].focus();
+                clients[0].postMessage({
+                    type: 'FORCE_UPDATE'
+                });
+            } else {
+                self.clients.openWindow('/');
+            }
+        })
+    );
 });
 
-// Limpeza periódica de cache antigo
+// Limpeza periódica de cache (a cada 5 minutos)
 setInterval(() => {
-    caches.keys().then(cacheNames => {
-        cacheNames.forEach(cacheName => {
-            if (cacheName !== CACHE_NAME && cacheName.startsWith('calculadora-madeira-')) {
-                console.log('Service Worker: Limpando cache antigo:', cacheName);
-                caches.delete(cacheName);
-            }
-        });
-    });
-}, 300000); // A cada 5 minutos 
+    console.log('Service Worker: Executando limpeza periódica de cache');
+    clearOldCaches();
+}, 300000); // 5 minutos 

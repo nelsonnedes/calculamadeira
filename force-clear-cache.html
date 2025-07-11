@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Limpeza Forçada de Cache</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #8B0000;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .step {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f9f9f9;
+            border-left: 4px solid #8B0000;
+            border-radius: 5px;
+        }
+        .step h3 {
+            margin-top: 0;
+            color: #8B0000;
+        }
+        .log {
+            background: #000;
+            color: #0f0;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin: 20px 0;
+        }
+        button {
+            background: #8B0000;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+        }
+        button:hover {
+            background: #a00;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .success {
+            color: #0a0;
+            font-weight: bold;
+        }
+        .error {
+            color: #f00;
+            font-weight: bold;
+        }
+        .warning {
+            color: #fa0;
+            font-weight: bold;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧹 Limpeza Forçada de Cache</h1>
+        
+        <div class="step">
+            <h3>Instruções:</h3>
+            <ol>
+                <li>Clique em "Executar Limpeza Completa" para limpar todos os caches</li>
+                <li>Aguarde a conclusão de todos os passos</li>
+                <li>Clique em "Recarregar Aplicação" para carregar a versão mais recente</li>
+                <li>Se ainda houver problemas, feche TODAS as abas do site e abra novamente</li>
+            </ol>
+        </div>
+
+        <div class="step">
+            <button onclick="executarLimpezaCompleta()" id="btnLimpeza">🧹 Executar Limpeza Completa</button>
+            <button onclick="recarregarApp()" id="btnRecarregar" disabled>🔄 Recarregar Aplicação</button>
+            <button onclick="abrirNovaAba()" id="btnNovaAba">🔗 Abrir Nova Aba</button>
+        </div>
+
+        <div id="status"></div>
+        <div class="log" id="log"></div>
+    </div>
+
+    <script>
+        let logElement = document.getElementById('log');
+        let statusElement = document.getElementById('status');
+        let btnLimpeza = document.getElementById('btnLimpeza');
+        let btnRecarregar = document.getElementById('btnRecarregar');
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type === 'error' ? 'error' : type === 'success' ? 'success' : type === 'warning' ? 'warning' : '';
+            logElement.innerHTML += `<div class="${className}">[${timestamp}] ${message}</div>`;
+            logElement.scrollTop = logElement.scrollHeight;
+            console.log(`[${timestamp}] ${message}`);
+        }
+
+        function setStatus(message, type = 'info') {
+            statusElement.innerHTML = `<div class="status ${type}">${message}</div>`;
+        }
+
+        async function executarLimpezaCompleta() {
+            try {
+                btnLimpeza.disabled = true;
+                setStatus('🧹 Iniciando limpeza completa...', 'warning');
+                log('=== INICIANDO LIMPEZA COMPLETA ===', 'warning');
+
+                // Passo 1: Desregistrar todos os Service Workers
+                log('Passo 1: Desregistrando Service Workers...');
+                if ('serviceWorker' in navigator) {
+                    const registrations = await navigator.serviceWorker.getRegistrations();
+                    log(`Encontrados ${registrations.length} service workers`);
+                    
+                    for (let registration of registrations) {
+                        try {
+                            await registration.unregister();
+                            log(`✅ Service Worker desregistrado: ${registration.scope}`, 'success');
+                        } catch (error) {
+                            log(`❌ Erro ao desregistrar SW: ${error.message}`, 'error');
+                        }
+                    }
+                } else {
+                    log('Service Workers não suportados', 'warning');
+                }
+
+                // Passo 2: Limpar todos os caches
+                log('Passo 2: Limpando todos os caches...');
+                if ('caches' in window) {
+                    const cacheNames = await caches.keys();
+                    log(`Encontrados ${cacheNames.length} caches: ${cacheNames.join(', ')}`);
+                    
+                    for (let cacheName of cacheNames) {
+                        try {
+                            await caches.delete(cacheName);
+                            log(`✅ Cache removido: ${cacheName}`, 'success');
+                        } catch (error) {
+                            log(`❌ Erro ao remover cache ${cacheName}: ${error.message}`, 'error');
+                        }
+                    }
+                } else {
+                    log('Cache API não suportada', 'warning');
+                }
+
+                // Passo 3: Limpar localStorage relacionado
+                log('Passo 3: Limpando dados do localStorage...');
+                const keysToRemove = [
+                    'cache_version',
+                    'app-version',
+                    'sw-version',
+                    'last-update-check',
+                    'pwa-update-available'
+                ];
+                
+                keysToRemove.forEach(key => {
+                    if (localStorage.getItem(key)) {
+                        localStorage.removeItem(key);
+                        log(`✅ Removido do localStorage: ${key}`, 'success');
+                    }
+                });
+
+                // Passo 4: Limpar sessionStorage
+                log('Passo 4: Limpando sessionStorage...');
+                const sessionKeys = Object.keys(sessionStorage);
+                sessionKeys.forEach(key => {
+                    if (key.includes('cache') || key.includes('version') || key.includes('sw')) {
+                        sessionStorage.removeItem(key);
+                        log(`✅ Removido do sessionStorage: ${key}`, 'success');
+                    }
+                });
+
+                // Passo 5: Forçar reload de recursos críticos
+                log('Passo 5: Invalidando cache do navegador...');
+                
+                // Adicionar timestamp para forçar reload
+                const timestamp = Date.now();
+                localStorage.setItem('force-reload-timestamp', timestamp.toString());
+                
+                // Passo 6: Verificar se limpeza foi bem-sucedida
+                log('Passo 6: Verificando limpeza...');
+                const remainingCaches = await caches.keys();
+                const remainingSWs = await navigator.serviceWorker.getRegistrations();
+                
+                if (remainingCaches.length === 0 && remainingSWs.length === 0) {
+                    log('✅ LIMPEZA COMPLETA REALIZADA COM SUCESSO!', 'success');
+                    setStatus('✅ Limpeza completa realizada com sucesso!', 'success');
+                    btnRecarregar.disabled = false;
+                } else {
+                    log(`⚠️ Limpeza parcial: ${remainingCaches.length} caches e ${remainingSWs.length} SWs restantes`, 'warning');
+                    setStatus('⚠️ Limpeza parcial realizada. Recarregue a página.', 'warning');
+                    btnRecarregar.disabled = false;
+                }
+
+                log('=== LIMPEZA FINALIZADA ===', 'success');
+
+            } catch (error) {
+                log(`❌ ERRO DURANTE LIMPEZA: ${error.message}`, 'error');
+                setStatus('❌ Erro durante limpeza. Veja o log para detalhes.', 'error');
+                btnRecarregar.disabled = false;
+            } finally {
+                btnLimpeza.disabled = false;
+            }
+        }
+
+        function recarregarApp() {
+            log('Recarregando aplicação...', 'warning');
+            setStatus('🔄 Recarregando aplicação...', 'warning');
+            
+            // Aguardar um pouco antes de recarregar
+            setTimeout(() => {
+                // Usar location.replace para não manter histórico
+                window.location.replace('/orcamentos.html?nocache=' + Date.now());
+            }, 1000);
+        }
+
+        function abrirNovaAba() {
+            const url = '/orcamentos.html?nocache=' + Date.now();
+            window.open(url, '_blank');
+            log('Nova aba aberta: ' + url);
+        }
+
+        // Verificar status inicial
+        window.addEventListener('load', async () => {
+            log('Página carregada. Verificando status atual...');
+            
+            if ('serviceWorker' in navigator) {
+                const registrations = await navigator.serviceWorker.getRegistrations();
+                log(`Service Workers ativos: ${registrations.length}`);
+                registrations.forEach((reg, index) => {
+                    log(`SW ${index + 1}: ${reg.scope}`);
+                });
+            }
+            
+            if ('caches' in window) {
+                const cacheNames = await caches.keys();
+                log(`Caches existentes: ${cacheNames.length}`);
+                cacheNames.forEach(name => {
+                    log(`Cache: ${name}`);
+                });
+            }
+            
+            log('Verificação inicial concluída.');
+        });
+    </script>
+</body>
+</html> 

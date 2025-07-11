@@ -91,6 +91,25 @@
             background-color: rgba(255, 255, 255, 0.2);
         }
         
+        .cache-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .cache-btn:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
         .menu-btn {
             background: none;
             border: none;
@@ -420,6 +439,10 @@
                 <h1 class="page-title">Orçamentos</h1>
             </div>
             <div class="header-actions">
+                <a href="force-clear-cache.html" class="cache-btn" aria-label="Limpar Cache">
+                    <i class="fas fa-sync-alt"></i>
+                    Limpar Cache
+                </a>
                 <button class="refresh-btn" id="refreshBtn" aria-label="Atualizar">⟳</button>
                 <button class="menu-btn" id="menuBtn" aria-label="Menu">☰</button>
             </div>
@@ -831,37 +854,52 @@
         // Função auxiliar para formatar volume (simplificada para PDF)
         function formatVolumeForPDF(volume) {
             try {
+                console.log("formatVolumeForPDF: entrada =", volume, "tipo:", typeof volume);
+                
                 // Se for undefined ou null, retornar valor padrão
                 if (volume === undefined || volume === null) {
+                    console.log("formatVolumeForPDF: volume é undefined/null, retornando padrão");
                     return '0,000 m³';
                 }
                 
                 // Se for número, formatar diretamente
                 if (typeof volume === 'number') {
-                    return volume.toLocaleString('pt-BR', {minimumFractionDigits: 3, maximumFractionDigits: 3}) + ' m³';
+                    const result = volume.toLocaleString('pt-BR', {minimumFractionDigits: 3, maximumFractionDigits: 3}) + ' m³';
+                    console.log("formatVolumeForPDF: formatado como número =", result);
+                    return result;
                 }
                 
                 // Se for string, verificar se já contém 'm³'
                 const volumeStr = String(volume);
+                console.log("formatVolumeForPDF: convertido para string =", volumeStr);
+                
                 if (volumeStr.includes('m³')) {
+                    console.log("formatVolumeForPDF: string já contém m³");
                     // Extrair apenas o número e reformatar
                     const volumeNumber = parseFloat(volumeStr.replace(/[^0-9,.]/g, '').replace(',', '.'));
                     if (!isNaN(volumeNumber)) {
-                        return volumeNumber.toLocaleString('pt-BR', {minimumFractionDigits: 3, maximumFractionDigits: 3}) + ' m³';
+                        const result = volumeNumber.toLocaleString('pt-BR', {minimumFractionDigits: 3, maximumFractionDigits: 3}) + ' m³';
+                        console.log("formatVolumeForPDF: reformatado =", result);
+                        return result;
                     }
+                    console.log("formatVolumeForPDF: não conseguiu extrair número, retornando original");
                     return volumeStr; // Retornar como está se não conseguir extrair número
                 }
                 
                 // Se for string sem 'm³', tentar converter para número
+                console.log("formatVolumeForPDF: string sem m³, tentando converter");
                 const volumeNumber = parseFloat(volumeStr.replace(/[^0-9,.]/g, '').replace(',', '.'));
                 if (!isNaN(volumeNumber)) {
-                    return volumeNumber.toLocaleString('pt-BR', {minimumFractionDigits: 3, maximumFractionDigits: 3}) + ' m³';
+                    const result = volumeNumber.toLocaleString('pt-BR', {minimumFractionDigits: 3, maximumFractionDigits: 3}) + ' m³';
+                    console.log("formatVolumeForPDF: convertido e formatado =", result);
+                    return result;
                 }
                 
                 // Se nada funcionar, retornar o valor original
+                console.log("formatVolumeForPDF: nada funcionou, retornando original =", volumeStr);
                 return volumeStr;
             } catch (error) {
-                console.error("Erro ao formatar volume:", error, "valor:", volume);
+                console.error("formatVolumeForPDF: ERRO =", error, "valor:", volume);
                 return '0,000 m³';
             }
         }
@@ -869,7 +907,7 @@
         // Gerar PDF do orçamento COM preço unitário (versão completa)
         function generatePDFWithUnitPrice(id) {
             try {
-                console.log("=== Gerando PDF com preço unitário ===");
+                console.log("=== INÍCIO generatePDFWithUnitPrice ===");
                 console.log("ID do orçamento:", id);
                 
                 // Usar o mesmo sistema de identificação que o calc.html
@@ -882,8 +920,8 @@
                     
                     if (!userId) {
                         console.error("Nenhum ID de usuário encontrado");
-                    showFeedback('ID de usuário não encontrado', 'error');
-                    return;
+                        showFeedback('ID de usuário não encontrado', 'error');
+                        return;
                     }
                 }
                 
@@ -899,6 +937,7 @@
                 }
                 
                 console.log("Dados do orçamento encontrado:", quote);
+                console.log("quote.totalVolume =", quote.totalVolume, "tipo:", typeof quote.totalVolume);
                 
                 // Buscar dados do usuário e da empresa
                 const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -922,7 +961,9 @@
                 const quoteNumber = quote.number || 'ORÇ-' + quote.id.substring(0, 6);
                 
                 // Formatar volume total usando a função local
+                console.log("Chamando formatVolumeForPDF com:", quote.totalVolume);
                 const formattedTotalVolume = formatVolumeForPDF(quote.totalVolume);
+                console.log("Volume formatado:", formattedTotalVolume);
                 
                 console.log("Abrindo janela do PDF...");
                 const reportWindow = window.open('', '_blank');
@@ -1310,7 +1351,7 @@
         // Gerar PDF do orçamento sem preço unitário (versão completa)
         function generateSimplePDF(id) {
             try {
-                console.log("=== Gerando PDF simples ===");
+                console.log("=== INÍCIO generateSimplePDF ===");
                 console.log("ID do orçamento:", id);
                 
                 // Usar o mesmo sistema de identificação que o calc.html
@@ -1323,8 +1364,8 @@
                     
                     if (!userId) {
                         console.error("Nenhum ID de usuário encontrado");
-                    showFeedback('ID de usuário não encontrado', 'error');
-                    return;
+                        showFeedback('ID de usuário não encontrado', 'error');
+                        return;
                     }
                 }
                 
@@ -1338,6 +1379,9 @@
                     showFeedback('Orçamento não encontrado', 'error');
                     return;
                 }
+                
+                console.log("Dados do orçamento encontrado:", quote);
+                console.log("quote.totalVolume =", quote.totalVolume, "tipo:", typeof quote.totalVolume);
                 
                 // Buscar dados do usuário e da empresa
                 const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -1361,7 +1405,9 @@
                 const quoteNumber = quote.number || 'ORÇ-' + quote.id.substring(0, 6);
                 
                 // Formatar volume total usando a função local
+                console.log("Chamando formatVolumeForPDF com:", quote.totalVolume);
                 const formattedTotalVolume = formatVolumeForPDF(quote.totalVolume);
+                console.log("Volume formatado:", formattedTotalVolume);
                 
                 console.log("Abrindo janela do PDF...");
                 const reportWindow = window.open('', '_blank');
