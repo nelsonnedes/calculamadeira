@@ -402,7 +402,7 @@
             }
             
             .action-btn {
-                width: 100%;
+            width: 100%;
                 justify-content: center;
             }
         }
@@ -426,39 +426,39 @@
         </div>
 
         <!-- Menu lateral -->
-        <div class="menu-panel" id="menuPanel">
-            <div class="menu-header">
+    <div class="menu-panel" id="menuPanel">
+        <div class="menu-header">
                 <div class="menu-avatar">
                     <i class="fas fa-user"></i>
                 </div>
-                <div class="menu-user-info">
+            <div class="menu-user-info">
                     <div class="menu-user-name">Usuário</div>
                     <div class="menu-user-email">email@exemplo.com</div>
-                </div>
             </div>
-            <div class="menu-items">
-                <a href="calc.html" class="menu-item">
-                    <i class="fas fa-calculator"></i>
-                    <span>Calculadora</span>
-                </a>
-                <a href="orcamentos.html" class="menu-item">
+        </div>
+        <div class="menu-items">
+            <a href="calc.html" class="menu-item">
+                <i class="fas fa-calculator"></i>
+                <span>Calculadora</span>
+            </a>
+            <a href="orcamentos.html" class="menu-item">
                     <i class="fas fa-file-invoice"></i>
-                    <span>Orçamentos</span>
-                </a>
+                <span>Orçamentos</span>
+            </a>
                 <a href="perfil.html" class="menu-item">
                     <i class="fas fa-user"></i>
                     <span>Perfil</span>
-                </a>
-                <a href="configuracoes.html" class="menu-item">
-                    <i class="fas fa-cog"></i>
-                    <span>Configurações</span>
-                </a>
-                <div class="menu-item logout">
-                    <i class="fas fa-sign-out-alt"></i>
-                    <span>Sair</span>
-                </div>
+            </a>
+            <a href="configuracoes.html" class="menu-item">
+                <i class="fas fa-cog"></i>
+                <span>Configurações</span>
+            </a>
+            <div class="menu-item logout">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Sair</span>
             </div>
         </div>
+    </div>
 
         <!-- Overlay -->
         <div class="overlay" id="overlay"></div>
@@ -467,10 +467,10 @@
         <main class="main-content">
             <div id="quotesContainer" class="quotes-container">
                 <!-- Orçamentos serão carregados aqui -->
-            </div>
+        </div>
 
             <!-- Paginação -->
-            <div class="pagination-container" id="paginationContainer" style="display: none;">
+        <div class="pagination-container" id="paginationContainer" style="display: none;">
                 <button id="prevBtn" onclick="changePage(-1)">Anterior</button>
                 <span id="paginationInfo"></span>
                 <button id="nextBtn" onclick="changePage(1)">Próximo</button>
@@ -581,10 +581,10 @@
                     userId = currentUser.email;
                     
                     // Se ainda não houver userId, criar um temporário
-                    if (!userId) {
-                        console.warn("ID de usuário não encontrado");
-                        showEmptyState();
-                        return;
+                if (!userId) {
+                    console.warn("ID de usuário não encontrado");
+                    showEmptyState();
+                    return;
                     }
                 }
                 
@@ -759,7 +759,7 @@
                     let userId = localStorage.getItem('currentUserId');
                     
                     // Se não houver currentUserId, tentar usar user.email como fallback
-                    if (!userId) {
+                if (!userId) {
                         const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
                         userId = currentUser.email;
                     }
@@ -767,9 +767,9 @@
                     if (!userId) {
                         console.error("ID de usuário não encontrado para exclusão");
                         showFeedback('Erro: usuário não identificado', 'error');
-                        return;
-                    }
-                    
+                    return;
+                }
+                
                     let quotes = JSON.parse(localStorage.getItem(`quotes_${userId}`) || '[]');
                     quotes = quotes.filter(quote => quote.id !== id);
                     
@@ -777,7 +777,7 @@
                     
                     loadQuotes();
                     showFeedback('Orçamento excluído com sucesso!');
-                } catch (error) {
+            } catch (error) {
                     console.error("Erro ao excluir orçamento:", error);
                     showFeedback('Erro ao excluir orçamento', 'error');
                 }
@@ -821,18 +821,16 @@
 
         // Carregar orçamentos ao iniciar
         document.addEventListener('DOMContentLoaded', () => {
-            loadQuotes();
+                    loadQuotes();
             
             const user = JSON.parse(localStorage.getItem('user') || '{}');
             document.querySelector('.menu-user-name').textContent = user.name || 'Usuário';
             document.querySelector('.menu-user-email').textContent = user.email || 'email@exemplo.com';
         });
 
-        // Função auxiliar para formatar volume
-        function formatVolume(volume) {
+        // Função auxiliar para formatar volume (simplificada para PDF)
+        function formatVolumeForPDF(volume) {
             try {
-                console.log("formatVolume: recebido =", volume, "tipo:", typeof volume);
-                
                 // Se for undefined ou null, retornar valor padrão
                 if (volume === undefined || volume === null) {
                     return '0,000 m³';
@@ -846,8 +844,12 @@
                 // Se for string, verificar se já contém 'm³'
                 const volumeStr = String(volume);
                 if (volumeStr.includes('m³')) {
+                    // Extrair apenas o número e reformatar
                     const volumeNumber = parseFloat(volumeStr.replace(/[^0-9,.]/g, '').replace(',', '.'));
-                    return volumeNumber.toLocaleString('pt-BR', {minimumFractionDigits: 3, maximumFractionDigits: 3}) + ' m³';
+                    if (!isNaN(volumeNumber)) {
+                        return volumeNumber.toLocaleString('pt-BR', {minimumFractionDigits: 3, maximumFractionDigits: 3}) + ' m³';
+                    }
+                    return volumeStr; // Retornar como está se não conseguir extrair número
                 }
                 
                 // Se for string sem 'm³', tentar converter para número
@@ -880,8 +882,8 @@
                     
                     if (!userId) {
                         console.error("Nenhum ID de usuário encontrado");
-                        showFeedback('ID de usuário não encontrado', 'error');
-                        return;
+                    showFeedback('ID de usuário não encontrado', 'error');
+                    return;
                     }
                 }
                 
@@ -918,6 +920,9 @@
                 
                 // Gerar número de orçamento se não existir
                 const quoteNumber = quote.number || 'ORÇ-' + quote.id.substring(0, 6);
+                
+                // Formatar volume total usando a função local
+                const formattedTotalVolume = formatVolumeForPDF(quote.totalVolume);
                 
                 console.log("Abrindo janela do PDF...");
                 const reportWindow = window.open('', '_blank');
@@ -1258,12 +1263,12 @@
                                     }).join('') : '<tr><td colspan="7">Nenhum item encontrado</td></tr>'}
                                 </tbody>
                             </table>
-                            
+
                             <div class="totals-footer">
                                 <table class="totals-table">
                                     <tr>
                                         <td class="totals-label">Volume Total</td>
-                                        <td class="totals-value">${formatVolume(quote.totalVolume)}</td>
+                                        <td class="totals-value">${formattedTotalVolume}</td>
                                     </tr>
                                     <tr>
                                         <td class="totals-label">Valor Total</td>
@@ -1318,8 +1323,8 @@
                     
                     if (!userId) {
                         console.error("Nenhum ID de usuário encontrado");
-                        showFeedback('ID de usuário não encontrado', 'error');
-                        return;
+                    showFeedback('ID de usuário não encontrado', 'error');
+                    return;
                     }
                 }
                 
@@ -1354,6 +1359,9 @@
                 
                 // Gerar número de orçamento se não existir
                 const quoteNumber = quote.number || 'ORÇ-' + quote.id.substring(0, 6);
+                
+                // Formatar volume total usando a função local
+                const formattedTotalVolume = formatVolumeForPDF(quote.totalVolume);
                 
                 console.log("Abrindo janela do PDF...");
                 const reportWindow = window.open('', '_blank');
@@ -1557,7 +1565,7 @@
                                 }
                                 
                                 body {
-                                    padding: 0;
+                                padding: 0;
                                 }
                                 
                                 @page {
@@ -1646,7 +1654,7 @@
                                 <table class="totals-table">
                                     <tr>
                                         <td class="totals-label">Volume Total</td>
-                                        <td class="totals-value">${formatVolume(quote.totalVolume)}</td>
+                                        <td class="totals-value">${formattedTotalVolume}</td>
                                     </tr>
                                     <tr>
                                         <td class="totals-label">Valor Total</td>
@@ -1677,8 +1685,8 @@
                 console.log("Escrevendo conteúdo completo do PDF simples...");
                 
                 try {
-                    reportWindow.document.write(reportContent);
-                    reportWindow.document.close();
+                reportWindow.document.write(reportContent);
+                reportWindow.document.close();
                     console.log("PDF simples gerado com sucesso!");
                 } catch (writeError) {
                     console.error("Erro ao escrever no documento:", writeError);
@@ -1689,6 +1697,42 @@
             } catch (error) {
                 console.error("Erro ao gerar PDF simples:", error);
                 showFeedback('Erro ao gerar o PDF: ' + error.message, 'error');
+            }
+        }
+
+        // Função auxiliar para formatar volume
+        function formatVolume(volume) {
+            try {
+                console.log("formatVolume: recebido =", volume, "tipo:", typeof volume);
+                
+                // Se for undefined ou null, retornar valor padrão
+                if (volume === undefined || volume === null) {
+                    return '0,000 m³';
+                }
+                
+                // Se for número, formatar diretamente
+                if (typeof volume === 'number') {
+                    return volume.toLocaleString('pt-BR', {minimumFractionDigits: 3, maximumFractionDigits: 3}) + ' m³';
+                }
+                
+                // Se for string, verificar se já contém 'm³'
+                const volumeStr = String(volume);
+                if (volumeStr.includes('m³')) {
+                    const volumeNumber = parseFloat(volumeStr.replace(/[^0-9,.]/g, '').replace(',', '.'));
+                    return volumeNumber.toLocaleString('pt-BR', {minimumFractionDigits: 3, maximumFractionDigits: 3}) + ' m³';
+                }
+                
+                // Se for string sem 'm³', tentar converter para número
+                const volumeNumber = parseFloat(volumeStr.replace(/[^0-9,.]/g, '').replace(',', '.'));
+                if (!isNaN(volumeNumber)) {
+                    return volumeNumber.toLocaleString('pt-BR', {minimumFractionDigits: 3, maximumFractionDigits: 3}) + ' m³';
+                }
+                
+                // Se nada funcionar, retornar o valor original
+                return volumeStr;
+            } catch (error) {
+                console.error("Erro ao formatar volume:", error, "valor:", volume);
+                return '0,000 m³';
             }
         }
     </script>
