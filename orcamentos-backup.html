@@ -1118,7 +1118,45 @@
             }
         }
 
-        // Gerar PDF do orçamento COM preço unitário (nova função)
+        // Função auxiliar para formatar volume (para PDFs)
+        function formatVolumeForPDF(volume) {
+            try {
+                // Se for undefined ou null, retornar valor padrão
+                if (volume === undefined || volume === null) {
+                    return '0,000 m³';
+                }
+                
+                // Se for número, formatar diretamente
+                if (typeof volume === 'number') {
+                    return volume.toLocaleString('pt-BR', {minimumFractionDigits: 3, maximumFractionDigits: 3}) + ' m³';
+                }
+                
+                // Se for string, verificar se já contém 'm³'
+                const volumeStr = String(volume);
+                if (volumeStr.includes('m³')) {
+                    // Extrair apenas o número e reformatar
+                    const volumeNumber = parseFloat(volumeStr.replace(/[^0-9,.]/g, '').replace(',', '.'));
+                    if (!isNaN(volumeNumber)) {
+                        return volumeNumber.toLocaleString('pt-BR', {minimumFractionDigits: 3, maximumFractionDigits: 3}) + ' m³';
+                    }
+                    return volumeStr; // Retornar como está se não conseguir extrair número
+                }
+                
+                // Se for string sem 'm³', tentar converter para número
+                const volumeNumber = parseFloat(volumeStr.replace(/[^0-9,.]/g, '').replace(',', '.'));
+                if (!isNaN(volumeNumber)) {
+                    return volumeNumber.toLocaleString('pt-BR', {minimumFractionDigits: 3, maximumFractionDigits: 3}) + ' m³';
+                }
+                
+                // Se nada funcionar, retornar o valor original
+                return volumeStr;
+            } catch (error) {
+                console.error("Erro ao formatar volume:", error, "valor:", volume);
+                return '0,000 m³';
+            }
+        }
+
+        // Gerar PDF do orçamento COM preço unitário (versão completa)
         function generatePDFWithUnitPrice(id) {
             try {
                 console.log("Gerando PDF com preço unitário para orçamento:", id);
@@ -1160,14 +1198,25 @@
                 // Gerar número de orçamento se não existir
                 const quoteNumber = quote.number || 'ORÇ-' + quote.id.substring(0, 6);
                 
-                // Preparar relatório com preço unitário
+                // Formatar volume total usando a função local
+                const formattedTotalVolume = formatVolumeForPDF(quote.totalVolume);
+                
+                // Preparar relatório condensado
+                console.log('Abrindo janela do relatório PDF...');
                 const reportWindow = window.open('', '_blank');
+                
+                if (!reportWindow) {
+                    console.error('Falha ao abrir janela - popup pode estar bloqueado');
+                    showFeedback('Não foi possível abrir o relatório. Verifique se o popup não está bloqueado.', 'error');
+                    return;
+                }
+                
+                console.log('Janela PDF aberta com sucesso, gerando conteúdo...');
                 const reportContent = `
                     <!DOCTYPE html>
                     <html>
                     <head>
-                        <title>Orçamento - ${quote.clientName}</title>
-                        <meta charset="UTF-8">
+                        <title>Orçamento - ${quote.clientName || 'Cliente'}</title>
                         <meta name="viewport" content="width=device-width, initial-scale=1.0">
                         <style>
                             @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
@@ -1488,22 +1537,15 @@
                                             <td class="total-price">${totalPriceFormatted}</td>
                                         </tr>
                                         `;
-                                    }).join('') : '<tr><td colspan="6">Nenhum item encontrado</td></tr>'}
+                                    }).join('') : '<tr><td colspan="7">Nenhum item encontrado</td></tr>'}
                                 </tbody>
                             </table>
-
+                            
                             <div class="totals-footer">
                                 <table class="totals-table">
                                     <tr>
                                         <td class="totals-label">Volume Total</td>
-                                        <td class="totals-value">${(() => {
-                                            const volumeText = quote.totalVolume || '0,000m³';
-                                            if (volumeText.includes('m³')) {
-                                                const volumeNumber = parseFloat(volumeText.replace(/[^0-9,.]/g, '').replace(',', '.'));
-                                                return volumeNumber.toLocaleString('pt-BR', {minimumFractionDigits: 3, maximumFractionDigits: 3}) + ' m³';
-                                            }
-                                            return volumeText;
-                                        })()}</td>
+                                        <td class="totals-value">${formattedTotalVolume}</td>
                                     </tr>
                                     <tr>
                                         <td class="totals-label">Valor Total</td>
@@ -1580,6 +1622,9 @@
                 
                 // Gerar número de orçamento se não existir
                 const quoteNumber = quote.number || 'ORÇ-' + quote.id.substring(0, 6);
+                
+                // Formatar volume total usando a função local
+                const formattedTotalVolume = formatVolumeForPDF(quote.totalVolume);
                 
                 // Preparar relatório condensado
                 console.log('Abrindo janela do relatório PDF...');
@@ -1693,13 +1738,13 @@
                                 margin-bottom: 4px;
                             }
                             
-                            table {
+                            .simple-table {
                                 width: 100%;
                                 border-collapse: collapse;
                                 font-size: 10px;
                             }
                             
-                            th {
+                            .simple-table th {
                                 background-color: var(--primary-color);
                                 color: white;
                                 font-weight: 500;
@@ -1707,17 +1752,17 @@
                                 padding: 5px 3px;
                             }
                             
-                            td {
+                            .simple-table td {
                                 padding: 4px 3px;
                                 border-bottom: 1px solid #eee;
                                 vertical-align: top;
                             }
                             
-                            tr:nth-child(even) {
+                            .simple-table tr:nth-child(even) {
                                 background-color: #f9f9f9;
                             }
                             
-                            .narrow {
+                            .num {
                                 width: 35px;
                                 text-align: center;
                             }
@@ -1726,38 +1771,33 @@
                                 text-align: right;
                             }
                             
-                            .totals {
+                            .totals-footer {
                                 display: flex;
                                 justify-content: flex-end;
                                 margin-top: 10px;
-                                font-weight: 700;
                             }
                             
-                            .totals div {
-                                margin-left: 20px;
+                            .totals-table {
+                                width: 250px;
+                                margin-bottom: 0;
                             }
                             
-                            .summary-heading {
-                                font-size: 12px;
+                            .totals-table td {
+                                border-bottom: 1px solid #ddd;
+                                padding: 6px;
+                            }
+                            
+                            .totals-label {
+                                font-weight: 600;
+                                text-align: right;
+                                width: 60%;
+                            }
+                            
+                            .totals-value {
                                 font-weight: 700;
-                                margin: 15px 0 5px 0;
+                                text-align: right;
                                 color: var(--primary-color);
-                                border-bottom: 1px solid var(--border-color);
-                                padding-bottom: 3px;
-                            }
-                            
-                            .summary-container {
-                                display: flex;
-                                flex-wrap: wrap;
-                                gap: 10px;
-                            }
-                            
-                            .summary-item {
-                                background-color: #f5f5f5;
-                                padding: 4px 8px;
-                                border-radius: 4px;
-                                white-space: nowrap;
-                                font-size: 11px;
+                                width: 40%;
                             }
                             
                             .footer {
@@ -1779,16 +1819,21 @@
                                 border: none;
                                 border-radius: 4px;
                                 cursor: pointer;
+                                margin: 0 5px;
                             }
                             
-                            .status-badge {
-                                display: inline-block;
-                                padding: 2px 5px;
-                                background-color: var(--primary-color);
-                                color: white;
-                                border-radius: 3px;
-                                font-size: 9px;
-                                font-weight: 700;
+                            @media print {
+                                .print-buttons {
+                                    display: none;
+                                }
+                                
+                                body {
+                                    padding: 0;
+                                }
+                                
+                                @page {
+                                    margin: 1cm;
+                                }
                             }
                         </style>
                     </head>
@@ -1805,7 +1850,7 @@
                                     <p>CNPJ: ${companyCNPJ}</p>
                                 </div>
                                 <div class="document-details">
-                                    <h2>ORÇAMENTO <span class="status-badge">ATIVO</span></h2>
+                                    <h2>ORÇAMENTO</h2>
                                     <p><strong>Nº:</strong> ${quoteNumber}</p>
                                     <p><strong>Data:</strong> ${formattedDate}</p>
                                     <p><strong>Validade:</strong> ${validUntilFormatted}</p>
@@ -1815,7 +1860,7 @@
                             <div class="client-section">
                                 <div class="client-info">
                                     <div class="subtitle">CLIENTE</div>
-                                    <p><strong>Nome:</strong> ${quote.clientName || 'Cliente não informado'}</p>
+                                    <p><strong>Nome:</strong> ${quote.clientName}</p>
                                     ${quote.clientContact ? `<p><strong>Contato:</strong> ${quote.clientContact}</p>` : ''}
                                 </div>
                                 <div class="quote-info">
@@ -1824,69 +1869,57 @@
                                     <p><strong>Entrega:</strong> 5-7 dias após confirmação</p>
                                 </div>
                             </div>
-
-                            <table>
+                            
+                            <table class="simple-table">
                                 <thead>
                                     <tr>
-                                        <th class="narrow">Nº</th>
-                                        <th class="dimensions">Dimensões</th>
+                                        <th class="num">Nº</th>
+                                        <th class="dim">Dimensões</th>
                                         <th class="qty">Qtd</th>
-                                        <th class="volume">Volume</th>
+                                        <th class="vol">Volume</th>
                                         <th class="species">Espécie</th>
-                                        <th class="unit-price">Preço Unit.</th>
-                                        <th class="total-price">Total</th>
+                                        <th class="total">Total</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    ${quote.items ? quote.items.map((item, index) => {
-                                        // Extrair informações do item
-                                        let sizeText = item.size || '';
+                                    ${quote.items && quote.items.length > 0 ? quote.items.map((item, index) => {
+                                        let sizeText = item.size;
+                                        if (sizeText.includes('x')) {
+                                            const parts = sizeText.split('x');
+                                            sizeText = parts.join(' X ');
+                                        }
                                         
-                                        // Formatar preço
-                                        let priceText = '';
-                                        if (typeof item.price === 'string') {
-                                            priceText = item.price;
-                                        } else if (typeof item.finalPrice === 'string') {
-                                            priceText = item.finalPrice;
-                                        } else if (typeof item.finalPrice === 'number') {
-                                            priceText = new Intl.NumberFormat('pt-BR', {
-                                                style: 'currency',
-                                                currency: 'BRL'
-                                            }).format(item.finalPrice);
-                                        } else if (typeof item.price === 'number') {
-                                            priceText = new Intl.NumberFormat('pt-BR', {
-                                                style: 'currency',
-                                                currency: 'BRL'
-                                            }).format(item.price);
+                                        const packageQuantity = parseInt(item.packageQuantity || 1);
+                                        const quantity = item.quantity;
+                                        const volume = item.volume;
+                                        const priceText = item.price;
+                                        
+                                        const totalQuantity = packageQuantity > 1 ? parseInt(quantity) * packageQuantity : quantity;
+                                        
+                                        let quantityDisplay = quantity;
+                                        if (packageQuantity > 1) {
+                                            quantityDisplay = `${quantity}×${packageQuantity}`;
                                         }
                                         
                                         return `
                                         <tr>
-                                            <td class="narrow">${index + 1}</td>
+                                            <td class="num">${index + 1}</td>
                                             <td class="dim">${sizeText}</td>
-                                            <td>${sizeText}</td>
-                                            <td>${item.quantity || 0}</td>
-                                            <td>${item.volume || '0,000m³'}</td>
-                                            <td>${item.species || 'Não informado'}</td>
-                                            <td>${priceText}</td>
+                                            <td class="qty">${quantityDisplay}</td>
+                                            <td class="vol">${volume}</td>
+                                            <td class="species">${item.species || 'Não informado'}</td>
+                                            <td class="total text-right">${priceText}</td>
                                         </tr>
                                         `;
                                     }).join('') : '<tr><td colspan="6">Nenhum item encontrado</td></tr>'}
                                 </tbody>
                             </table>
-
+                            
                             <div class="totals-footer">
                                 <table class="totals-table">
                                     <tr>
                                         <td class="totals-label">Volume Total</td>
-                                        <td class="totals-value">${(() => {
-                                            const volumeText = quote.totalVolume || '0,000m³';
-                                            if (volumeText.includes('m³')) {
-                                                const volumeNumber = parseFloat(volumeText.replace(/[^0-9,.]/g, '').replace(',', '.'));
-                                                return volumeNumber.toLocaleString('pt-BR', {minimumFractionDigits: 3, maximumFractionDigits: 3}) + ' m³';
-                                            }
-                                            return volumeText;
-                                        })()}</td>
+                                        <td class="totals-value">${formattedTotalVolume}</td>
                                     </tr>
                                     <tr>
                                         <td class="totals-label">Valor Total</td>
@@ -1914,25 +1947,15 @@
                     </html>
                 `;
                 
-                console.log('Escrevendo conteúdo PDF na janela...');
-                console.log('Tamanho do conteúdo PDF:', reportContent.length);
-                
-                try {
-                    reportWindow.document.write(reportContent);
-                    reportWindow.document.close();
-                    console.log('PDF gerado com sucesso!');
-                } catch (writeError) {
-                    console.error('Erro ao escrever conteúdo PDF:', writeError);
-                    showFeedback('Erro ao gerar o PDF', 'error');
-                    reportWindow.close();
-                }
+                reportWindow.document.write(reportContent);
+                reportWindow.document.close();
             } catch (error) {
                 console.error("Erro ao gerar PDF:", error);
                 showFeedback('Erro ao gerar o PDF', 'error');
             }
         }
 
-        // Gerar PDF do orçamento sem preço unitário
+        // Função para gerar PDF simples
         function generateSimplePDF(id) {
             try {
                 console.log("Gerando PDF simples para orçamento:", id);
@@ -1972,13 +1995,25 @@
                 // Gerar número de orçamento se não existir
                 const quoteNumber = quote.number || 'ORÇ-' + quote.id.substring(0, 6);
                 
-                // Preparar relatório condensado
+                // Formatar volume total usando a função local
+                const formattedTotalVolume = formatVolumeForPDF(quote.totalVolume);
+                
+                console.log("Abrindo janela do PDF simples...");
                 const reportWindow = window.open('', '_blank');
+                
+                if (!reportWindow) {
+                    console.error('Popup bloqueado');
+                    showFeedback('Popup bloqueado. Permita popups para este site.', 'error');
+                    return;
+                }
+                
+                // Conteúdo completo do PDF simples
                 const reportContent = `
                     <!DOCTYPE html>
                     <html>
                     <head>
                         <title>Orçamento - ${quote.clientName}</title>
+                        <meta charset="UTF-8">
                         <meta name="viewport" content="width=device-width, initial-scale=1.0">
                         <style>
                             @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
@@ -2108,38 +2143,33 @@
                                 text-align: right;
                             }
                             
-                            .totals {
+                            .totals-footer {
                                 display: flex;
                                 justify-content: flex-end;
                                 margin-top: 10px;
-                                font-weight: 700;
                             }
                             
-                            .totals div {
-                                margin-left: 20px;
+                            .totals-table {
+                                width: 250px;
+                                margin-bottom: 0;
                             }
                             
-                            .summary-heading {
-                                font-size: 12px;
+                            .totals-table td {
+                                border-bottom: 1px solid #ddd;
+                                padding: 6px;
+                            }
+                            
+                            .totals-label {
+                                font-weight: 600;
+                                text-align: right;
+                                width: 60%;
+                            }
+                            
+                            .totals-value {
                                 font-weight: 700;
-                                margin: 15px 0 5px 0;
+                                text-align: right;
                                 color: var(--primary-color);
-                                border-bottom: 1px solid var(--border-color);
-                                padding-bottom: 3px;
-                            }
-                            
-                            .summary-container {
-                                display: flex;
-                                flex-wrap: wrap;
-                                gap: 10px;
-                            }
-                            
-                            .summary-item {
-                                background-color: #f5f5f5;
-                                padding: 4px 8px;
-                                border-radius: 4px;
-                                white-space: nowrap;
-                                font-size: 11px;
+                                width: 40%;
                             }
                             
                             .footer {
@@ -2161,16 +2191,21 @@
                                 border: none;
                                 border-radius: 4px;
                                 cursor: pointer;
+                                margin: 0 5px;
                             }
                             
-                            .status-badge {
-                                display: inline-block;
-                                padding: 2px 5px;
-                                background-color: var(--primary-color);
-                                color: white;
-                                border-radius: 3px;
-                                font-size: 9px;
-                                font-weight: 700;
+                            @media print {
+                                .print-buttons {
+                                    display: none;
+                                }
+                                
+                                body {
+                                    padding: 0;
+                                }
+                                
+                                @page {
+                                    margin: 1cm;
+                                }
                             }
                         </style>
                     </head>
@@ -2187,7 +2222,7 @@
                                     <p>CNPJ: ${companyCNPJ}</p>
                                 </div>
                                 <div class="document-details">
-                                    <h2>ORÇAMENTO <span class="status-badge">ATIVO</span></h2>
+                                    <h2>ORÇAMENTO</h2>
                                     <p><strong>Nº:</strong> ${quoteNumber}</p>
                                     <p><strong>Data:</strong> ${formattedDate}</p>
                                     <p><strong>Validade:</strong> ${validUntilFormatted}</p>
@@ -2207,21 +2242,21 @@
                                 </div>
                             </div>
 
-                            <table class="simple-table">
+                            <table>
                                 <thead>
                                     <tr>
-                                        <th class="num">Nº</th>
-                                        <th class="dim">Dimensões</th>
-                                        <th class="qty">Qtd</th>
-                                        <th class="vol">Volume</th>
-                                        <th class="species">Espécie</th>
-                                        <th class="total">Total</th>
+                                        <th class="narrow">Nº</th>
+                                        <th>Dimensões</th>
+                                        <th>Qtd</th>
+                                        <th>Volume</th>
+                                        <th>Espécie</th>
+                                        <th class="text-right">Total</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     ${quote.items && quote.items.length > 0 ? quote.items.map((item, index) => {
                                         let sizeText = item.size;
-                                        if (sizeText.includes('x')) {
+                                        if (sizeText && sizeText.includes('x')) {
                                             const parts = sizeText.split('x');
                                             sizeText = parts.join(' X ');
                                         }
@@ -2231,8 +2266,6 @@
                                         const volume = item.volume;
                                         const priceText = item.price;
                                         
-                                        const totalQuantity = packageQuantity > 1 ? parseInt(quantity) * packageQuantity : quantity;
-                                        
                                         let quantityDisplay = quantity;
                                         if (packageQuantity > 1) {
                                             quantityDisplay = `${quantity}×${packageQuantity}`;
@@ -2240,15 +2273,15 @@
                                         
                                         return `
                                         <tr>
-                                            <td class="num">${index + 1}</td>
-                                            <td class="dim">${sizeText}</td>
-                                            <td class="qty">${quantityDisplay}</td>
-                                            <td class="vol">${volume}</td>
-                                            <td class="species">${item.species || 'Não informado'}</td>
-                                            <td class="total">${priceText}</td>
+                                            <td class="narrow">${index + 1}</td>
+                                            <td>${sizeText}</td>
+                                            <td>${quantityDisplay}</td>
+                                            <td>${volume}</td>
+                                            <td>${item.species || 'Não informado'}</td>
+                                            <td class="text-right">${priceText}</td>
                                         </tr>
                                         `;
-                                    }).join('')}
+                                    }).join('') : '<tr><td colspan="6">Nenhum item encontrado</td></tr>'}
                                 </tbody>
                             </table>
 
@@ -2256,14 +2289,7 @@
                                 <table class="totals-table">
                                     <tr>
                                         <td class="totals-label">Volume Total</td>
-                                        <td class="totals-value">${(() => {
-                                            const volumeText = quote.totalVolume || '0,000m³';
-                                            if (volumeText.includes('m³')) {
-                                                const volumeNumber = parseFloat(volumeText.replace(/[^0-9,.]/g, '').replace(',', '.'));
-                                                return volumeNumber.toLocaleString('pt-BR', {minimumFractionDigits: 3, maximumFractionDigits: 3}) + ' m³';
-                                            }
-                                            return volumeText;
-                                        })()}</td>
+                                        <td class="totals-value">${formattedTotalVolume}</td>
                                     </tr>
                                     <tr>
                                         <td class="totals-label">Valor Total</td>
@@ -2291,12 +2317,21 @@
                     </html>
                 `;
                 
-                reportWindow.document.write(reportContent);
-                reportWindow.document.close();
+                console.log("Escrevendo conteúdo completo do PDF simples...");
+                
+                try {
+                    reportWindow.document.write(reportContent);
+                    reportWindow.document.close();
+                    console.log("PDF simples gerado com sucesso!");
+                } catch (writeError) {
+                    console.error("Erro ao escrever no documento:", writeError);
+                    showFeedback('Erro ao escrever no documento: ' + writeError.message, 'error');
+                    reportWindow.close();
+                }
+                
             } catch (error) {
                 console.error("Erro ao gerar PDF simples:", error);
-                showFeedback('Erro ao gerar o PDF', 'error');
-                return;
+                showFeedback('Erro ao gerar o PDF: ' + error.message, 'error');
             }
         }
 
