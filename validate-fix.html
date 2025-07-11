@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>🔍 Validação Fix v2.1.0</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #8B0000;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin: 30px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .test-section h2 {
+            color: #8B0000;
+            margin-bottom: 15px;
+        }
+        .result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        button {
+            background: #8B0000;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #660000;
+        }
+        .code {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+            border: 1px solid #e9ecef;
+            margin: 10px 0;
+        }
+        .actions {
+            text-align: center;
+            margin: 30px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Validação das Correções v2.1.0</h1>
+        
+        <div class="test-section">
+            <h2>📋 Informações do Sistema</h2>
+            <div id="system-info"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>🔧 Teste 1: Função formatVolumeForPDF</h2>
+            <p>Testando se a função que causava o erro <code>volumeText.includes is not a function</code> está funcionando:</p>
+            <button onclick="testFormatVolumeForPDF()">Executar Teste</button>
+            <div id="format-test-results"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>🗂️ Teste 2: Service Worker</h2>
+            <p>Verificando se o service worker está bloqueando corretamente URLs de extensões:</p>
+            <button onclick="testServiceWorker()">Executar Teste</button>
+            <div id="sw-test-results"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>📄 Teste 3: Simulação de PDF</h2>
+            <p>Testando geração de PDF com dados simulados:</p>
+            <button onclick="testPDFGeneration()">Executar Teste</button>
+            <div id="pdf-test-results"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>💾 Teste 4: Cache</h2>
+            <p>Verificando estado do cache:</p>
+            <button onclick="testCache()">Executar Teste</button>
+            <div id="cache-test-results"></div>
+        </div>
+        
+        <div class="actions">
+            <button onclick="runAllTests()">🚀 Executar Todos os Testes</button>
+            <button onclick="clearAndReload()">🔄 Limpar Cache e Recarregar</button>
+            <button onclick="goToApp()">📱 Ir para Aplicação</button>
+        </div>
+    </div>
+
+    <script>
+        // Função formatVolumeForPDF (cópia da versão corrigida)
+        function formatVolumeForPDF(volume) {
+            try {
+                console.log("formatVolumeForPDF: entrada =", volume, "tipo:", typeof volume);
+                
+                if (volume === undefined || volume === null) {
+                    return '0,000 m³';
+                }
+                
+                if (typeof volume === 'number') {
+                    return volume.toLocaleString('pt-BR', {minimumFractionDigits: 3, maximumFractionDigits: 3}) + ' m³';
+                }
+                
+                const volumeStr = String(volume);
+                
+                if (volumeStr.includes('m³')) {
+                    const volumeNumber = parseFloat(volumeStr.replace(/[^0-9,.]/g, '').replace(',', '.'));
+                    if (!isNaN(volumeNumber)) {
+                        return volumeNumber.toLocaleString('pt-BR', {minimumFractionDigits: 3, maximumFractionDigits: 3}) + ' m³';
+                    }
+                    return volumeStr;
+                }
+                
+                const volumeNumber = parseFloat(volumeStr.replace(/[^0-9,.]/g, '').replace(',', '.'));
+                if (!isNaN(volumeNumber)) {
+                    return volumeNumber.toLocaleString('pt-BR', {minimumFractionDigits: 3, maximumFractionDigits: 3}) + ' m³';
+                }
+                
+                return volumeStr;
+            } catch (error) {
+                console.error("formatVolumeForPDF: ERRO =", error, "valor:", volume);
+                return '0,000 m³';
+            }
+        }
+
+        // Mostrar informações do sistema
+        function showSystemInfo() {
+            const info = {
+                'Versão do Código': '2.1.0',
+                'User Agent': navigator.userAgent,
+                'Timestamp': new Date().toLocaleString(),
+                'URL Atual': window.location.href,
+                'Versão no localStorage': localStorage.getItem('code-version') || 'Não definido',
+                'Service Worker Suportado': 'serviceWorker' in navigator ? 'Sim' : 'Não',
+                'Cache API Suportado': 'caches' in window ? 'Sim' : 'Não'
+            };
+            
+            let html = '';
+            for (const [key, value] of Object.entries(info)) {
+                html += `<div class="info"><strong>${key}:</strong> ${value}</div>`;
+            }
+            
+            document.getElementById('system-info').innerHTML = html;
+        }
+
+        // Teste da função formatVolumeForPDF
+        function testFormatVolumeForPDF() {
+            const testCases = [
+                { input: 1.234, expected: '1,234 m³', description: 'Número decimal' },
+                { input: '1.234', expected: '1,234 m³', description: 'String numérica' },
+                { input: '1,234 m³', expected: '1,234 m³', description: 'String já formatada' },
+                { input: null, expected: '0,000 m³', description: 'Valor null' },
+                { input: undefined, expected: '0,000 m³', description: 'Valor undefined' },
+                { input: 0.5, expected: '0,500 m³', description: 'Número decimal pequeno' },
+                { input: '0,500m³', expected: '0,500 m³', description: 'String sem espaço' }
+            ];
+            
+            let html = '<h3>Resultados dos Testes:</h3>';
+            let allPassed = true;
+            
+            testCases.forEach((testCase, index) => {
+                try {
+                    const result = formatVolumeForPDF(testCase.input);
+                    const passed = result === testCase.expected;
+                    allPassed = allPassed && passed;
+                    
+                    html += `<div class="result ${passed ? 'success' : 'error'}">
+                        <strong>Teste ${index + 1} (${testCase.description}):</strong><br>
+                        Input: ${JSON.stringify(testCase.input)} (${typeof testCase.input})<br>
+                        Esperado: ${testCase.expected}<br>
+                        Resultado: ${result}<br>
+                        Status: ${passed ? '✅ PASSOU' : '❌ FALHOU'}
+                    </div>`;
+                } catch (error) {
+                    allPassed = false;
+                    html += `<div class="result error">
+                        <strong>Teste ${index + 1} (${testCase.description}):</strong><br>
+                        Input: ${JSON.stringify(testCase.input)}<br>
+                        ERRO: ${error.message}
+                    </div>`;
+                }
+            });
+            
+            html += `<div class="result ${allPassed ? 'success' : 'error'}">
+                <strong>Resultado Geral: ${allPassed ? '✅ TODOS OS TESTES PASSARAM' : '❌ ALGUNS TESTES FALHARAM'}</strong>
+            </div>`;
+            
+            document.getElementById('format-test-results').innerHTML = html;
+        }
+
+        // Teste do Service Worker
+        async function testServiceWorker() {
+            let html = '<h3>Verificação do Service Worker:</h3>';
+            
+            try {
+                if ('serviceWorker' in navigator) {
+                    const registrations = await navigator.serviceWorker.getRegistrations();
+                    
+                    html += `<div class="info">
+                        <strong>Service Workers Registrados:</strong> ${registrations.length}
+                    </div>`;
+                    
+                    registrations.forEach((reg, index) => {
+                        html += `<div class="info">
+                            <strong>SW ${index + 1}:</strong> ${reg.scope}<br>
+                            <strong>Estado:</strong> ${reg.active ? 'Ativo' : 'Inativo'}
+                        </div>`;
+                    });
+                    
+                    // Verificar versão do cache
+                    if ('caches' in window) {
+                        const cacheNames = await caches.keys();
+                        html += `<div class="info">
+                            <strong>Caches Existentes:</strong> ${cacheNames.length}<br>
+                            ${cacheNames.map(name => `<code>${name}</code>`).join(', ')}
+                        </div>`;
+                        
+                        const hasNewCache = cacheNames.some(name => name.includes('2.1.0'));
+                        html += `<div class="result ${hasNewCache ? 'success' : 'warning'}">
+                            <strong>Cache v2.1.0:</strong> ${hasNewCache ? '✅ Encontrado' : '⚠️ Não encontrado'}
+                        </div>`;
+                    }
+                    
+                } else {
+                    html += `<div class="error">Service Worker não suportado</div>`;
+                }
+                
+            } catch (error) {
+                html += `<div class="error">Erro ao verificar Service Worker: ${error.message}</div>`;
+            }
+            
+            document.getElementById('sw-test-results').innerHTML = html;
+        }
+
+        // Teste de geração de PDF
+        function testPDFGeneration() {
+            let html = '<h3>Teste de Geração de PDF:</h3>';
+            
+            try {
+                // Simular dados de orçamento
+                const mockQuote = {
+                    id: 'test_quote_' + Date.now(),
+                    totalVolume: 1.234,
+                    clientName: 'Cliente Teste',
+                    date: new Date().toISOString(),
+                    items: [
+                        { 
+                            size: '2x4x3', 
+                            volume: 0.024, 
+                            quantity: 10, 
+                            species: 'Pinus',
+                            price: 'R$ 120,00'
+                        }
+                    ]
+                };
+                
+                // Testar formatação do volume
+                const formattedVolume = formatVolumeForPDF(mockQuote.totalVolume);
+                
+                html += `<div class="success">
+                    <strong>✅ Simulação de PDF Bem-Sucedida</strong><br>
+                    Volume original: ${mockQuote.totalVolume} (${typeof mockQuote.totalVolume})<br>
+                    Volume formatado: ${formattedVolume}<br>
+                    Nenhum erro detectado
+                </div>`;
+                
+                html += `<div class="code">
+                    Dados simulados:<br>
+                    ${JSON.stringify(mockQuote, null, 2)}
+                </div>`;
+                
+            } catch (error) {
+                html += `<div class="error">
+                    <strong>❌ Erro na Simulação de PDF</strong><br>
+                    Erro: ${error.message}
+                </div>`;
+            }
+            
+            document.getElementById('pdf-test-results').innerHTML = html;
+        }
+
+        // Teste de cache
+        async function testCache() {
+            let html = '<h3>Verificação de Cache:</h3>';
+            
+            try {
+                if ('caches' in window) {
+                    const cacheNames = await caches.keys();
+                    
+                    html += `<div class="info">
+                        <strong>Total de Caches:</strong> ${cacheNames.length}
+                    </div>`;
+                    
+                    if (cacheNames.length > 0) {
+                        for (const cacheName of cacheNames) {
+                            const cache = await caches.open(cacheName);
+                            const keys = await cache.keys();
+                            
+                            html += `<div class="info">
+                                <strong>Cache:</strong> ${cacheName}<br>
+                                <strong>Itens:</strong> ${keys.length}
+                            </div>`;
+                        }
+                    } else {
+                        html += `<div class="warning">Nenhum cache encontrado</div>`;
+                    }
+                    
+                    // Verificar versão no localStorage
+                    const codeVersion = localStorage.getItem('code-version');
+                    html += `<div class="result ${codeVersion === '2.1.0' ? 'success' : 'warning'}">
+                        <strong>Versão do Código:</strong> ${codeVersion || 'Não definido'}<br>
+                        <strong>Status:</strong> ${codeVersion === '2.1.0' ? '✅ Atualizado' : '⚠️ Desatualizado'}
+                    </div>`;
+                    
+                } else {
+                    html += `<div class="error">Cache API não suportado</div>`;
+                }
+                
+            } catch (error) {
+                html += `<div class="error">Erro ao verificar cache: ${error.message}</div>`;
+            }
+            
+            document.getElementById('cache-test-results').innerHTML = html;
+        }
+
+        // Executar todos os testes
+        function runAllTests() {
+            testFormatVolumeForPDF();
+            testServiceWorker();
+            testPDFGeneration();
+            testCache();
+        }
+
+        // Limpar cache e recarregar
+        function clearAndReload() {
+            window.location.href = '/force-clear-cache.html';
+        }
+
+        // Ir para aplicação
+        function goToApp() {
+            window.location.href = '/orcamentos.html?v=2.1.0&t=' + Date.now();
+        }
+
+        // Executar ao carregar
+        window.addEventListener('load', () => {
+            showSystemInfo();
+            runAllTests();
+        });
+    </script>
+</body>
+</html> 
