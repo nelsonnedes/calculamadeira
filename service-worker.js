@@ -1,4 +1,4 @@
-const CACHE_NAME = 'calculadora-madeira-v2.0.9';
+const CACHE_NAME = 'calculadora-madeira-v2.1.0';
 const urlsToCache = [
     '/',
     '/index.html',
@@ -12,53 +12,47 @@ const urlsToCache = [
     '/icons/icon-512x512.png'
 ];
 
-// Função para verificar se a URL é cacheable - versão ultra-robusta
+// Função para verificar se a URL é cacheable - VERSÃO ULTRA ROBUSTA
 function isCacheableRequest(request) {
     const url = request.url;
     
-    // Log da URL para debug
-    console.log('Service Worker: Verificando URL:', url);
-    
-    // Lista completa de esquemas não cacheáveis
+    // PRIMEIRA BARREIRA: Verificar esquemas não cacheáveis
     const nonCacheableSchemes = [
-        'chrome-extension://',
-        'chrome://',
-        'moz-extension://',
-        'safari-extension://',
-        'edge-extension://',
+        'chrome-extension',
+        'chrome:',
+        'moz-extension',
+        'safari-extension',
+        'edge-extension',
         'about:',
         'blob:',
         'data:',
-        'file://',
-        'ftp://',
-        'ws://',
-        'wss://'
+        'file:',
+        'ftp:',
+        'ws:',
+        'wss:'
     ];
     
-    // Verificar se a URL começa com qualquer esquema não cacheável
+    // Verificar se a URL contém qualquer esquema não cacheável
     for (const scheme of nonCacheableSchemes) {
-        if (url.startsWith(scheme)) {
-            console.log('Service Worker: URL BLOQUEADA (esquema não cacheável):', url);
+        if (url.includes(scheme)) {
+            console.log('Service Worker: URL BLOQUEADA (contém esquema não cacheável):', url);
             return false;
         }
     }
     
-    // Verificar se contém extensão no meio da URL
-    if (url.includes('chrome-extension') || 
-        url.includes('moz-extension') || 
-        url.includes('safari-extension') || 
-        url.includes('edge-extension')) {
-        console.log('Service Worker: URL BLOQUEADA (contém extensão):', url);
+    // SEGUNDA BARREIRA: Verificar se começa com esquemas válidos
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+        console.log('Service Worker: URL BLOQUEADA (não HTTP/HTTPS):', url);
         return false;
     }
     
-    // Apenas requests GET são cacheáveis
+    // TERCEIRA BARREIRA: Apenas requests GET são cacheáveis
     if (request.method !== 'GET') {
         console.log('Service Worker: URL não cacheable (método não GET):', url);
         return false;
     }
     
-    // Verificar se é uma URL válida HTTP/HTTPS
+    // QUARTA BARREIRA: Verificar se é uma URL válida
     try {
         const urlObj = new URL(url);
         if (urlObj.protocol !== 'http:' && urlObj.protocol !== 'https:') {
@@ -118,17 +112,16 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
-    // PRIMEIRA VERIFICAÇÃO: Bloquear imediatamente URLs não cacheáveis
+    // BLOQUEIO IMEDIATO: Se não for cacheable, ignorar completamente
     if (!isCacheableRequest(event.request)) {
         console.log('Service Worker: IGNORANDO requisição não cacheable:', event.request.url);
-        // Retornar imediatamente sem processar - deixar o navegador lidar com isso
-        return;
+        return; // Não processar
     }
     
-    // SEGUNDA VERIFICAÇÃO: Dupla verificação para chrome-extension
-    if (event.request.url.includes('chrome-extension')) {
-        console.log('Service Worker: BLOQUEANDO chrome-extension:', event.request.url);
-        return;
+    // BLOQUEIO SECUNDÁRIO: Verificação extra para extensões
+    if (event.request.url.includes('extension')) {
+        console.log('Service Worker: BLOQUEANDO URL com extensão:', event.request.url);
+        return; // Não processar
     }
     
     event.respondWith(
@@ -148,15 +141,9 @@ self.addEventListener('fetch', event => {
                             return response;
                         }
                         
-                        // TERCEIRA VERIFICAÇÃO: Antes de cachear, verificar novamente
+                        // VERIFICAÇÃO FINAL: Antes de cachear
                         if (!isCacheableRequest(event.request)) {
                             console.log('Service Worker: FINAL - Pulando cache para URL não cacheable:', event.request.url);
-                            return response;
-                        }
-                        
-                        // QUARTA VERIFICAÇÃO: Última verificação antes do cache
-                        if (event.request.url.includes('chrome-extension')) {
-                            console.log('Service Worker: FINAL - Bloqueando chrome-extension antes do cache:', event.request.url);
                             return response;
                         }
                         
@@ -166,8 +153,10 @@ self.addEventListener('fetch', event => {
                         // Cachear a resposta de forma segura
                         caches.open(CACHE_NAME)
                             .then(cache => {
-                                // QUINTA VERIFICAÇÃO: Última verificação antes de adicionar ao cache
-                                if (isCacheableRequest(event.request) && !event.request.url.includes('chrome-extension')) {
+                                // VERIFICAÇÃO ULTRA FINAL: Última verificação antes de adicionar ao cache
+                                if (isCacheableRequest(event.request) && 
+                                    !event.request.url.includes('extension') &&
+                                    event.request.url.startsWith('http')) {
                                     console.log('Service Worker: Adicionando ao cache:', event.request.url);
                                     return cache.put(event.request, responseToCache);
                                 } else {
@@ -191,7 +180,6 @@ self.addEventListener('fetch', event => {
             })
             .catch(error => {
                 console.log('Service Worker: Erro no cache match:', error);
-                // Tentar buscar da rede como fallback
                 return fetch(event.request);
             })
     );
