@@ -14,7 +14,7 @@
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icons/icon-192x192.png">
     <title>Orçamentos - Calculadora de Madeira</title>
-    <link rel="stylesheet" href="styles.css?v=2.1.0">
+    <link rel="stylesheet" href="styles.css?v=2.1.1">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         * {
@@ -505,8 +505,9 @@
     </div>
 
     <script>
-        // VERSÃO DO CÓDIGO - ATUALIZAR SEMPRE QUE HOUVER MUDANÇAS
-        const CODE_VERSION = '2.1.0';
+        // Configuração de versão e cache
+        const CODE_VERSION = '2.1.1';
+        const CACHE_NAME = 'calculadora-madeira-v2.1.1';
         
         // DETECÇÃO E LIMPEZA AUTOMÁTICA DE CACHE - VERSÃO MAIS AGRESSIVA
         (async function ultraForceCleanCache() {
@@ -521,7 +522,7 @@
                 console.log(`URL atual: ${currentUrl}`);
                 
                 // Se for uma versão diferente OU se não tiver parâmetro de versão na URL
-                if (lastVersion !== CODE_VERSION || !currentUrl.includes('v=2.1.0')) {
+                if (lastVersion !== CODE_VERSION || !currentUrl.includes('v=2.1.1')) {
                     console.log('FORÇANDO LIMPEZA COMPLETA DE CACHE');
                     
                     // ETAPA 1: Limpar todos os caches
@@ -945,59 +946,6 @@
             document.querySelector('.menu-user-email').textContent = user.email || 'email@exemplo.com';
         });
 
-        // Função auxiliar para formatar volume (simplificada para PDF)
-        function formatVolumeForPDF(volume) {
-            try {
-                console.log("formatVolumeForPDF: entrada =", volume, "tipo:", typeof volume);
-                
-                // Se for undefined ou null, retornar valor padrão
-                if (volume === undefined || volume === null) {
-                    console.log("formatVolumeForPDF: volume é undefined/null, retornando padrão");
-                    return '0,000 m³';
-                }
-                
-                // Se for número, formatar diretamente
-                if (typeof volume === 'number') {
-                    const result = volume.toLocaleString('pt-BR', {minimumFractionDigits: 3, maximumFractionDigits: 3}) + ' m³';
-                    console.log("formatVolumeForPDF: formatado como número =", result);
-                    return result;
-                }
-                
-                // Se for string, verificar se já contém 'm³'
-                const volumeStr = String(volume);
-                console.log("formatVolumeForPDF: convertido para string =", volumeStr);
-                
-                if (volumeStr.includes('m³')) {
-                    console.log("formatVolumeForPDF: string já contém m³");
-                    // Extrair apenas o número e reformatar
-                    const volumeNumber = parseFloat(volumeStr.replace(/[^0-9,.]/g, '').replace(',', '.'));
-                    if (!isNaN(volumeNumber)) {
-                        const result = volumeNumber.toLocaleString('pt-BR', {minimumFractionDigits: 3, maximumFractionDigits: 3}) + ' m³';
-                        console.log("formatVolumeForPDF: reformatado =", result);
-                        return result;
-                    }
-                    console.log("formatVolumeForPDF: não conseguiu extrair número, retornando original");
-                    return volumeStr; // Retornar como está se não conseguir extrair número
-                }
-                
-                // Se for string sem 'm³', tentar converter para número
-                console.log("formatVolumeForPDF: string sem m³, tentando converter");
-                const volumeNumber = parseFloat(volumeStr.replace(/[^0-9,.]/g, '').replace(',', '.'));
-                if (!isNaN(volumeNumber)) {
-                    const result = volumeNumber.toLocaleString('pt-BR', {minimumFractionDigits: 3, maximumFractionDigits: 3}) + ' m³';
-                    console.log("formatVolumeForPDF: convertido e formatado =", result);
-                    return result;
-                }
-                
-                // Se nada funcionar, retornar o valor original
-                console.log("formatVolumeForPDF: nada funcionou, retornando original =", volumeStr);
-                return volumeStr;
-            } catch (error) {
-                console.error("formatVolumeForPDF: ERRO =", error, "valor:", volume);
-                return '0,000 m³';
-            }
-        }
-
         // Gerar PDF do orçamento COM preço unitário (versão completa)
         function generatePDFWithUnitPrice(id) {
             try {
@@ -1031,7 +979,6 @@
                 }
                 
                 console.log("Dados do orçamento encontrado:", quote);
-                console.log("quote.totalVolume =", quote.totalVolume, "tipo:", typeof quote.totalVolume);
                 
                 // Buscar dados do usuário e da empresa
                 const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -1054,10 +1001,19 @@
                 // Gerar número de orçamento se não existir
                 const quoteNumber = quote.number || 'ORÇ-' + quote.id.substring(0, 6);
                 
-                // Formatar volume total usando a função local
-                console.log("Chamando formatVolumeForPDF com:", quote.totalVolume);
-                const formattedTotalVolume = formatVolumeForPDF(quote.totalVolume);
-                console.log("Volume formatado:", formattedTotalVolume);
+                // Formatar volume total de forma segura
+                let formattedTotalVolume = '0,000 m³';
+                if (quote.totalVolume !== undefined && quote.totalVolume !== null) {
+                    if (typeof quote.totalVolume === 'number') {
+                        formattedTotalVolume = quote.totalVolume.toLocaleString('pt-BR', {minimumFractionDigits: 3, maximumFractionDigits: 3}) + ' m³';
+                    } else {
+                        const volumeStr = String(quote.totalVolume);
+                        const volumeNumber = parseFloat(volumeStr.replace(/[^0-9,.]/g, '').replace(',', '.'));
+                        if (!isNaN(volumeNumber)) {
+                            formattedTotalVolume = volumeNumber.toLocaleString('pt-BR', {minimumFractionDigits: 3, maximumFractionDigits: 3}) + ' m³';
+                        }
+                    }
+                }
                 
                 console.log("Abrindo janela do PDF...");
                 const reportWindow = window.open('', '_blank');
@@ -1163,73 +1119,65 @@
                             }
                             
                             .subtitle {
-                                font-weight: 700;
+                                font-weight: 600;
                                 color: var(--primary-color);
                                 margin-bottom: 8px;
+                                font-size: 12px;
                             }
                             
                             table {
                                 width: 100%;
                                 border-collapse: collapse;
                                 margin-bottom: 20px;
-                                table-layout: fixed;
                             }
                             
                             th {
                                 background-color: var(--primary-color);
                                 color: white;
-                                font-weight: 500;
+                                padding: 10px;
                                 text-align: left;
-                                padding: 12px 8px;
-                                font-size: 12px;
+                                font-weight: 500;
                             }
                             
                             td {
-                                padding: 10px 8px;
-                                border-bottom: 1px solid #eee;
-                                vertical-align: top;
-                                font-size: 11px;
-                                word-wrap: break-word;
+                                padding: 8px 10px;
+                                border-bottom: 1px solid var(--border-color);
                             }
                             
                             tr:nth-child(even) {
-                                background-color: #f9f9f9;
+                                background-color: var(--secondary-color);
                             }
                             
                             .narrow {
-                                width: 8%;
+                                width: 40px;
                                 text-align: center;
                             }
                             
                             .dimensions {
-                                width: 20%;
+                                width: 120px;
                             }
                             
                             .qty {
-                                width: 12%;
+                                width: 60px;
                                 text-align: center;
                             }
                             
                             .volume {
-                                width: 15%;
-                                text-align: right;
+                                width: 80px;
+                                text-align: center;
                             }
                             
                             .species {
-                                width: 15%;
+                                width: 100px;
                             }
                             
                             .unit-price {
-                                width: 15%;
+                                width: 80px;
                                 text-align: right;
                             }
                             
                             .total-price {
-                                width: 15%;
-                                text-align: right;
-                            }
-                            
-                            .text-right {
+                                width: 80px;
                                 text-align: right;
                             }
                             
@@ -1431,10 +1379,16 @@
                     </html>
                 `;
                 
-                console.log("Escrevendo conteúdo completo do PDF...");
-                reportWindow.document.write(reportContent);
-                reportWindow.document.close();
-                console.log("PDF com preço unitário gerado com sucesso!");
+                console.log("Escrevendo conteúdo na janela...");
+                try {
+                    reportWindow.document.write(reportContent);
+                    reportWindow.document.close();
+                    console.log("PDF com preço unitário gerado com sucesso!");
+                } catch (writeError) {
+                    console.error("Erro ao escrever no documento:", writeError);
+                    showFeedback('Erro ao escrever no documento: ' + writeError.message, 'error');
+                    reportWindow.close();
+                }
                 
             } catch (error) {
                 console.error("Erro ao gerar PDF:", error);
@@ -1475,7 +1429,6 @@
                 }
                 
                 console.log("Dados do orçamento encontrado:", quote);
-                console.log("quote.totalVolume =", quote.totalVolume, "tipo:", typeof quote.totalVolume);
                 
                 // Buscar dados do usuário e da empresa
                 const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -1498,21 +1451,30 @@
                 // Gerar número de orçamento se não existir
                 const quoteNumber = quote.number || 'ORÇ-' + quote.id.substring(0, 6);
                 
-                // Formatar volume total usando a função local
-                console.log("Chamando formatVolumeForPDF com:", quote.totalVolume);
-                const formattedTotalVolume = formatVolumeForPDF(quote.totalVolume);
-                console.log("Volume formatado:", formattedTotalVolume);
+                // Formatar volume total de forma segura
+                let formattedTotalVolume = '0,000 m³';
+                if (quote.totalVolume !== undefined && quote.totalVolume !== null) {
+                    if (typeof quote.totalVolume === 'number') {
+                        formattedTotalVolume = quote.totalVolume.toLocaleString('pt-BR', {minimumFractionDigits: 3, maximumFractionDigits: 3}) + ' m³';
+                    } else {
+                        const volumeStr = String(quote.totalVolume);
+                        const volumeNumber = parseFloat(volumeStr.replace(/[^0-9,.]/g, '').replace(',', '.'));
+                        if (!isNaN(volumeNumber)) {
+                            formattedTotalVolume = volumeNumber.toLocaleString('pt-BR', {minimumFractionDigits: 3, maximumFractionDigits: 3}) + ' m³';
+                        }
+                    }
+                }
                 
                 console.log("Abrindo janela do PDF...");
                 const reportWindow = window.open('', '_blank');
                 
                 if (!reportWindow) {
-                    console.error('Popup bloqueado');
-                    showFeedback('Popup bloqueado. Permita popups para este site.', 'error');
+                    console.error('Falha ao abrir janela - popup pode estar bloqueado');
+                    showFeedback('Não foi possível abrir o relatório. Verifique se o popup não está bloqueado.', 'error');
                     return;
                 }
                 
-                // Conteúdo completo do PDF simples
+                // Conteúdo completo do PDF
                 const reportContent = `
                     <!DOCTYPE html>
                     <html>
@@ -1553,9 +1515,10 @@
                             .compact-header {
                                 display: flex;
                                 justify-content: space-between;
-                                border-bottom: 1px solid var(--primary-color);
-                                padding-bottom: 8px;
-                                margin-bottom: 10px;
+                                align-items: center;
+                                border-bottom: 2px solid var(--primary-color);
+                                padding-bottom: 10px;
+                                margin-bottom: 15px;
                             }
                             
                             .logo-container {
@@ -1575,33 +1538,30 @@
                             .company-info h1 {
                                 font-size: 18px;
                                 color: var(--primary-color);
-                                margin-bottom: 4px;
+                                margin-bottom: 5px;
                             }
                             
                             .company-info p {
-                                margin: 0;
+                                margin: 1px 0;
                                 font-size: 10px;
-                                line-height: 1.3;
                             }
                             
                             .document-details {
                                 text-align: right;
-                                font-size: 10px;
                             }
                             
                             .document-details h2 {
-                                font-size: 14px;
+                                font-size: 16px;
                                 color: var(--primary-color);
-                                margin-bottom: 4px;
+                                margin-bottom: 5px;
                             }
                             
                             .client-section {
                                 background-color: var(--secondary-color);
-                                padding: 8px;
+                                padding: 10px;
                                 display: flex;
                                 justify-content: space-between;
-                                margin-bottom: 10px;
-                                font-size: 11px;
+                                margin-bottom: 15px;
                             }
                             
                             .client-info, .quote-info {
@@ -1609,10 +1569,10 @@
                             }
                             
                             .subtitle {
-                                font-weight: 700;
+                                font-weight: 600;
                                 color: var(--primary-color);
-                                font-size: 11px;
-                                margin-bottom: 4px;
+                                margin-bottom: 5px;
+                                font-size: 10px;
                             }
                             
                             table {
@@ -1761,7 +1721,7 @@
                                 <tbody>
                                     ${quote.items && quote.items.length > 0 ? quote.items.map((item, index) => {
                                         let sizeText = item.size;
-                                        if (sizeText && sizeText.includes('x')) {
+                                        if (sizeText && sizeText.indexOf('x') !== -1) {
                                             const parts = sizeText.split('x');
                                             sizeText = parts.join(' X ');
                                         }
@@ -1773,7 +1733,7 @@
                                         
                                         let quantityDisplay = quantity;
                                         if (packageQuantity > 1) {
-                                            quantityDisplay = `${quantity}×${packageQuantity}`;
+                                            quantityDisplay = quantity + '×' + packageQuantity;
                                         }
                                         
                                         return `
@@ -1825,8 +1785,8 @@
                 console.log("Escrevendo conteúdo completo do PDF simples...");
                 
                 try {
-                reportWindow.document.write(reportContent);
-                reportWindow.document.close();
+                    reportWindow.document.write(reportContent);
+                    reportWindow.document.close();
                     console.log("PDF simples gerado com sucesso!");
                 } catch (writeError) {
                     console.error("Erro ao escrever no documento:", writeError);
@@ -1857,7 +1817,7 @@
                 
                 // Se for string, verificar se já contém 'm³'
                 const volumeStr = String(volume);
-                if (volumeStr.includes('m³')) {
+                if (volumeStr.indexOf('m³') !== -1) {
                     const volumeNumber = parseFloat(volumeStr.replace(/[^0-9,.]/g, '').replace(',', '.'));
                     return volumeNumber.toLocaleString('pt-BR', {minimumFractionDigits: 3, maximumFractionDigits: 3}) + ' m³';
                 }

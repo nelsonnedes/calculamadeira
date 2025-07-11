@@ -1,4 +1,5 @@
-const CACHE_NAME = 'calculadora-madeira-v2.1.0';
+// Service Worker versão 2.1.1 - Ultra-robusto contra chrome-extension
+const CACHE_NAME = 'calculadora-madeira-v2.1.1';
 const urlsToCache = [
     '/',
     '/index.html',
