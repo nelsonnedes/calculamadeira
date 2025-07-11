@@ -262,6 +262,10 @@
         window.addEventListener('load', async () => {
             log('Página carregada. Verificando status atual...');
             
+            // EXECUTAR LIMPEZA AUTOMÁTICA
+            log('=== EXECUTANDO LIMPEZA AUTOMÁTICA ===', 'warning');
+            await executarLimpezaCompleta();
+            
             if ('serviceWorker' in navigator) {
                 const registrations = await navigator.serviceWorker.getRegistrations();
                 log(`Service Workers ativos: ${registrations.length}`);
@@ -279,6 +283,44 @@
             }
             
             log('Verificação inicial concluída.');
+        });
+
+        // Função para limpar cache do navegador mais agressivamente
+        async function clearBrowserCache() {
+            try {
+                // Limpar todas as formas de cache possíveis
+                if ('caches' in window) {
+                    const cacheNames = await caches.keys();
+                    await Promise.all(cacheNames.map(name => caches.delete(name)));
+                }
+                
+                // Limpar localStorage relacionado ao app
+                const keysToRemove = Object.keys(localStorage).filter(key => 
+                    key.includes('calc') || key.includes('madeira') || key.includes('cache') || 
+                    key.includes('version') || key.includes('sw') || key.includes('quote')
+                );
+                keysToRemove.forEach(key => localStorage.removeItem(key));
+                
+                // Limpar sessionStorage
+                sessionStorage.clear();
+                
+                // Forçar reload completo
+                window.location.reload(true);
+                
+            } catch (error) {
+                log('Erro ao limpar cache do navegador: ' + error.message, 'error');
+            }
+        }
+
+        // Adicionar botão de limpeza extrema
+        document.addEventListener('DOMContentLoaded', () => {
+            const container = document.querySelector('.container');
+            const extremeButton = document.createElement('button');
+            extremeButton.textContent = '🔥 Limpeza Extrema + Reload';
+            extremeButton.style.background = '#ff4444';
+            extremeButton.style.marginTop = '20px';
+            extremeButton.onclick = clearBrowserCache;
+            container.appendChild(extremeButton);
         });
     </script>
 </body>

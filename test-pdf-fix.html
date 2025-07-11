@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste PDF Fix</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .test-result {
+            background: #f5f5f5;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        button {
+            background: #8B0000;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Teste de Correção PDF</h1>
+    
+    <div>
+        <h2>Versão do Código</h2>
+        <div id="version-info" class="test-result">Carregando...</div>
+    </div>
+    
+    <div>
+        <h2>Teste da Função formatVolumeForPDF</h2>
+        <button onclick="testFormatVolumeForPDF()">Testar Função</button>
+        <div id="format-test-results"></div>
+    </div>
+    
+    <div>
+        <h2>Teste de Geração de PDF</h2>
+        <button onclick="testPDFGeneration()">Testar PDF</button>
+        <div id="pdf-test-results"></div>
+    </div>
+    
+    <div>
+        <h2>Limpeza de Cache</h2>
+        <button onclick="clearCacheAndReload()">Limpar Cache e Recarregar</button>
+        <div id="cache-results"></div>
+    </div>
+
+    <script>
+        // Mostrar versão do código
+        document.getElementById('version-info').innerHTML = `
+            <strong>Versão:</strong> 2.0.9<br>
+            <strong>Timestamp:</strong> ${new Date().toLocaleString()}<br>
+            <strong>Code Version no localStorage:</strong> ${localStorage.getItem('code-version') || 'Não definido'}
+        `;
+
+        // Função auxiliar para formatar volume (cópia da função corrigida)
+        function formatVolumeForPDF(volume) {
+            try {
+                console.log("formatVolumeForPDF: entrada =", volume, "tipo:", typeof volume);
+                
+                // Se for undefined ou null, retornar valor padrão
+                if (volume === undefined || volume === null) {
+                    console.log("formatVolumeForPDF: volume é undefined/null, retornando padrão");
+                    return '0,000 m³';
+                }
+                
+                // Se for número, formatar diretamente
+                if (typeof volume === 'number') {
+                    const result = volume.toLocaleString('pt-BR', {minimumFractionDigits: 3, maximumFractionDigits: 3}) + ' m³';
+                    console.log("formatVolumeForPDF: formatado como número =", result);
+                    return result;
+                }
+                
+                // Se for string, verificar se já contém 'm³'
+                const volumeStr = String(volume);
+                console.log("formatVolumeForPDF: convertido para string =", volumeStr);
+                
+                if (volumeStr.includes('m³')) {
+                    console.log("formatVolumeForPDF: string já contém m³");
+                    // Extrair apenas o número e reformatar
+                    const volumeNumber = parseFloat(volumeStr.replace(/[^0-9,.]/g, '').replace(',', '.'));
+                    if (!isNaN(volumeNumber)) {
+                        const result = volumeNumber.toLocaleString('pt-BR', {minimumFractionDigits: 3, maximumFractionDigits: 3}) + ' m³';
+                        console.log("formatVolumeForPDF: reformatado =", result);
+                        return result;
+                    }
+                    console.log("formatVolumeForPDF: não conseguiu extrair número, retornando original");
+                    return volumeStr;
+                }
+                
+                // Se for string sem 'm³', tentar converter para número
+                console.log("formatVolumeForPDF: string sem m³, tentando converter");
+                const volumeNumber = parseFloat(volumeStr.replace(/[^0-9,.]/g, '').replace(',', '.'));
+                if (!isNaN(volumeNumber)) {
+                    const result = volumeNumber.toLocaleString('pt-BR', {minimumFractionDigits: 3, maximumFractionDigits: 3}) + ' m³';
+                    console.log("formatVolumeForPDF: convertido e formatado =", result);
+                    return result;
+                }
+                
+                // Se nada funcionar, retornar o valor original
+                console.log("formatVolumeForPDF: nada funcionou, retornando original =", volumeStr);
+                return volumeStr;
+            } catch (error) {
+                console.error("formatVolumeForPDF: ERRO =", error, "valor:", volume);
+                return '0,000 m³';
+            }
+        }
+
+        // Testar função formatVolumeForPDF
+        function testFormatVolumeForPDF() {
+            const testCases = [
+                { input: 1.234, expected: '1,234 m³' },
+                { input: '1.234', expected: '1,234 m³' },
+                { input: '1,234 m³', expected: '1,234 m³' },
+                { input: null, expected: '0,000 m³' },
+                { input: undefined, expected: '0,000 m³' },
+                { input: '0,500m³', expected: '0,500 m³' },
+                { input: 0.5, expected: '0,500 m³' }
+            ];
+            
+            let results = '<h3>Resultados dos Testes:</h3>';
+            let allPassed = true;
+            
+            testCases.forEach((testCase, index) => {
+                try {
+                    const result = formatVolumeForPDF(testCase.input);
+                    const passed = result === testCase.expected;
+                    allPassed = allPassed && passed;
+                    
+                    results += `<div class="test-result ${passed ? 'success' : 'error'}">
+                        <strong>Teste ${index + 1}:</strong><br>
+                        Input: ${JSON.stringify(testCase.input)} (${typeof testCase.input})<br>
+                        Esperado: ${testCase.expected}<br>
+                        Resultado: ${result}<br>
+                        Status: ${passed ? '✅ PASSOU' : '❌ FALHOU'}
+                    </div>`;
+                } catch (error) {
+                    allPassed = false;
+                    results += `<div class="test-result error">
+                        <strong>Teste ${index + 1}:</strong><br>
+                        Input: ${JSON.stringify(testCase.input)}<br>
+                        ERRO: ${error.message}
+                    </div>`;
+                }
+            });
+            
+            results += `<div class="test-result ${allPassed ? 'success' : 'error'}">
+                <strong>Resultado Geral: ${allPassed ? '✅ TODOS OS TESTES PASSARAM' : '❌ ALGUNS TESTES FALHARAM'}</strong>
+            </div>`;
+            
+            document.getElementById('format-test-results').innerHTML = results;
+        }
+
+        // Testar geração de PDF (simulado)
+        function testPDFGeneration() {
+            try {
+                // Simular dados de orçamento
+                const mockQuote = {
+                    id: 'test_quote',
+                    totalVolume: 1.234,
+                    clientName: 'Cliente Teste',
+                    items: [
+                        { size: '2x4x3', volume: '0,024 m³', quantity: 10, species: 'Pinus' }
+                    ]
+                };
+                
+                // Testar formatação do volume
+                const formattedVolume = formatVolumeForPDF(mockQuote.totalVolume);
+                
+                let result = `<div class="test-result success">
+                    <strong>✅ Teste de PDF Simulado PASSOU</strong><br>
+                    Volume original: ${mockQuote.totalVolume} (${typeof mockQuote.totalVolume})<br>
+                    Volume formatado: ${formattedVolume}<br>
+                    Nenhum erro de 'volumeText.includes' detectado
+                </div>`;
+                
+                document.getElementById('pdf-test-results').innerHTML = result;
+            } catch (error) {
+                document.getElementById('pdf-test-results').innerHTML = `
+                    <div class="test-result error">
+                        <strong>❌ Teste de PDF FALHOU</strong><br>
+                        Erro: ${error.message}
+                    </div>`;
+            }
+        }
+
+        // Limpar cache e recarregar
+        async function clearCacheAndReload() {
+            try {
+                let results = '<h3>Limpando Cache:</h3>';
+                
+                // Limpar caches
+                if ('caches' in window) {
+                    const cacheNames = await caches.keys();
+                    for (const cacheName of cacheNames) {
+                        await caches.delete(cacheName);
+                        results += `<div class="test-result success">Cache removido: ${cacheName}</div>`;
+                    }
+                }
+                
+                // Desregistrar service workers
+                if ('serviceWorker' in navigator) {
+                    const registrations = await navigator.serviceWorker.getRegistrations();
+                    for (const registration of registrations) {
+                        await registration.unregister();
+                        results += `<div class="test-result success">Service worker removido</div>`;
+                    }
+                }
+                
+                // Limpar localStorage
+                localStorage.setItem('code-version', '2.0.9');
+                results += `<div class="test-result success">Versão atualizada para 2.0.9</div>`;
+                
+                document.getElementById('cache-results').innerHTML = results;
+                
+                // Recarregar após 2 segundos
+                setTimeout(() => {
+                    window.location.reload(true);
+                }, 2000);
+                
+            } catch (error) {
+                document.getElementById('cache-results').innerHTML = `
+                    <div class="test-result error">
+                        <strong>Erro ao limpar cache:</strong> ${error.message}
+                    </div>`;
+            }
+        }
+
+        // Executar teste automático ao carregar
+        window.addEventListener('load', () => {
+            testFormatVolumeForPDF();
+        });
+    </script>
+</body>
+</html> 

@@ -5,13 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#8B0000">
     <meta name="description" content="Orçamentos de madeira serrada">
-    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <meta name="apple-mobile-web-app-title" content="CalcMadeira">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icons/icon-192x192.png">
     <title>Orçamentos - Calculadora de Madeira</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css?v=2.0.9">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         * {
@@ -502,6 +505,90 @@
     </div>
 
     <script>
+        // VERSÃO DO CÓDIGO - ATUALIZAR SEMPRE QUE HOUVER MUDANÇAS
+        const CODE_VERSION = '2.0.9';
+        
+        // FORÇA LIMPEZA IMEDIATA DE CACHE - VERSÃO ULTRA AGRESSIVA
+        (async function forceCleanCache() {
+            try {
+                console.log('=== LIMPEZA FORÇADA DE CACHE V2.0.9 ===');
+                
+                // Verificar se precisa limpar cache
+                const lastVersion = localStorage.getItem('code-version');
+                if (lastVersion !== CODE_VERSION) {
+                    console.log(`VERSÃO DESATUALIZADA: ${lastVersion} -> ${CODE_VERSION}`);
+                    
+                    // ETAPA 1: Limpar todos os caches
+                    if ('caches' in window) {
+                        const cacheNames = await caches.keys();
+                        console.log('Caches encontrados:', cacheNames);
+                        for (const cacheName of cacheNames) {
+                            await caches.delete(cacheName);
+                            console.log('Cache removido:', cacheName);
+                        }
+                    }
+                    
+                    // ETAPA 2: Desregistrar service workers
+                    if ('serviceWorker' in navigator) {
+                        const registrations = await navigator.serviceWorker.getRegistrations();
+                        for (const registration of registrations) {
+                            await registration.unregister();
+                            console.log('Service worker removido:', registration.scope);
+                        }
+                    }
+                    
+                    // ETAPA 3: Limpar dados relacionados ao cache
+                    const cacheKeys = Object.keys(localStorage).filter(key => 
+                        key.includes('cache') || key.includes('sw-') || key.includes('version')
+                    );
+                    cacheKeys.forEach(key => localStorage.removeItem(key));
+                    
+                    // ETAPA 4: Limpar sessionStorage
+                    sessionStorage.clear();
+                    
+                    // ETAPA 5: Definir nova versão
+                    localStorage.setItem('code-version', CODE_VERSION);
+                    
+                    console.log('=== CACHE LIMPO - RECARREGANDO COM FORÇA ===');
+                    
+                    // ETAPA 6: Recarregamento forçado com cache-busting
+                    setTimeout(() => {
+                        window.location.href = window.location.href + '?v=' + CODE_VERSION + '&t=' + Date.now();
+                    }, 500);
+                    
+                    return; // Parar execução aqui
+                }
+                
+                console.log('Versão atual:', CODE_VERSION);
+            } catch (error) {
+                console.error('Erro na limpeza de cache:', error);
+            }
+        })();
+        
+        // Verificar se é a versão mais recente
+        function checkCodeVersion() {
+            const lastVersion = localStorage.getItem('code-version');
+            if (lastVersion !== CODE_VERSION) {
+                console.log(`Versão do código atualizada: ${lastVersion} -> ${CODE_VERSION}`);
+                localStorage.setItem('code-version', CODE_VERSION);
+                
+                // Se for uma versão diferente, limpar cache
+                if (lastVersion && lastVersion !== CODE_VERSION) {
+                    console.log('Limpando cache devido à atualização de versão');
+                    if ('caches' in window) {
+                        caches.keys().then(cacheNames => {
+                            cacheNames.forEach(cacheName => {
+                                caches.delete(cacheName);
+                            });
+                        });
+                    }
+                }
+            }
+        }
+        
+        // Executar verificação de versão
+        checkCodeVersion();
+        
         // Verificar autenticação e sincronizar IDs
         function checkAuthAndSyncIds() {
             try {
