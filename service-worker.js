@@ -1,4 +1,4 @@
-const CACHE_NAME = 'calculadora-madeira-v2.0.3';
+const CACHE_NAME = 'calculadora-madeira-v2.0.4';
 const urlsToCache = [
     '/',
     '/index.html',
@@ -16,6 +16,9 @@ const urlsToCache = [
 function isCacheableRequest(request) {
     const url = request.url;
     
+    // Log da URL para debug
+    console.log('Service Worker: Verificando URL:', url);
+    
     // Ignorar URLs de extensões do navegador
     if (url.startsWith('chrome-extension://') || 
         url.startsWith('chrome://') ||
@@ -25,14 +28,17 @@ function isCacheableRequest(request) {
         url.startsWith('about:') ||
         url.startsWith('blob:') ||
         url.startsWith('data:')) {
+        console.log('Service Worker: URL não cacheable (extensão/protocolo especial):', url);
         return false;
     }
     
     // Apenas requests GET são cacheáveis
     if (request.method !== 'GET') {
+        console.log('Service Worker: URL não cacheable (método não GET):', url);
         return false;
     }
     
+    console.log('Service Worker: URL é cacheable:', url);
     return true;
 }
 
@@ -67,9 +73,10 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
-    // Verificar se a requisição é cacheable
+    // Verificar se a requisição é cacheable ANTES de qualquer processamento
     if (!isCacheableRequest(event.request)) {
         console.log('Service Worker: Ignorando requisição não cacheable:', event.request.url);
+        // Retornar imediatamente sem processar
         return;
     }
     
@@ -86,6 +93,7 @@ self.addEventListener('fetch', event => {
                     .then(response => {
                         // Verificar se a resposta é válida
                         if (!response || response.status !== 200 || response.type !== 'basic') {
+                            console.log('Service Worker: Resposta inválida, não cacheando:', event.request.url);
                             return response;
                         }
                         
@@ -103,16 +111,15 @@ self.addEventListener('fetch', event => {
                             .then(cache => {
                                 // Tripla verificação antes de adicionar ao cache
                                 if (isCacheableRequest(event.request)) {
-                                    cache.put(event.request, responseToCache)
-                                        .catch(error => {
-                                            console.log('Service Worker: Erro ao cachear:', error, 'URL:', event.request.url);
-                                        });
+                                    console.log('Service Worker: Adicionando ao cache:', event.request.url);
+                                    return cache.put(event.request, responseToCache);
                                 } else {
                                     console.log('Service Worker: Bloqueando cache para URL:', event.request.url);
+                                    return Promise.resolve();
                                 }
                             })
                             .catch(error => {
-                                console.log('Service Worker: Erro ao abrir cache:', error);
+                                console.error('Service Worker: Erro ao cachear:', error, 'URL:', event.request.url);
                             });
                         
                         return response;
