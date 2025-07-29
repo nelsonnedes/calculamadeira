@@ -16,6 +16,7 @@
     <title>Orçamentos - Calculadora de Madeira</title>
     <link rel="stylesheet" href="styles.css?v=2.1.1">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -952,6 +953,9 @@
                 console.log("=== INÍCIO generatePDFWithUnitPrice ===");
                 console.log("ID do orçamento:", id);
                 
+                // Mostrar feedback de início
+                showFeedback('Gerando PDF com preços...', 'success');
+                
                 // Usar o mesmo sistema de identificação que o calc.html
                 let userId = localStorage.getItem('currentUserId');
                 
@@ -1015,14 +1019,23 @@
                     }
                 }
                 
-                console.log("Abrindo janela do PDF...");
-                const reportWindow = window.open('', '_blank');
+                console.log("Abrindo janela do PDF com preços...");
+                const reportWindow = window.open('', '_blank', 'width=800,height=600,scrollbars=yes,resizable=yes');
                 
                 if (!reportWindow) {
                     console.error('Falha ao abrir janela - popup pode estar bloqueado');
                     showFeedback('Não foi possível abrir o relatório. Verifique se o popup não está bloqueado.', 'error');
                     return;
                 }
+                
+                // Aguardar um momento para garantir que a janela foi criada
+                setTimeout(() => {
+                    if (reportWindow.closed) {
+                        console.error('Janela foi fechada imediatamente - provável popup blocker');
+                        showFeedback('Popup foi bloqueado. Por favor, permita popups para este site.', 'error');
+                        return;
+                    }
+                }, 100);
                 
                 // Conteúdo completo do PDF
                 const reportContent = `
@@ -1381,13 +1394,19 @@
                 
                 console.log("Escrevendo conteúdo na janela...");
                 try {
+                    reportWindow.document.open();
                     reportWindow.document.write(reportContent);
                     reportWindow.document.close();
                     console.log("PDF com preço unitário gerado com sucesso!");
+                    showFeedback('PDF com preços gerado com sucesso!', 'success');
                 } catch (writeError) {
                     console.error("Erro ao escrever no documento:", writeError);
                     showFeedback('Erro ao escrever no documento: ' + writeError.message, 'error');
-                    reportWindow.close();
+                    try {
+                        reportWindow.close();
+                    } catch (closeError) {
+                        console.error("Erro ao fechar janela:", closeError);
+                    }
                 }
                 
             } catch (error) {
@@ -1401,6 +1420,9 @@
             try {
                 console.log("=== INÍCIO generateSimplePDF ===");
                 console.log("ID do orçamento:", id);
+                
+                // Mostrar feedback de início
+                showFeedback('Gerando PDF simples...', 'success');
                 
                 // Usar o mesmo sistema de identificação que o calc.html
                 let userId = localStorage.getItem('currentUserId');
@@ -1465,14 +1487,23 @@
                     }
                 }
                 
-                console.log("Abrindo janela do PDF...");
-                const reportWindow = window.open('', '_blank');
+                console.log("Abrindo janela do PDF simples...");
+                const reportWindow = window.open('', '_blank', 'width=800,height=600,scrollbars=yes,resizable=yes');
                 
                 if (!reportWindow) {
                     console.error('Falha ao abrir janela - popup pode estar bloqueado');
                     showFeedback('Não foi possível abrir o relatório. Verifique se o popup não está bloqueado.', 'error');
                     return;
                 }
+                
+                // Aguardar um momento para garantir que a janela foi criada
+                setTimeout(() => {
+                    if (reportWindow.closed) {
+                        console.error('Janela foi fechada imediatamente - provável popup blocker');
+                        showFeedback('Popup foi bloqueado. Por favor, permita popups para este site.', 'error');
+                        return;
+                    }
+                }, 100);
                 
                 // Conteúdo completo do PDF
                 const reportContent = `
@@ -1785,13 +1816,19 @@
                 console.log("Escrevendo conteúdo completo do PDF simples...");
                 
                 try {
+                    reportWindow.document.open();
                     reportWindow.document.write(reportContent);
                     reportWindow.document.close();
                     console.log("PDF simples gerado com sucesso!");
+                    showFeedback('PDF simples gerado com sucesso!', 'success');
                 } catch (writeError) {
                     console.error("Erro ao escrever no documento:", writeError);
                     showFeedback('Erro ao escrever no documento: ' + writeError.message, 'error');
-                    reportWindow.close();
+                    try {
+                        reportWindow.close();
+                    } catch (closeError) {
+                        console.error("Erro ao fechar janela:", closeError);
+                    }
                 }
                 
             } catch (error) {
