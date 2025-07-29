@@ -20,6 +20,7 @@
 /* PÁGINAS - Estilos específicos por página */
 @import 'pages/auth.css';
 @import 'pages/profile.css';
+@import 'pages/plans.css';
 
 /**
  * ATENÇÃO: 

@@ -3,1015 +3,205 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Planos - Calculadora de Madeira</title>
-    <link rel="stylesheet" href="styles.css">
-    <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#8B0000">
-    <link rel="apple-touch-icon" href="icon-192x192.png">
-    <!-- CSS MODULAR CENTRALIZADO - Seguindo REFACTORING_PLAN.md -->
+    <meta name="description" content="Planos e assinaturas - Calculadora de Madeira">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="CalcMadeira">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+    <title>Planos - Calculadora de Madeira</title>
+    
+    <!-- CSS MODULAR - Nova Arquitetura -->
     <link rel="stylesheet" href="css/main.css">
-    <style>
-        /* Estilos do header e navegação */
-        header {
-            background: #8B0000;
-            padding: 15px 0;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .header-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 20px;
-        }
-
-        .logo {
-            color: white;
-            text-decoration: none;
-            font-size: 24px;
-            display: flex;
-            align-items: center;
-            padding: 5px;
-        }
-
-        .page-title {
-            color: white;
-            font-size: 1.2rem;
-            margin: 0;
-            flex: 1;
-            text-align: center;
-        }
-
-        nav ul {
-            list-style: none;
-            display: flex;
-            margin: 0;
-            padding: 0;
-        }
-
-        nav ul li {
-            margin: 0 15px;
-        }
-
-        nav ul li a {
-            color: white;
-            text-decoration: none;
-            font-size: 16px;
-            transition: opacity 0.3s;
-        }
-
-        nav ul li a:hover {
-            opacity: 0.8;
-        }
-
-        .user-menu {
-            position: relative;
-        }
-
-        .user-menu-button {
-            background: none;
-            border: none;
-            color: white;
-            cursor: pointer;
-            font-size: 20px;
-            padding: 5px;
-        }
-
-        .user-menu-panel {
-            position: absolute;
-            top: 100%;
-            right: 0;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            min-width: 200px;
-            display: none;
-            z-index: 1001;
-        }
-
-        .user-menu-button:focus + .user-menu-panel,
-        .user-menu-panel:hover {
-            display: block;
-        }
-
-        .user-info {
-            padding: 15px;
-            border-bottom: 1px solid #eee;
-        }
-
-        .user-info span {
-            display: block;
-            color: #333;
-        }
-
-        .user-info span:first-child {
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-
-        .user-menu-panel ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .user-menu-panel ul li a {
-            padding: 12px 15px;
-            display: flex;
-            align-items: center;
-            color: #333;
-            text-decoration: none;
-            transition: background-color 0.3s;
-        }
-
-        .user-menu-panel ul li a:hover {
-            background-color: #f5f5f5;
-        }
-
-        .user-menu-panel ul li a i {
-            margin-right: 10px;
-            color: #8B0000;
-        }
-
-        /* Ajuste para o conteúdo principal */
-        .container {
-            padding-top: 80px; /* Espaço para o header fixo */
-        }
-
-        @media (max-width: 768px) {
-            .header-content {
-                flex-direction: column;
-                text-align: center;
-            }
-
-            .page-title {
-                margin-top: 10px;
-            }
-
-            nav ul {
-                flex-direction: column;
-                margin: 15px 0;
-            }
-
-            nav ul li {
-                margin: 10px 0;
-            }
-
-            .user-menu {
-                margin-top: 15px;
-            }
-
-            .container {
-                padding-top: 120px; /* Mais espaço para o header em modo mobile */
-            }
-        }
-
-        .plans-container {
-            max-width: 1200px;
-            margin: 20px auto;
-            padding: 20px;
-        }
-
-        .plans-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-            margin-top: 30px;
-        }
-
-        .plan-card {
-            background: white;
-            border-radius: 10px;
-            padding: 30px;
-            text-align: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease;
-        }
-
-        .plan-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .plan-card.popular {
-            border: 2px solid #8B0000;
-            position: relative;
-        }
-
-        .plan-card.popular::before {
-            content: "Mais Popular";
-            position: absolute;
-            top: -12px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #8B0000;
-            color: white;
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 0.8em;
-        }
-
-        .plan-name {
-            font-size: 1.5em;
-            color: #333;
-            margin-bottom: 15px;
-        }
-
-        .plan-price {
-            font-size: 2.5em;
-            color: #8B0000;
-            margin-bottom: 20px;
-        }
-
-        .plan-price span {
-            font-size: 0.4em;
-            color: #666;
-        }
-
-        .plan-features {
-            list-style: none;
-            padding: 0;
-            margin: 0 0 30px 0;
-        }
-
-        .plan-features li {
-            padding: 10px 0;
-            color: #666;
-            border-bottom: 1px solid #eee;
-        }
-
-        .plan-features li:last-child {
-            border-bottom: none;
-        }
-
-        .plan-features li i {
-            color: #8B0000;
-            margin-right: 8px;
-        }
-
-        .plan-button {
-            background: #8B0000;
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 5px;
-            font-size: 1.1em;
-            cursor: pointer;
-            transition: background-color 0.3s;
-            width: 100%;
-        }
-
-        .plan-button:hover {
-            background: #660000;
-        }
-
-        .plan-button.secondary {
-            background: transparent;
-            border: 2px solid #8B0000;
-            color: #8B0000;
-        }
-
-        .plan-button.secondary:hover {
-            background: #8B0000;
-            color: white;
-        }
-
-        .plan-description {
-            color: #666;
-            margin-bottom: 20px;
-            line-height: 1.6;
-        }
-
-        .comparison-table {
-            margin-top: 50px;
-            background: white;
-            border-radius: 10px;
-            padding: 30px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-
-        .comparison-table h2 {
-            text-align: center;
-            margin-bottom: 30px;
-            color: #333;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th, td {
-            padding: 15px;
-            text-align: left;
-            border-bottom: 1px solid #eee;
-        }
-
-        th {
-            background: #f5f5f5;
-            color: #333;
-        }
-
-        td i {
-            color: #8B0000;
-            margin-right: 8px;
-        }
-
-        .fa-times {
-            color: #f44336;
-        }
-
-        /* Modal de pagamento */
-        .payment-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 2000;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .payment-modal.active {
-            display: flex;
-        }
-
-        .payment-modal-content {
-            background-color: #fff;
-            border-radius: 10px;
-            max-width: 500px;
-            width: 90%;
-            padding: 30px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-            position: relative;
-        }
-
-        .close-modal {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            font-size: 20px;
-            cursor: pointer;
-            color: #666;
-        }
-
-        .payment-title {
-            color: #8B0000;
-            margin-bottom: 20px;
-            text-align: center;
-            font-size: 1.5em;
-        }
-
-        .payment-info {
-            margin-bottom: 25px;
-        }
-
-        .payment-info p {
-            margin-bottom: 15px;
-            line-height: 1.6;
-        }
-
-        .payment-method {
-            background-color: #f9f9f9;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }
-
-        .payment-method h3 {
-            font-size: 1.2em;
-            color: #333;
-            margin-bottom: 10px;
-        }
-
-        .payment-method p {
-            font-size: 1.1em;
-            margin: 5px 0;
-        }
-
-        .payment-value {
-            font-weight: bold;
-            color: #8B0000;
-        }
-
-        .payment-action {
-            text-align: center;
-        }
-
-        .notify-button {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 5px;
-            font-size: 1.1em;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        .notify-button:hover {
-            background-color: #388E3C;
-        }
-
-        /* Status da assinatura */
-        .subscription-status {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 30px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            text-align: center;
-        }
-
-        .status-title {
-            font-size: 1.3em;
-            color: #333;
-            margin-bottom: 10px;
-        }
-
-        .status-plan {
-            font-size: 1.5em;
-            font-weight: bold;
-            color: #8B0000;
-            margin-bottom: 5px;
-        }
-
-        .status-expiry {
-            color: #666;
-            margin-bottom: 15px;
-        }
-
-        .status-pending {
-            background-color: #FFF3E0;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            border-left: 4px solid #FF9800;
-        }
-
-        .status-pending p {
-            margin: 0;
-            color: #E65100;
-        }
-
-        /* Admin link */
-        .admin-link {
-            text-align: center;
-            margin-top: 30px;
-            font-size: 0.9em;
-        }
-
-        .admin-link a {
-            color: #666;
-            text-decoration: none;
-        }
-
-        .admin-link a:hover {
-            text-decoration: underline;
-        }
-
-        /* Feedback mensagens */
-        .feedback {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 12px 24px;
-            border-radius: 8px;
-            color: white;
-            font-size: 16px;
-            z-index: 1000;
-            animation: fadeInOut 3s ease-in-out;
-        }
-
-        .feedback.success {
-            background-color: #4CAF50;
-        }
-
-        .feedback.error {
-            background-color: #f44336;
-        }
-
-        @keyframes fadeInOut {
-            0% { opacity: 0; transform: translate(-50%, 20px); }
-            10% { opacity: 1; transform: translate(-50%, 0); }
-            90% { opacity: 1; transform: translate(-50%, 0); }
-            100% { opacity: 0; transform: translate(-50%, -20px); }
-        }
-    </style>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <header>
+    <!-- HEADER com nova estrutura modular -->
+    <header class="header">
+        <button class="menu-btn" aria-label="Abrir menu">
+            <i class="fas fa-bars"></i>
+        </button>
+        
         <div class="header-content">
-            <a href="calc.html" class="logo">
+            <div class="app-name">Calculadora de Madeira</div>
+            <h1 class="page-title">Planos</h1>
+        </div>
+        
+        <div class="header-actions">
+            <a href="calc.html" class="home-btn" aria-label="Início" title="Ir para a calculadora">
                 <i class="fas fa-home"></i>
             </a>
-            <h1 class="page-title">Planos</h1>
+            <button class="refresh-btn" aria-label="Recarregar" title="Recarregar página">
+                <i class="fas fa-sync-alt"></i>
+            </button>
         </div>
     </header>
 
-    <div class="container">
-        <main class="plans-container">
-            <!-- Status da assinatura atual -->
-            <div class="subscription-status">
-                <h2 class="status-title">Seu Plano Atual</h2>
-                <div class="status-plan" id="currentPlan">Gratuito</div>
-                <div class="status-expiry" id="planExpiry">Sem data de expiração</div>
-                
-                <!-- Status pendente (aparece apenas quando houver solicitação) -->
-                <div class="status-pending" id="pendingStatus" style="display: none;">
-                    <p>Existe uma solicitação de upgrade pendente. Aguardando confirmação do administrador.</p>
-                </div>
-            </div>
+    <!-- MENU LATERAL -->
+    <nav class="side-menu" id="sideMenu">
+        <div class="menu-header">
+            <h3>Menu</h3>
+            <button class="close-menu" aria-label="Fechar menu">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <ul class="menu-items">
+            <li><a href="calc.html"><i class="fas fa-calculator"></i> Calculadora</a></li>
+            <li><a href="orcamentos.html"><i class="fas fa-file-invoice"></i> Orçamentos</a></li>
+            <li><a href="perfil.html"><i class="fas fa-user"></i> Perfil</a></li>
+            <li><a href="planos.html" class="active"><i class="fas fa-crown"></i> Planos</a></li>
+            <li><a href="configuracoes.html"><i class="fas fa-cog"></i> Configurações</a></li>
+            <li><a href="ajuda.html"><i class="fas fa-question-circle"></i> Ajuda</a></li>
+            <li><a href="index.html"><i class="fas fa-sign-out-alt"></i> Sair</a></li>
+        </ul>
+    </nav>
 
-            <div class="plans-grid">
-                <div class="plan-card" id="freePlan">
-                    <h2 class="plan-name">Gratuito</h2>
-                    <div class="plan-price">R$ 0<span>/mês</span></div>
-                    <p class="plan-description">Ideal para quem está começando e precisa das funcionalidades básicas.</p>
-                    <ul class="plan-features">
-                        <li><i class="fas fa-check"></i> Cálculos básicos</li>
-                        <li><i class="fas fa-check"></i> 5 listas de cálculos</li>
-                        <li><i class="fas fa-check"></i> Relatórios básicos</li>
-                        <li><i class="fas fa-check"></i> Suporte por email</li>
-                    </ul>
-                    <button class="plan-button secondary" id="freeButton">Plano Atual</button>
-                </div>
+    <!-- OVERLAY do menu -->
+    <div class="menu-overlay" id="menuOverlay"></div>
 
-                <div class="plan-card popular" id="premiumPlan">
-                    <h2 class="plan-name">Premium</h2>
-                    <div class="plan-price">R$ 29,90<span>/mês</span></div>
-                    <p class="plan-description">O plano mais completo com todas as funcionalidades avançadas.</p>
-                    <ul class="plan-features">
-                        <li><i class="fas fa-check"></i> Cálculos ilimitados</li>
-                        <li><i class="fas fa-check"></i> Listas ilimitadas</li>
-                        <li><i class="fas fa-check"></i> Relatórios avançados</li>
-                        <li><i class="fas fa-check"></i> Exportação em PDF</li>
-                        <li><i class="fas fa-check"></i> Backup na nuvem</li>
-                        <li><i class="fas fa-check"></i> Suporte prioritário</li>
-                    </ul>
-                    <button class="plan-button" id="premiumButton">Assinar Agora</button>
-                </div>
-
-                <div class="plan-card" id="businessPlan">
-                    <h2 class="plan-name">Empresarial</h2>
-                    <div class="plan-price">R$ 99,90<span>/mês</span></div>
-                    <p class="plan-description">Solução completa para empresas com múltiplos usuários.</p>
-                    <ul class="plan-features">
-                        <li><i class="fas fa-check"></i> Tudo do plano Premium</li>
-                        <li><i class="fas fa-check"></i> Até 10 usuários</li>
-                        <li><i class="fas fa-check"></i> Relatórios personalizados</li>
-                        <li><i class="fas fa-check"></i> API de integração</li>
-                        <li><i class="fas fa-check"></i> Treinamento exclusivo</li>
-                        <li><i class="fas fa-check"></i> Suporte 24/7</li>
-                    </ul>
-                    <button class="plan-button secondary" id="businessButton">Contratar Plano</button>
-                </div>
-            </div>
-
-            <div class="comparison-table">
-                <h2>Comparação de Planos</h2>
-                <table>
-                    <tr>
-                        <th>Recursos</th>
-                        <th>Gratuito</th>
-                        <th>Premium</th>
-                        <th>Empresarial</th>
-                    </tr>
-                    <tr>
-                        <td>Cálculos Básicos</td>
-                        <td><i class="fas fa-check"></i></td>
-                        <td><i class="fas fa-check"></i></td>
-                        <td><i class="fas fa-check"></i></td>
-                    </tr>
-                    <tr>
-                        <td>Listas de Cálculos</td>
-                        <td>5 listas</td>
-                        <td>Ilimitadas</td>
-                        <td>Ilimitadas</td>
-                    </tr>
-                    <tr>
-                        <td>Relatórios Básicos</td>
-                        <td><i class="fas fa-check"></i></td>
-                        <td><i class="fas fa-check"></i></td>
-                        <td><i class="fas fa-check"></i></td>
-                    </tr>
-                    <tr>
-                        <td>Relatórios Avançados</td>
-                        <td><i class="fas fa-times"></i></td>
-                        <td><i class="fas fa-check"></i></td>
-                        <td><i class="fas fa-check"></i></td>
-                    </tr>
-                    <tr>
-                        <td>Exportação em PDF</td>
-                        <td><i class="fas fa-times"></i></td>
-                        <td><i class="fas fa-check"></i></td>
-                        <td><i class="fas fa-check"></i></td>
-                    </tr>
-                    <tr>
-                        <td>Backup na Nuvem</td>
-                        <td><i class="fas fa-times"></i></td>
-                        <td><i class="fas fa-check"></i></td>
-                        <td><i class="fas fa-check"></i></td>
-                    </tr>
-                    <tr>
-                        <td>Múltiplos Usuários</td>
-                        <td><i class="fas fa-times"></i></td>
-                        <td><i class="fas fa-times"></i></td>
-                        <td>Até 10 usuários</td>
-                    </tr>
-                    <tr>
-                        <td>API de Integração</td>
-                        <td><i class="fas fa-times"></i></td>
-                        <td><i class="fas fa-times"></i></td>
-                        <td><i class="fas fa-check"></i></td>
-                    </tr>
-                    <tr>
-                        <td>Treinamento</td>
-                        <td><i class="fas fa-times"></i></td>
-                        <td><i class="fas fa-times"></i></td>
-                        <td><i class="fas fa-check"></i></td>
-                    </tr>
-                    <tr>
-                        <td>Suporte</td>
-                        <td>Email</td>
-                        <td>Prioritário</td>
-                        <td>24/7</td>
-                    </tr>
-                </table>
-            </div>
+    <!-- CONTAINER PRINCIPAL -->
+    <main class="plans-container">
+        
+        <!-- STATUS DA ASSINATURA ATUAL -->
+        <section class="subscription-status">
+            <h2 class="status-title">Seu Plano Atual</h2>
+            <div class="status-plan" id="currentPlan">Gratuito</div>
+            <div class="status-expiry" id="planExpiry">Sem data de expiração</div>
             
-            <!-- Link para área administrativa -->
-            <div class="admin-link">
-                <a href="#" id="adminLink">Área Administrativa</a>
+            <!-- Status pendente (aparece apenas quando houver solicitação) -->
+            <div class="status-pending" id="pendingStatus" style="display: none;">
+                <p>Existe uma solicitação de upgrade pendente. Aguardando confirmação do administrador.</p>
             </div>
-        </main>
-    </div>
-    
-    <!-- Modal de pagamento -->
+        </section>
+
+        <!-- GRID DE PLANOS -->
+        <section class="plans-grid">
+            
+            <!-- PLANO GRATUITO -->
+            <div class="plan-card" id="freePlan">
+                <h2 class="plan-name">Gratuito</h2>
+                <div class="plan-price">R$ 0<span>/mês</span></div>
+                <p class="plan-description">Ideal para quem está começando e precisa das funcionalidades básicas.</p>
+                <ul class="plan-features">
+                    <li><i class="fas fa-check"></i> Cálculos básicos de volume</li>
+                    <li><i class="fas fa-check"></i> 5 listas de cálculos salvos</li>
+                    <li><i class="fas fa-check"></i> Relatórios PDF simples</li>
+                    <li><i class="fas fa-check"></i> Suporte por email</li>
+                    <li><i class="fas fa-times" style="color: #ccc;"></i> Funcionalidades avançadas</li>
+                    <li><i class="fas fa-times" style="color: #ccc;"></i> Suporte prioritário</li>
+                </ul>
+                <button class="plan-button secondary" id="freeButton">Plano Atual</button>
+            </div>
+
+            <!-- PLANO BÁSICO -->
+            <div class="plan-card" id="basicPlan">
+                <h2 class="plan-name">Básico</h2>
+                <div class="plan-price">R$ 29<span>,90/mês</span></div>
+                <p class="plan-description">Perfeito para pequenos negócios que precisam de mais recursos.</p>
+                <ul class="plan-features">
+                    <li><i class="fas fa-check"></i> Todos os recursos do Gratuito</li>
+                    <li><i class="fas fa-check"></i> Listas ilimitadas de cálculos</li>
+                    <li><i class="fas fa-check"></i> Relatórios PDF com preços</li>
+                    <li><i class="fas fa-check"></i> Backup automático na nuvem</li>
+                    <li><i class="fas fa-check"></i> Suporte por chat</li>
+                    <li><i class="fas fa-check"></i> Histórico de 1 ano</li>
+                </ul>
+                <button class="plan-button primary" id="basicButton">Selecionar Plano</button>
+            </div>
+
+            <!-- PLANO PREMIUM -->
+            <div class="plan-card featured" id="premiumPlan">
+                <h2 class="plan-name">Premium</h2>
+                <div class="plan-price">R$ 59<span>,90/mês</span></div>
+                <p class="plan-description">Solução completa para empresas que precisam do máximo de recursos.</p>
+                <ul class="plan-features">
+                    <li><i class="fas fa-check"></i> Todos os recursos do Básico</li>
+                    <li><i class="fas fa-check"></i> Relatórios personalizados</li>
+                    <li><i class="fas fa-check"></i> Integração com sistemas</li>
+                    <li><i class="fas fa-check"></i> Múltiplos logos de empresa</li>
+                    <li><i class="fas fa-check"></i> Suporte prioritário 24/7</li>
+                    <li><i class="fas fa-check"></i> Histórico ilimitado</li>
+                    <li><i class="fas fa-check"></i> Análises avançadas</li>
+                </ul>
+                <button class="plan-button primary" id="premiumButton">Selecionar Plano</button>
+            </div>
+
+        </section>
+
+        <!-- INFORMAÇÕES ADICIONAIS -->
+        <section style="text-align: center; margin-top: 40px; padding: 20px;">
+            <p style="color: #666; margin-bottom: 15px;">
+                <i class="fas fa-shield-alt" style="color: #4CAF50; margin-right: 8px;"></i>
+                Todos os planos incluem segurança de dados e atualizações automáticas
+            </p>
+            <p style="color: #666;">
+                <i class="fas fa-credit-card" style="color: #4CAF50; margin-right: 8px;"></i>
+                Pagamentos seguros via PIX, Cartão ou Boleto
+            </p>
+        </section>
+
+    </main>
+
+    <!-- MODAL DE PAGAMENTO -->
     <div class="payment-modal" id="paymentModal">
-        <div class="payment-modal-content">
-            <span class="close-modal" id="closeModal">&times;</span>
-            <h2 class="payment-title">Solicitação de Assinatura</h2>
+        <div class="payment-content">
+            <button class="payment-close">&times;</button>
+            <h2 class="payment-title">Confirmar Upgrade</h2>
             
             <div class="payment-info">
-                <p>Para concluir sua assinatura do plano <span id="selectedPlan">Premium</span>, realize um pagamento via PIX com os dados abaixo:</p>
-                
-                <div class="payment-method">
-                    <h3>Dados para Pagamento via PIX</h3>
-                    <p><strong>Chave PIX:</strong> <span class="payment-value">nedes1@hotmail.com</span></p>
-                    <p><strong>Valor:</strong> <span class="payment-value" id="planValue">R$ 29,90</span></p>
-                    <p><strong>Beneficiário:</strong> <span class="payment-value">Nelson Nedes do Rosario Brito</span></p>
-                </div>
-                
-                <p>Importante: Após realizar o pagamento, clique no botão abaixo para notificar o administrador. Sua assinatura será liberada manualmente em até 24 horas úteis.</p>
+                <div class="payment-plan">Plano Selecionado</div>
+                <div class="payment-value">R$ 0,00</div>
+                <p style="margin-top: 15px; color: #666; font-size: 0.95rem;">
+                    <i class="fas fa-info-circle" style="color: #4CAF50; margin-right: 5px;"></i>
+                    Realize o pagamento via PIX usando a chave: <strong>contato@calculadoramadeira.com</strong>
+                </p>
+                <p style="margin-top: 10px; color: #666; font-size: 0.9rem;">
+                    Após o pagamento, clique no botão abaixo para notificar e ativaremos seu plano em até 24h.
+                </p>
             </div>
             
             <div class="payment-action">
-                <button class="notify-button" id="notifyPayment">Já realizei o pagamento</button>
+                <button class="notify-button" id="notifyPayment">
+                    <i class="fas fa-check-circle" style="margin-right: 8px;"></i>
+                    Já realizei o pagamento
+                </button>
             </div>
         </div>
     </div>
 
-    <script src="auth.js"></script>
-    
-    <!-- SISTEMA MODULAR - Seguindo REFACTORING_PLAN.md -->
-    <script type="module" src="js/core/app.js"></script>
-    <script src="pwa-updater.js"></script>
-    <script src="update-checker.js"></script>
-    <script>
-        // Verificar autenticação
-        try {
-            // Verificar se a função isUserLoggedIn existe e executá-la
-            if (typeof isUserLoggedIn === 'function' && !isUserLoggedIn()) {
-                console.log('Usuário não autenticado, redirecionando...');
-                window.location.href = 'index.html';
-            } else if (typeof isUserLoggedIn !== 'function') {
-                console.warn('Função isUserLoggedIn não encontrada. Criando ID de visitante temporário.');
-                // Criar ID temporário para visitantes
-                if (!localStorage.getItem('currentUserId')) {
-                    localStorage.setItem('currentUserId', 'visitor_' + Date.now());
-                }
-            }
-        } catch (error) {
-            console.error('Erro ao verificar autenticação:', error);
-            // Em caso de erro, não bloquear o acesso à página
-            // Apenas criar um ID temporário
-            if (!localStorage.getItem('currentUserId')) {
-                localStorage.setItem('currentUserId', 'visitor_' + Date.now());
-            }
-        }
+    <!-- SISTEMA DE FEEDBACK -->
+    <div id="feedbackContainer" class="feedback-container"></div>
 
-        // Estado das assinaturas
-        let currentPlan = 'Gratuito';
-        let pendingRequest = false;
-        let selectedPlanForPayment = null;
-
-        // Carregar dados do usuário
-        function loadUserData() {
-            // Obter ID do usuário de várias fontes possíveis
-            let userId = localStorage.getItem('currentUserId');
-            
-            // Se não tiver userId, tentar obter da função getCurrentUser
-            if (!userId && typeof getCurrentUser === 'function') {
-                const currentUser = getCurrentUser();
-                if (currentUser && currentUser.id) {
-                    userId = currentUser.id;
-                }
-            }
-            
-            // Se ainda não tiver userId, criar um temporário (será substituído no login)
-            if (!userId) {
-                console.log('Criando ID temporário para visitante');
-                userId = 'visitor_' + Date.now();
-                localStorage.setItem('currentUserId', userId);
-            }
-            
-            // Obter dados do usuário
-            let user = {};
-            try {
-                user = JSON.parse(localStorage.getItem('user') || '{}');
-                console.log('Dados do usuário carregados:', user);
-            } catch (error) {
-                console.error('Erro ao carregar dados do usuário:', error);
-                user = {};
-            }
-            
-            // Verificar se tem plano associado (tentar diferentes chaves)
-            let userPlanData = null;
-            
-            // Tentar primeiro pela chave específica do usuário
-            try {
-                userPlanData = JSON.parse(localStorage.getItem(`plan_${userId}`) || null);
-            } catch (error) {
-                console.log('Plano específico não encontrado, buscando outras opções');
-            }
-            
-            // Tentar pela chave genérica
-            if (!userPlanData) {
-                try {
-                    userPlanData = JSON.parse(localStorage.getItem('userPlan') || null);
-                } catch (error) {
-                    console.log('Plano genérico não encontrado');
-                }
-            }
-            
-            // Se não houver plano, criar um plano gratuito padrão
-            if (!userPlanData) {
-                userPlanData = {"plan": "Gratuito", "expiryDate": null};
-                
-                // Salvar o plano padrão
-                localStorage.setItem(`plan_${userId}`, JSON.stringify(userPlanData));
-                console.log('Criado plano padrão para o usuário');
-            }
-            
-            currentPlan = userPlanData.plan;
-            console.log('Plano atual:', currentPlan);
-            
-            // Verificar se há uma solicitação pendente
-            const pendingRequests = JSON.parse(localStorage.getItem('pendingRequests') || '[]');
-            pendingRequest = pendingRequests.some(req => 
-                (req.userId === userId || req.userEmail === user.email) && 
-                req.status === 'pending'
-            );
-            
-            console.log('Solicitação pendente:', pendingRequest);
-            
-            // Atualizar UI com o plano atual
-            updatePlanUI(currentPlan, userPlanData.expiryDate);
-            
-            // Mostrar aviso de pendência, se aplicável
-            if (pendingRequest) {
-                document.getElementById('pendingStatus').style.display = 'block';
-            } else {
-                document.getElementById('pendingStatus').style.display = 'none';
-            }
-        }
+    <!-- JavaScript Modular - Nova Arquitetura -->
+    <script type="module">
+        // Import da aplicação principal
+        import { initializeApp } from './js/core/app.js';
         
-        // Atualizar UI de acordo com o plano
-        function updatePlanUI(plan, expiryDate) {
-            document.getElementById('currentPlan').textContent = plan;
-            
-            // Verificar e formatar data de expiração
-            if (expiryDate) {
-                const expiry = new Date(expiryDate);
-                document.getElementById('planExpiry').textContent = `Válido até ${expiry.toLocaleDateString('pt-BR')}`;
-            } else {
-                document.getElementById('planExpiry').textContent = plan === 'Gratuito' ? 'Sem data de expiração' : 'Assinatura ativa';
-            }
-            
-            // Ajustar botões dos planos
-            document.querySelectorAll('.plan-button').forEach(button => {
-                button.textContent = 'Assinar Agora';
-                button.className = 'plan-button';
-            });
-            
-            // Marcar o plano atual
-            let currentPlanElement;
-            if (plan === 'Gratuito') {
-                currentPlanElement = document.getElementById('freeButton');
-            } else if (plan === 'Premium') {
-                currentPlanElement = document.getElementById('premiumButton');
-            } else if (plan === 'Empresarial') {
-                currentPlanElement = document.getElementById('businessButton');
-            }
-            
-            if (currentPlanElement) {
-                currentPlanElement.textContent = 'Plano Atual';
-                currentPlanElement.className = 'plan-button secondary';
-            }
-        }
+        // Import específico da página de planos
+        import './js/pages/plans.js';
         
-        // Abrir modal de pagamento
-        function openPaymentModal(planName, planPrice) {
-            document.getElementById('selectedPlan').textContent = planName;
-            document.getElementById('planValue').textContent = planPrice;
-            document.getElementById('paymentModal').classList.add('active');
-            selectedPlanForPayment = planName;
-        }
-        
-        // Fechar modal de pagamento
-        function closePaymentModal() {
-            document.getElementById('paymentModal').classList.remove('active');
-            selectedPlanForPayment = null;
-        }
-        
-        // Notificar pagamento
-        function notifyPayment() {
-            // Obter ID do usuário de várias fontes possíveis
-            let userId = localStorage.getItem('currentUserId');
+        // Event listener para confirmação de carregamento
+        document.addEventListener('calculadoraMadeiraReady', (event) => {
+            console.log('🎉 Página de Planos Carregada!', event.detail);
             
-            // Se não tiver userId, tentar obter da função getCurrentUser
-            if (!userId && typeof getCurrentUser === 'function') {
-                const currentUser = getCurrentUser();
-                if (currentUser && currentUser.id) {
-                    userId = currentUser.id;
-                }
-            }
-            
-            // Se ainda não tiver userId, criar um
-            if (!userId) {
-                userId = 'user_' + Date.now();
-                localStorage.setItem('currentUserId', userId);
-            }
-            
-            // Obter dados do usuário
-            let user = {};
-            try {
-                user = JSON.parse(localStorage.getItem('user') || '{}');
-            } catch (error) {
-                console.error('Erro ao obter dados do usuário:', error);
-                user = { name: 'Usuário', email: '' };
-            }
-            
-            // Verificar se temos um plano selecionado
-            if (!selectedPlanForPayment) {
-                // Tentar inferir do contexto
-                const planElement = document.getElementById('selectedPlan');
-                if (planElement && planElement.textContent) {
-                    selectedPlanForPayment = planElement.textContent.trim();
-                } else {
-                    selectedPlanForPayment = 'Premium'; // Fallback
-                }
-            }
-            
-            // Criar registro de solicitação
-            const requestData = {
-                id: `req_${Date.now()}`,
-                userId: userId,
-                userName: user.name || 'Usuário',
-                userEmail: user.email || '',
-                plan: selectedPlanForPayment,
-                requestDate: new Date().toISOString(),
-                status: 'pending'
-            };
-            
-            console.log('Criando solicitação:', requestData);
-            
-            // Salvar no localStorage
-            const pendingRequests = JSON.parse(localStorage.getItem('pendingRequests') || '[]');
-            pendingRequests.push(requestData);
-            localStorage.setItem('pendingRequests', JSON.stringify(pendingRequests));
-            
-            // Atualizar UI
-            pendingRequest = true;
-            document.getElementById('pendingStatus').style.display = 'block';
-            
-            // Fechar modal e mostrar feedback
-            closePaymentModal();
-            showFeedback('Solicitação enviada com sucesso! Aguardando confirmação do administrador.', 'success');
-        }
-        
-        // Mostrar feedback visual
-        // === FUNÇÃO SHOWFEEDBACK REMOVIDA ===
-        // Agora utiliza módulo js/components/feedback.js
-        // Via window.showFeedback() global
-        // SEGUINDO REFACTORING_PLAN.md - eliminação de duplicação
-        
-        // Abrir painel de administrador
-        function openAdminPanel() {
-            // Verificar senha
-            const adminPassword = prompt('Digite a senha do administrador:');
-            
-            // Senha simples apenas para demonstração - em produção, use uma solução mais segura
-            if (adminPassword === 'admin123') {
-                // Redirecionar para a página de admin ou abrir modal de admin
-                window.location.href = 'admin.html';
-            } else {
-                showFeedback('Senha incorreta', 'error');
-            }
-        }
-
-        // Event Listeners
-        document.addEventListener('DOMContentLoaded', () => {
-            try {
-                console.log('Iniciando carregamento da página de planos');
-                
-                // Verificar se localStorage está disponível
-                if (!window.localStorage) {
-                    throw new Error('Seu navegador não suporta localStorage. Por favor, use um navegador mais recente.');
-                }
-                
-                // Verificar se podemos escrever no localStorage
-                try {
-                    localStorage.setItem('test', 'test');
-                    localStorage.removeItem('test');
-                } catch (e) {
-                    throw new Error('Não é possível acessar o armazenamento local. Verifique as configurações do seu navegador.');
-                }
-                
-                // Carregar dados do usuário
-                loadUserData();
-                
-                console.log('Configurando botões de planos');
-                
-                // Botões de plano
-                const premiumButton = document.getElementById('premiumButton');
-                if (premiumButton) {
-                    premiumButton.addEventListener('click', () => {
-                        if (currentPlan !== 'Premium' && !pendingRequest) {
-                            openPaymentModal('Premium', 'R$ 29,90');
-                        }
-                    });
-                } else {
-                    console.error('Botão Premium não encontrado');
-                }
-                
-                const businessButton = document.getElementById('businessButton');
-                if (businessButton) {
-                    businessButton.addEventListener('click', () => {
-                        if (currentPlan !== 'Empresarial' && !pendingRequest) {
-                            openPaymentModal('Empresarial', 'R$ 99,90');
-                        }
-                    });
-                } else {
-                    console.error('Botão Empresarial não encontrado');
-                }
-                
-                console.log('Configurando botões de modal');
-                
-                // Botões do modal
-                const closeModalButton = document.getElementById('closeModal');
-                if (closeModalButton) {
-                    closeModalButton.addEventListener('click', closePaymentModal);
-                } else {
-                    console.error('Botão de fechar modal não encontrado');
-                }
-                
-                const notifyPaymentButton = document.getElementById('notifyPayment');
-                if (notifyPaymentButton) {
-                    notifyPaymentButton.addEventListener('click', notifyPayment);
-                } else {
-                    console.error('Botão de notificar pagamento não encontrado');
-                }
-                
-                // Link de admin
-                const adminLink = document.getElementById('adminLink');
-                if (adminLink) {
-                    adminLink.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        openAdminPanel();
-                    });
-                } else {
-                    console.error('Link de admin não encontrado');
-                }
-                
-                console.log('Inicialização da página de planos concluída');
-            } catch (error) {
-                console.error('Erro ao inicializar a página:', error);
-                showFeedback('Ocorreu um erro ao carregar a página. Por favor, tente novamente.', 'error');
-            }
+            // A aplicação e os módulos específicos da página já foram inicializados
+            // Toda a funcionalidade de planos está disponível
         });
     </script>
+    
+    <!-- Fallback para navegadores sem suporte a módulos ES6 -->
+    <script nomodule>
+        alert('Seu navegador não suporta módulos ES6. Por favor, use um navegador mais recente.');
+    </script>
+
+    <!-- Compatibilidade temporária com auth.js -->
+    <script src="auth.js"></script>
+
+    <!-- PWA Scripts -->
+    <script src="pwa-updater.js"></script>
+    <script src="update-checker.js"></script>
 </body>
 </html> 
