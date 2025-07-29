@@ -1,5 +1,5 @@
-// Service Worker versão 2.1.3 - Fix cache e PDF definitivo
-const CACHE_NAME = 'calculadora-madeira-v2.1.3';
+// Service Worker versão 2.1.4 - PDF functions simplified
+const CACHE_NAME = 'calculadora-madeira-v2.1.4';
 const urlsToCache = [
     '/',
     '/index.html',
