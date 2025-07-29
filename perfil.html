@@ -627,6 +627,9 @@
     </div>
 
     <script src="auth.js"></script>
+    
+    <!-- SISTEMA MODULAR - Seguindo REFACTORING_PLAN.md -->
+    <script type="module" src="js/core/app.js"></script>
     <script src="pwa-updater.js"></script>
     <script src="update-checker.js"></script>
     <script>
@@ -846,17 +849,10 @@
             }
         }
 
-        // Mostrar feedback
-        function showFeedback(message, type = 'success') {
-            const feedback = document.createElement('div');
-            feedback.className = `feedback ${type}`;
-            feedback.textContent = message;
-            document.body.appendChild(feedback);
-            
-            setTimeout(() => {
-                feedback.remove();
-            }, 3000);
-        }
+        // === FUNÇÃO SHOWFEEDBACK REMOVIDA ===
+        // Agora utiliza módulo js/components/feedback.js
+        // Via window.showFeedback() global
+        // SEGUINDO REFACTORING_PLAN.md - eliminação de duplicação
 
         // Chamar loadProfileData quando a página carregar
         document.addEventListener('DOMContentLoaded', function() {

@@ -676,16 +676,10 @@
         });
 
         // Mostrar feedback
-        function showFeedback(message, type = 'success') {
-            const feedback = document.createElement('div');
-            feedback.className = `feedback ${type}`;
-            feedback.textContent = message;
-            document.body.appendChild(feedback);
-            
-            setTimeout(() => {
-                feedback.remove();
-            }, 3000);
-        }
+        // === FUNÇÃO SHOWFEEDBACK REMOVIDA ===
+        // Agora utiliza módulo js/components/feedback.js
+        // Via window.showFeedback() global
+        // SEGUINDO REFACTORING_PLAN.md - eliminação de duplicação
 
         // Search functionality
         document.getElementById('searchHelp').addEventListener('input', (e) => {

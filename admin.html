@@ -348,6 +348,9 @@
     </div>
 
     <script src="auth.js"></script>
+    
+    <!-- SISTEMA MODULAR - Seguindo REFACTORING_PLAN.md -->
+    <script type="module" src="js/core/app.js"></script>
     <script>
         // Verificar autenticação
         if (!isUserLoggedIn()) {
@@ -554,16 +557,10 @@
         }
         
         // Mostrar feedback visual
-        function showFeedback(message, type = 'success') {
-            const feedback = document.createElement('div');
-            feedback.className = `feedback ${type}`;
-            feedback.textContent = message;
-            document.body.appendChild(feedback);
-            
-            setTimeout(() => {
-                feedback.remove();
-            }, 3000);
-        }
+        // === FUNÇÃO SHOWFEEDBACK REMOVIDA ===
+        // Agora utiliza módulo js/components/feedback.js
+        // Via window.showFeedback() global
+        // SEGUINDO REFACTORING_PLAN.md - eliminação de duplicação
         
         // Event Listeners
         document.addEventListener('DOMContentLoaded', () => {

@@ -904,17 +904,10 @@
             }
         }
 
-        // Mostrar feedback
-        function showFeedback(message, type = 'success') {
-            const feedback = document.createElement('div');
-            feedback.className = `feedback ${type}`;
-            feedback.textContent = message;
-            document.body.appendChild(feedback);
-            
-            setTimeout(() => {
-                feedback.remove();
-            }, 3000);
-        }
+        // === FUNÇÃO SHOWFEEDBACK REMOVIDA ===
+        // Agora utiliza módulo js/components/feedback.js
+        // Carregado via js/pages/orcamentos.js
+        // SEGUINDO REFACTORING_PLAN.md - eliminação de duplicação
 
         // Função de logout
         function logoutUser() {
@@ -948,8 +941,12 @@
             document.querySelector('.menu-user-email').textContent = user.email || 'email@exemplo.com';
         });
 
-        // Gerar PDF do orçamento com preço unitário (VERSÃO SIMPLIFICADA - BASEADA EM CALC.HTML)
-        function generatePDFWithUnitPrice(id) {
+        // === FUNÇÕES PDF REMOVIDAS ===
+        // Agora utilizam módulo js/modules/pdf-generator.js
+        // Carregado via js/pages/orcamentos.js
+        
+        // PLACEHOLDER - As funções PDF foram migradas para módulos
+        function generatePDFWithUnitPrice_OLD_REMOVED(id) {
             try {
                 console.log("=== INICIANDO generatePDFWithUnitPrice ===");
                 console.log("ID do orçamento:", id);
@@ -1315,8 +1312,8 @@
             }
         }
 
-        // Gerar PDF do orçamento sem preço unitário (VERSÃO SIMPLIFICADA - BASEADA EM CALC.HTML)
-        function generateSimplePDF(id) {
+        // PLACEHOLDER - Função removida, migrada para módulo
+        function generateSimplePDF_OLD_REMOVED(id) {
             try {
                 console.log("=== INICIANDO generateSimplePDF ===");
                 console.log("ID do orçamento:", id);

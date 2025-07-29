@@ -8,6 +8,7 @@
 // Imports dos módulos (ES6)
 import { CalculatorModule } from '../modules/calculator.js';
 import { StorageModule } from '../modules/storage.js';
+import { PDFGeneratorModule } from '../modules/pdf-generator.js';
 import { FeedbackComponent } from '../components/feedback.js';
 import { MenuComponent } from '../components/menu.js';
 import { AutocompleteComponent } from '../components/autocomplete.js';
@@ -84,6 +85,11 @@ export class CalculadoraMadeiraApp {
             // Autocomplete
             this.modules.autocomplete = new AutocompleteComponent();
             console.log('✅ Sistema de autocomplete inicializado');
+            
+            // Gerador de PDF
+            this.modules.pdfGenerator = new PDFGeneratorModule();
+            this.modules.pdfGenerator.setDependencies(this.modules.storage, this.modules.feedback);
+            console.log('✅ Gerador de PDF inicializado');
             
         } catch (error) {
             console.error('❌ Erro ao inicializar módulos base:', error);

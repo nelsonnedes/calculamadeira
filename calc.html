@@ -850,6 +850,10 @@
     <script src="auth.js"></script>
     <script src="pwa-updater.js"></script>
     <script src="update-checker.js"></script>
+    
+    <!-- SISTEMA MODULAR - Seguindo REFACTORING_PLAN.md -->
+    <script type="module" src="js/core/app.js"></script>
+    <script type="module" src="js/pages/calc.js"></script>
     <script>
         // Verificar autenticação e plano ativo
         if (!isUserLoggedIn()) {
@@ -968,17 +972,10 @@
             };
         }
 
-        // Função para mostrar feedback
-        function showFeedback(message, type = 'success') {
-            const feedback = document.createElement('div');
-            feedback.className = `feedback ${type}`;
-            feedback.textContent = message;
-            document.body.appendChild(feedback);
-            
-            setTimeout(() => {
-                feedback.remove();
-            }, 3000);
-        }
+        // === FUNÇÃO SHOWFEEDBACK REMOVIDA ===
+        // Agora utiliza módulo js/components/feedback.js 
+        // Carregado via window.showFeedback() globalmente
+        // SEGUINDO REFACTORING_PLAN.md - eliminação de duplicação
 
         // Função para validar inputs
         function validateInputs() {
@@ -1130,13 +1127,20 @@
             calcularTotal();
         }
 
-        // Carregar dados do perfil
-        document.addEventListener('DOMContentLoaded', function() {
+        // === PRIMEIRO DOMCONTENTLOADED REMOVIDO ===
+        // Consolidado no DOMContentLoaded principal ao final do arquivo
+        // SEGUINDO REFACTORING_PLAN.md - eliminação de duplicação
+        
+        // Função para configurar formatação de telefone (movida)
+        function setupPhoneFormatting() {
             try {
-                console.log("DOMContentLoaded iniciado");
-                
-                // Configurar formatação de telefone
+                console.log("Configurando formatação de telefone...");
                 const contactInput = document.getElementById('clientContact');
+                if (!contactInput) {
+                    console.warn("Campo clientContact não encontrado");
+                    return;
+                }
+                
                 contactInput.addEventListener('input', function(e) {
                     let value = e.target.value.replace(/\D/g, '');
                     let formattedValue = '';
@@ -1171,7 +1175,11 @@
                     
                     e.target.value = formattedValue;
                 });
-                console.log("Formatação de telefone configurada");
+                console.log("✅ Formatação de telefone configurada");
+            } catch (error) {
+                console.error("❌ Erro ao configurar formatação de telefone:", error);
+            }
+        }
                 
                 // Configurar autocomplete para cliente e espécie
                 // Inicializar lista de clientes se não existir
@@ -1492,8 +1500,8 @@
                 console.log("Verificação de autenticação concluída ou ignorada");
 
                 // Verificar se está editando um orçamento
-                const urlParams = new URLSearchParams(window.location.search);
-                const editId = urlParams.get('edit');
+                const urlParamsEdit = new URLSearchParams(window.location.search);
+                const editId = urlParamsEdit.get('edit');
                 
                 if (editId) {
                     console.log("Carregando orçamento para edição: " + editId);
@@ -1612,10 +1620,9 @@
                 } else {
                     console.error("Botão de adicionar não encontrado!");
                 }
-            } catch (error) {
-                console.error("Erro durante o carregamento da página:", error);
-            }
-        });
+        
+        // === BLOCO DE CÓDIGO REORGANIZADO ===
+        // Código movido para DOMContentLoaded consolidado
 
         // Adicionar variável global para ID do orçamento em edição
         let editingQuoteId = null;
@@ -3064,10 +3071,10 @@
         }
 
         // Verificar se estamos carregando um orçamento para edição
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.has('edit')) {
+        const urlParamsLoad = new URLSearchParams(window.location.search);
+        if (urlParamsLoad.has('edit')) {
             console.log("Carregando orçamento para edição");
-            loadQuoteForEditing(urlParams.get('edit'));
+            loadQuoteForEditing(urlParamsLoad.get('edit'));
         }
 
         // Corrigir a formatação de preço e garantir cálculo imediato
@@ -3139,23 +3146,9 @@
             }
         }
 
-        // Adicionar uma função dedicada para inicializar o autocomplete logo após a declaração do DOMContentLoaded
-        document.addEventListener('DOMContentLoaded', function() {
-            try {
-                console.log("DOMContentLoaded iniciado");
-                
-                // Garantir que o autocomplete seja inicializado primeiro, antes de qualquer outra coisa
-                setTimeout(() => {
-                    console.log("Inicializando autocomplete após delay...");
-                    initAutocomplete();
-                }, 100); // Pequeno delay para garantir que os elementos estejam completamente carregados
-                
-                // Resto do código existente
-                // ... existing code ...
-            } catch (error) {
-                console.error("Erro durante o carregamento da página:", error);
-            }
-        });
+        // === SEGUNDO DOMCONTENTLOADED REMOVIDO ===
+        // Consolidado no DOMContentLoaded principal ao final do arquivo
+        // SEGUINDO REFACTORING_PLAN.md - eliminação de duplicação
 
         // Nova função específica para inicializar o autocomplete de forma robusta
         function initAutocomplete() {
@@ -3650,15 +3643,54 @@
             }
         }
 
-        // Chamar funções de inicialização quando a página carregar
+        // === DOMCONTENTLOADED CONSOLIDADO ===
+        // Seguindo REFACTORING_PLAN.md - único listener organizado
         document.addEventListener('DOMContentLoaded', function() {
-            loadUserInfo();
-            setupEvents();
-            initializeCurrencyInput();
-            initializeAutocomplete();
-            loadList();
-            updateAddButton(); // Inicializar o botão corretamente
-            calculate();
+            try {
+                console.log("🚀 Inicializando aplicação...");
+                
+                // 1. CONFIGURAÇÕES BÁSICAS (em ordem de dependência)
+                console.log("📱 Configurando formatação de telefone...");
+                setupPhoneFormatting();
+                
+                console.log("💰 Configurando entrada de moeda...");
+                initializeCurrencyInput();
+                
+                // 2. DADOS DO USUÁRIO
+                console.log("👤 Carregando informações do usuário...");
+                loadUserInfo();
+                
+                // 3. AUTOCOMPLETE (depois dos dados)
+                console.log("🔍 Inicializando autocomplete...");
+                initializeAutocomplete();
+                
+                // 4. EVENTOS DA INTERFACE
+                console.log("⚡ Configurando eventos...");
+                setupEvents();
+                
+                // 5. CARREGAMENTO DE DADOS
+                console.log("📊 Carregando lista de itens...");
+                loadList();
+                
+                // 6. INTERFACE FINAL
+                console.log("🔘 Atualizando botão de adicionar...");
+                updateAddButton(); // Inicializar o botão corretamente
+                
+                // 7. CÁLCULO INICIAL
+                console.log("🧮 Executando cálculo inicial...");
+                calculate();
+                
+                console.log("✅ Aplicação inicializada com sucesso!");
+                
+            } catch (error) {
+                console.error("❌ Erro durante inicialização:", error);
+                // Fallback básico para casos de erro
+                if (window.showFeedback) {
+                    window.showFeedback('Erro ao carregar a página. Recarregue e tente novamente.', 'error');
+                } else {
+                    alert('Erro ao carregar a página. Recarregue e tente novamente.');
+                }
+            }
         });
 
         // Função para configurar navegação com Enter

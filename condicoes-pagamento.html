@@ -472,6 +472,9 @@
     </div>
 
     <script src="auth.js"></script>
+    
+    <!-- SISTEMA MODULAR - Seguindo REFACTORING_PLAN.md -->
+    <script type="module" src="js/core/app.js"></script>
     <script>
         // Verificar autenticação
         if (!isUserLoggedIn()) {
@@ -641,25 +644,10 @@
             showFeedback('Condição de pagamento excluída com sucesso!');
         }
 
-        // Mostrar feedback
-        function showFeedback(message, type = 'success') {
-            // Remover feedback anterior se existir
-            const existingFeedback = document.querySelector('.feedback');
-            if (existingFeedback) {
-                existingFeedback.remove();
-            }
-
-            const feedback = document.createElement('div');
-            feedback.className = `feedback ${type}`;
-            feedback.textContent = message;
-            document.body.appendChild(feedback);
-
-            setTimeout(() => {
-                if (feedback.parentNode) {
-                    feedback.parentNode.removeChild(feedback);
-                }
-            }, 3000);
-        }
+        // === FUNÇÃO SHOWFEEDBACK REMOVIDA ===
+        // Agora utiliza módulo js/components/feedback.js
+        // Via window.showFeedback() global
+        // SEGUINDO REFACTORING_PLAN.md - eliminação de duplicação
 
         // Permitir adicionar com Enter
         document.getElementById('newPaymentTerm').addEventListener('keypress', function(e) {
