@@ -507,8 +507,8 @@
 
     <script>
         // Configuração de versão e cache
-        const CODE_VERSION = '2.1.1';
-        const CACHE_NAME = 'calculadora-madeira-v2.1.1';
+        const CODE_VERSION = '2.1.2';
+        const CACHE_NAME = 'calculadora-madeira-v2.1.2';
         
         // DETECÇÃO E LIMPEZA AUTOMÁTICA DE CACHE - VERSÃO MAIS AGRESSIVA
         (async function ultraForceCleanCache() {
@@ -523,7 +523,7 @@
                 console.log(`URL atual: ${currentUrl}`);
                 
                 // Se for uma versão diferente OU se não tiver parâmetro de versão na URL
-                if (lastVersion !== CODE_VERSION || !currentUrl.includes('v=2.1.1')) {
+                if (lastVersion !== CODE_VERSION || !currentUrl.includes('v=2.1.2')) {
                     console.log('FORÇANDO LIMPEZA COMPLETA DE CACHE');
                     
                     // ETAPA 1: Limpar todos os caches
@@ -564,7 +564,7 @@
                     console.log('=== CACHE LIMPO - REDIRECIONANDO COM FORÇA ===');
                     
                     // ETAPA 6: Redirecionamento forçado com cache-busting
-                    const newUrl = window.location.pathname + '?v=' + CODE_VERSION + '&t=' + Date.now() + '&force=true';
+                    const newUrl = window.location.pathname + '?v=' + CODE_VERSION + '&t=' + Date.now() + '&force=true&fix=pdf';
                     console.log('Redirecionando para:', newUrl);
                     
                     setTimeout(() => {
@@ -984,6 +984,13 @@
                 
                 console.log("Dados do orçamento encontrado:", quote);
                 
+                // Verificar se quote.items existe e tratar dados corretamente
+                if (!quote.items || !Array.isArray(quote.items)) {
+                    console.error("Items do orçamento não encontrados ou inválidos");
+                    showFeedback('Dados do orçamento estão corrompidos', 'error');
+                    return;
+                }
+                
                 // Buscar dados do usuário e da empresa
                 const user = JSON.parse(localStorage.getItem('user') || '{}');
                 const companyName = user.company || 'Nome da Empresa';
@@ -1311,12 +1318,12 @@
                                 </thead>
                                 <tbody>
                                     ${quote.items ? quote.items.map((item, index) => {
-                                        // Extrair informações do item
-                                        let sizeText = item.size || '';
-                                        
-                                        // Calcular preço unitário
-                                        let unitPrice = 0;
-                                        let totalPrice = 0;
+                                                                // Extrair informações do item
+                        let sizeText = String(item.size || '');
+                        
+                        // Calcular preço unitário
+                        let unitPrice = 0;
+                        let totalPrice = 0;
                                         
                                         if (typeof item.price === 'string') {
                                             totalPrice = parseFloat(item.price.replace(/[^0-9,.]/g, '').replace('.', '').replace(',', '.'));
@@ -1328,8 +1335,9 @@
                                             totalPrice = item.price;
                                         }
                                         
-                                        // Calcular preço unitário baseado no volume
-                                        const volumeValue = parseFloat((item.volume || '0').replace(/[^0-9,.]/g, '').replace(',', '.'));
+                                                                // Calcular preço unitário baseado no volume
+                        const volumeString = String(item.volume || '0');
+                        const volumeValue = parseFloat(volumeString.replace(/[^0-9,.]/g, '').replace(',', '.'));
                                         if (volumeValue > 0) {
                                             unitPrice = totalPrice / volumeValue;
                                         }
@@ -1451,6 +1459,13 @@
                 }
                 
                 console.log("Dados do orçamento encontrado:", quote);
+                
+                // Verificar se quote.items existe e tratar dados corretamente
+                if (!quote.items || !Array.isArray(quote.items)) {
+                    console.error("Items do orçamento não encontrados ou inválidos (generateSimplePDF)");
+                    showFeedback('Dados do orçamento estão corrompidos', 'error');
+                    return;
+                }
                 
                 // Buscar dados do usuário e da empresa
                 const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -1751,16 +1766,16 @@
                                 </thead>
                                 <tbody>
                                     ${quote.items && quote.items.length > 0 ? quote.items.map((item, index) => {
-                                        let sizeText = item.size;
-                                        if (sizeText && sizeText.indexOf('x') !== -1) {
-                                            const parts = sizeText.split('x');
-                                            sizeText = parts.join(' X ');
-                                        }
+                                                                let sizeText = item.size || '';
+                        if (sizeText && typeof sizeText === 'string' && sizeText.indexOf('x') !== -1) {
+                            const parts = sizeText.split('x');
+                            sizeText = parts.join(' X ');
+                        }
                                         
-                                        const packageQuantity = parseInt(item.packageQuantity || 1);
-                                        const quantity = item.quantity;
-                                        const volume = item.volume;
-                                        const priceText = item.price;
+                                                                const packageQuantity = parseInt(item.packageQuantity || 1);
+                        const quantity = String(item.quantity || '0');
+                        const volume = String(item.volume || '0,000m³');
+                        const priceText = String(item.price || 'R$ 0,00');
                                         
                                         let quantityDisplay = quantity;
                                         if (packageQuantity > 1) {
@@ -1854,7 +1869,7 @@
                 
                 // Se for string, verificar se já contém 'm³'
                 const volumeStr = String(volume);
-                if (volumeStr.indexOf('m³') !== -1) {
+                if (volumeStr && typeof volumeStr === 'string' && volumeStr.indexOf('m³') !== -1) {
                     const volumeNumber = parseFloat(volumeStr.replace(/[^0-9,.]/g, '').replace(',', '.'));
                     return volumeNumber.toLocaleString('pt-BR', {minimumFractionDigits: 3, maximumFractionDigits: 3}) + ' m³';
                 }
