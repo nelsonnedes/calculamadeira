@@ -18,7 +18,7 @@
 @import 'components/results.css';
 
 /* PÁGINAS - Estilos específicos por página */
-/* Estes arquivos serão criados nas próximas fases */
+@import 'pages/auth.css';
 
 /**
  * ATENÇÃO: 
