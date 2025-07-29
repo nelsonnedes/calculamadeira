@@ -3,694 +3,342 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ajuda - Calculadora de Madeira</title>
-    <link rel="stylesheet" href="styles.css">
-    <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#8B0000">
-    <link rel="apple-touch-icon" href="icon-192x192.png">
-    <!-- CSS MODULAR CENTRALIZADO - Seguindo REFACTORING_PLAN.md -->
+    <meta name="description" content="Central de ajuda e suporte - Calculadora de Madeira">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="CalcMadeira">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+    <title>Ajuda - Calculadora de Madeira</title>
+    
+    <!-- CSS MODULAR - Nova Arquitetura -->
     <link rel="stylesheet" href="css/main.css">
-    <style>
-        /* Estilos do header e navegação */
-        header {
-            background: #8B0000;
-            padding: 15px 0;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .header-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 20px;
-        }
-
-        .logo {
-            color: white;
-            text-decoration: none;
-            font-size: 24px;
-            display: flex;
-            align-items: center;
-            padding: 5px;
-        }
-
-        .page-title {
-            color: white;
-            font-size: 1.2rem;
-            margin: 0;
-            flex: 1;
-            text-align: center;
-        }
-
-        nav ul {
-            list-style: none;
-            display: flex;
-            margin: 0;
-            padding: 0;
-        }
-
-        nav ul li {
-            margin: 0 15px;
-        }
-
-        nav ul li a {
-            color: white;
-            text-decoration: none;
-            font-size: 16px;
-            transition: opacity 0.3s;
-        }
-
-        nav ul li a:hover {
-            opacity: 0.8;
-        }
-
-        .user-menu {
-            position: relative;
-        }
-
-        .user-menu-button {
-            background: none;
-            border: none;
-            color: white;
-            cursor: pointer;
-            font-size: 20px;
-            padding: 5px;
-        }
-
-        .user-menu-panel {
-            position: absolute;
-            top: 100%;
-            right: 0;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            min-width: 200px;
-            display: none;
-            z-index: 1001;
-        }
-
-        .user-menu-button:focus + .user-menu-panel,
-        .user-menu-panel:hover {
-            display: block;
-        }
-
-        .user-info {
-            padding: 15px;
-            border-bottom: 1px solid #eee;
-        }
-
-        .user-info span {
-            display: block;
-            color: #333;
-        }
-
-        .user-info span:first-child {
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-
-        .user-menu-panel ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .user-menu-panel ul li a {
-            padding: 12px 15px;
-            display: flex;
-            align-items: center;
-            color: #333;
-            text-decoration: none;
-            transition: background-color 0.3s;
-        }
-
-        .user-menu-panel ul li a:hover {
-            background-color: #f5f5f5;
-        }
-
-        .user-menu-panel ul li a i {
-            margin-right: 10px;
-            color: #8B0000;
-        }
-
-        /* Ajuste para o conteúdo principal */
-        .container {
-            padding-top: 80px; /* Espaço para o header fixo */
-        }
-
-        @media (max-width: 768px) {
-            .header-content {
-                flex-direction: column;
-                text-align: center;
-            }
-
-            .page-title {
-                margin-top: 10px;
-            }
-
-            nav ul {
-                flex-direction: column;
-                margin: 15px 0;
-            }
-
-            nav ul li {
-                margin: 10px 0;
-            }
-
-            .user-menu {
-                margin-top: 15px;
-            }
-
-            .container {
-                padding-top: 120px; /* Mais espaço para o header em modo mobile */
-            }
-        }
-
-        .help-container {
-            max-width: 800px;
-            margin: 20px auto;
-            padding: 20px;
-        }
-
-        .help-section {
-            background: white;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .help-section h2 {
-            color: #4CAF50;
-            margin-bottom: 20px;
-            font-size: 1.5em;
-        }
-
-        .help-section h3 {
-            color: #333;
-            margin: 20px 0 10px;
-            font-size: 1.2em;
-        }
-
-        .help-section p {
-            color: #666;
-            line-height: 1.6;
-            margin-bottom: 15px;
-        }
-
-        .help-section ul {
-            list-style-type: none;
-            padding: 0;
-            margin: 0 0 20px 0;
-        }
-
-        .help-section li {
-            padding: 10px 0;
-            border-bottom: 1px solid #eee;
-            display: flex;
-            align-items: flex-start;
-        }
-
-        .help-section li:last-child {
-            border-bottom: none;
-        }
-
-        .help-section li i {
-            color: #4CAF50;
-            margin-right: 10px;
-            margin-top: 3px;
-        }
-
-        .faq-item {
-            margin-bottom: 15px;
-        }
-
-        .faq-question {
-            font-weight: 500;
-            color: #333;
-            cursor: pointer;
-            padding: 10px;
-            background: #f5f5f5;
-            border-radius: 4px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .faq-question:hover {
-            background: #e8f5e9;
-        }
-
-        .faq-answer {
-            padding: 10px;
-            color: #666;
-            display: none;
-        }
-
-        .faq-answer.active {
-            display: block;
-        }
-
-        .contact-form {
-            display: grid;
-            gap: 15px;
-        }
-
-        .form-group {
-            display: grid;
-            gap: 5px;
-        }
-
-        .form-group label {
-            font-weight: 500;
-            color: #333;
-        }
-
-        .form-group input,
-        .form-group textarea {
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 16px;
-        }
-
-        .form-group textarea {
-            height: 150px;
-            resize: vertical;
-        }
-
-        .submit-btn {
-            background: #4CAF50;
-            color: white;
-            padding: 12px 24px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: background-color 0.3s;
-        }
-
-        .submit-btn:hover {
-            background: #45a049;
-        }
-
-        .video-tutorial {
-            position: relative;
-            padding-bottom: 56.25%;
-            height: 0;
-            overflow: hidden;
-            margin-bottom: 20px;
-        }
-
-        .video-tutorial iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-        }
-
-        .search-box {
-            position: relative;
-            margin-bottom: 20px;
-        }
-
-        .search-box input {
-            width: 100%;
-            padding: 12px 40px 12px 15px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 16px;
-        }
-
-        .search-box i {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #666;
-        }
-
-        .faq-list {
-            list-style-type: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .faq-item {
-            border-bottom: 1px solid #eee;
-            padding: 15px 0;
-        }
-
-        .faq-item:last-child {
-            border-bottom: none;
-        }
-
-        .faq-question {
-            font-weight: 500;
-            color: #333;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .faq-question:hover {
-            color: #4CAF50;
-        }
-
-        .faq-answer {
-            color: #666;
-            display: none;
-            padding-top: 10px;
-        }
-
-        .faq-item.active .faq-answer {
-            display: block;
-        }
-
-        .faq-item.active .faq-question {
-            color: #4CAF50;
-        }
-
-        .faq-item.active .faq-icon {
-            transform: rotate(180deg);
-        }
-
-        .faq-icon {
-            transition: transform 0.3s;
-        }
-
-        .contact-form {
-            display: grid;
-            gap: 15px;
-        }
-
-        .form-group {
-            display: grid;
-            gap: 5px;
-        }
-
-        .form-group label {
-            color: #333;
-            font-weight: 500;
-        }
-
-        .form-group input,
-        .form-group textarea {
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
-        }
-
-        .form-group textarea {
-            min-height: 150px;
-            resize: vertical;
-        }
-
-        .form-group input:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: #4CAF50;
-        }
-
-        .help-section button {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background-color 0.3s;
-        }
-
-        .help-section button:hover {
-            background-color: #45a049;
-        }
-
-        .feedback {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 12px 24px;
-            border-radius: 8px;
-            background-color: #4CAF50;
-            color: white;
-            font-size: 16px;
-            z-index: 1000;
-            animation: fadeInOut 3s ease-in-out;
-        }
-
-        .feedback.error {
-            background-color: #f44336;
-        }
-
-        @keyframes fadeInOut {
-            0% { opacity: 0; transform: translate(-50%, 20px); }
-            10% { opacity: 1; transform: translate(-50%, 0); }
-            90% { opacity: 1; transform: translate(-50%, 0); }
-            100% { opacity: 0; transform: translate(-50%, -20px); }
-        }
-
-        @media (max-width: 600px) {
-            .help-container {
-                padding: 10px;
-            }
-
-            .help-section {
-                padding: 15px;
-            }
-        }
-    </style>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <header>
+    <!-- HEADER com nova estrutura modular -->
+    <header class="header">
+        <button class="menu-btn" aria-label="Abrir menu">
+            <i class="fas fa-bars"></i>
+        </button>
+        
         <div class="header-content">
-            <a href="calc.html" class="logo">
+            <div class="app-name">Calculadora de Madeira</div>
+            <h1 class="page-title">Central de Ajuda</h1>
+        </div>
+        
+        <div class="header-actions">
+            <a href="calc.html" class="home-btn" aria-label="Início" title="Ir para a calculadora">
                 <i class="fas fa-home"></i>
             </a>
-            <h1 class="page-title">Ajuda</h1>
+            <button class="refresh-btn" aria-label="Recarregar" title="Recarregar página">
+                <i class="fas fa-sync-alt"></i>
+            </button>
         </div>
     </header>
 
-    <div class="container">
-        <main class="help-container">
-            <div class="search-box">
-                <input type="text" id="searchHelp" placeholder="Pesquisar na ajuda...">
-                <i class="fas fa-search"></i>
-            </div>
+    <!-- MENU LATERAL -->
+    <nav class="side-menu" id="sideMenu">
+        <div class="menu-header">
+            <h3>Menu</h3>
+            <button class="close-menu" aria-label="Fechar menu">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <ul class="menu-items">
+            <li><a href="calc.html"><i class="fas fa-calculator"></i> Calculadora</a></li>
+            <li><a href="orcamentos.html"><i class="fas fa-file-invoice"></i> Orçamentos</a></li>
+            <li><a href="perfil.html"><i class="fas fa-user"></i> Perfil</a></li>
+            <li><a href="planos.html"><i class="fas fa-crown"></i> Planos</a></li>
+            <li><a href="notificacoes.html"><i class="fas fa-bell"></i> Notificações</a></li>
+            <li><a href="configuracoes.html"><i class="fas fa-cog"></i> Configurações</a></li>
+            <li><a href="condicoes-pagamento.html"><i class="fas fa-credit-card"></i> Condições de Pagamento</a></li>
+            <li><a href="ajuda.html" class="active"><i class="fas fa-question-circle"></i> Ajuda</a></li>
+            <li><a href="index.html"><i class="fas fa-sign-out-alt"></i> Sair</a></li>
+        </ul>
+    </nav>
 
-            <div class="help-section">
-                <h2>Como Usar</h2>
-                <div class="video-tutorial">
-                    <iframe src="https://www.youtube.com/embed/VIDEO_ID" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    <!-- OVERLAY do menu -->
+    <div class="menu-overlay" id="menuOverlay"></div>
+
+    <!-- CONTAINER PRINCIPAL -->
+    <main class="help-container">
+        
+        <!-- CABEÇALHO DA AJUDA -->
+        <section class="help-header">
+            <h2 class="help-title">
+                <i class="fas fa-life-ring"></i>
+                Central de Ajuda
+            </h2>
+        </section>
+
+        <!-- BUSCA NA AJUDA -->
+        <section class="search-box">
+            <input type="text" id="searchHelp" placeholder="Pesquisar na ajuda..." autocomplete="off">
+            <i class="fas fa-search"></i>
+        </section>
+
+        <!-- TUTORIAL EM VÍDEO -->
+        <section class="help-section">
+            <h2>
+                <i class="fas fa-play-circle"></i>
+                Como Usar - Tutorial em Vídeo
+            </h2>
+            <div class="video-tutorial">
+                <!-- Placeholder para vídeo -->
+                <div class="video-placeholder">
+                    <i class="fas fa-video"></i>
+                    <p>Tutorial em vídeo será disponibilizado em breve</p>
                 </div>
-                <p>Assista ao tutorial em vídeo para aprender a usar a Calculadora de Madeira de forma eficiente.</p>
             </div>
+            <p>Assista ao tutorial completo para aprender a usar todas as funcionalidades da Calculadora de Madeira de forma eficiente.</p>
+        </section>
 
-            <div class="help-section">
-                <h2>Funcionalidades Principais</h2>
-                <ul>
-                    <li>
-                        <i class="fas fa-calculator"></i>
-                        <div>
-                            <strong>Cálculo de Volume</strong>
-                            <p>Calcule o volume de madeira serrada com precisão usando as dimensões fornecidas.</p>
-                        </div>
-                    </li>
-                    <li>
-                        <i class="fas fa-list"></i>
-                        <div>
-                            <strong>Lista de Itens</strong>
-                            <p>Organize seus cálculos em listas para melhor controle e acompanhamento.</p>
-                        </div>
-                    </li>
-                    <li>
-                        <i class="fas fa-share-alt"></i>
-                        <div>
-                            <strong>Compartilhamento</strong>
-                            <p>Compartilhe suas listas e cálculos com clientes e colaboradores.</p>
-                        </div>
-                    </li>
-                    <li>
-                        <i class="fas fa-chart-bar"></i>
-                        <div>
-                            <strong>Relatórios</strong>
-                            <p>Gere relatórios detalhados com informações sobre seus cálculos.</p>
-                        </div>
-                    </li>
-                </ul>
+        <!-- FUNCIONALIDADES PRINCIPAIS -->
+        <section class="help-section">
+            <h2>
+                <i class="fas fa-star"></i>
+                Funcionalidades Principais
+            </h2>
+            <ul>
+                <li>
+                    <i class="fas fa-calculator"></i>
+                    <div>
+                        <strong>Cálculo de Volume</strong>
+                        <p>Calcule o volume de madeira serrada com precisão usando as dimensões fornecidas. Suporte para diferentes unidades e tipos de madeira.</p>
+                    </div>
+                </li>
+                <li>
+                    <i class="fas fa-list-alt"></i>
+                    <div>
+                        <strong>Lista de Itens</strong>
+                        <p>Organize seus cálculos em listas detalhadas para melhor controle e acompanhamento de projetos.</p>
+                    </div>
+                </li>
+                <li>
+                    <i class="fas fa-file-pdf"></i>
+                    <div>
+                        <strong>Geração de PDF</strong>
+                        <p>Exporte seus orçamentos e listas em formato PDF profissional com logo personalizado.</p>
+                    </div>
+                </li>
+                <li>
+                    <i class="fas fa-share-alt"></i>
+                    <div>
+                        <strong>Compartilhamento</strong>
+                        <p>Compartilhe suas listas e orçamentos com clientes e colaboradores de forma rápida e segura.</p>
+                    </div>
+                </li>
+                <li>
+                    <i class="fas fa-chart-bar"></i>
+                    <div>
+                        <strong>Relatórios Detalhados</strong>
+                        <p>Gere relatórios completos com informações sobre seus cálculos, custos e estatísticas de uso.</p>
+                    </div>
+                </li>
+                <li>
+                    <i class="fas fa-cloud"></i>
+                    <div>
+                        <strong>Backup Automático</strong>
+                        <p>Seus dados são automaticamente salvos e sincronizados para maior segurança.</p>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <!-- PERGUNTAS FREQUENTES -->
+        <section class="help-section">
+            <h2>
+                <i class="fas fa-question-circle"></i>
+                Perguntas Frequentes
+            </h2>
+            <ul class="faq-list">
+                <li class="faq-item">
+                    <div class="faq-question">
+                        Como usar a calculadora de madeira?
+                        <i class="fas fa-chevron-down faq-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Para usar a calculadora, siga estes passos:</p>
+                        <ol>
+                            <li>Digite as dimensões da madeira (espessura, largura e comprimento) em centímetros</li>
+                            <li>Informe a quantidade de peças desejada</li>
+                            <li>Digite o preço por metro cúbico (m³)</li>
+                            <li>Clique em "Calcular" para ver o resultado automaticamente</li>
+                            <li>Use "Adicionar à Lista" para compilar múltiplos itens</li>
+                        </ol>
+                    </div>
+                </li>
+                <li class="faq-item">
+                    <div class="faq-question">
+                        Como salvar e gerenciar orçamentos?
+                        <i class="fas fa-chevron-down faq-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Para gerenciar seus orçamentos:</p>
+                        <ol>
+                            <li>Preencha as informações do cliente (nome, contato, condições)</li>
+                            <li>Adicione todos os itens de madeira à lista</li>
+                            <li>Clique em "Salvar Orçamento"</li>
+                            <li>Acesse a seção "Orçamentos" para visualizar salvos</li>
+                            <li>Use as opções de editar, duplicar ou gerar PDF</li>
+                        </ol>
+                        <p>Todos os orçamentos ficam salvos localmente e podem ser acessados a qualquer momento.</p>
+                    </div>
+                </li>
+                <li class="faq-item">
+                    <div class="faq-question">
+                        Como personalizar meu perfil e empresa?
+                        <i class="fas fa-chevron-down faq-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Para personalizar seu perfil:</p>
+                        <ol>
+                            <li>Acesse a seção "Perfil" no menu lateral</li>
+                            <li>Preencha suas informações pessoais e da empresa</li>
+                            <li>Faça upload do logo da sua empresa</li>
+                            <li>Configure informações de contato e endereço</li>
+                            <li>Clique em "Salvar Perfil"</li>
+                        </ol>
+                        <p>Estas informações serão utilizadas nos PDFs gerados automaticamente.</p>
+                    </div>
+                </li>
+                <li class="faq-item">
+                    <div class="faq-question">
+                        Quais são as diferenças entre os planos?
+                        <i class="fas fa-chevron-down faq-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Oferecemos três planos para atender suas necessidades:</p>
+                        <ul>
+                            <li><strong>Gratuito:</strong> Funcionalidades básicas, até 10 orçamentos salvos</li>
+                            <li><strong>Premium:</strong> Orçamentos ilimitados, PDF com logo, backup na nuvem</li>
+                            <li><strong>Empresarial:</strong> Todas as funcionalidades + suporte prioritário e recursos avançados</li>
+                        </ul>
+                        <p>Acesse a seção "Planos" para ver todos os detalhes e fazer upgrade.</p>
+                    </div>
+                </li>
+                <li class="faq-item">
+                    <div class="faq-question">
+                        Como funciona o sistema offline?
+                        <i class="fas fa-chevron-down faq-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>A Calculadora de Madeira funciona como uma Progressive Web App (PWA):</p>
+                        <ul>
+                            <li>Todos os dados são salvos localmente no seu dispositivo</li>
+                            <li>Funciona mesmo sem conexão com a internet</li>
+                            <li>Pode ser instalada como um app no seu celular ou computador</li>
+                            <li>Sincronização automática quando voltar online (planos pagos)</li>
+                        </ul>
+                    </div>
+                </li>
+                <li class="faq-item">
+                    <div class="faq-question">
+                        Como exportar dados e fazer backup?
+                        <i class="fas fa-chevron-down faq-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Para proteger seus dados:</p>
+                        <ol>
+                            <li>Acesse "Configurações" no menu</li>
+                            <li>Use "Exportar Configurações" para baixar um backup</li>
+                            <li>Planos pagos têm backup automático na nuvem</li>
+                            <li>PDFs podem ser salvos individualmente</li>
+                            <li>Use "Importar Configurações" para restaurar dados</li>
+                        </ol>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <!-- FORMULÁRIO DE CONTATO -->
+        <section class="help-section">
+            <h2>
+                <i class="fas fa-envelope"></i>
+                Entre em Contato
+            </h2>
+            <p>Precisa de mais ajuda? Não encontrou o que procurava? Entre em contato conosco através do formulário abaixo:</p>
+            <form class="contact-form">
+                <div class="form-group">
+                    <label for="name">Nome Completo</label>
+                    <input type="text" id="name" name="name" required placeholder="Seu nome completo">
+                </div>
+                <div class="form-group">
+                    <label for="email">E-mail</label>
+                    <input type="email" id="email" name="email" required placeholder="seu@email.com">
+                </div>
+                <div class="form-group">
+                    <label for="subject">Assunto</label>
+                    <input type="text" id="subject" name="subject" required placeholder="Descreva brevemente o assunto">
+                </div>
+                <div class="form-group">
+                    <label for="message">Mensagem</label>
+                    <textarea id="message" name="message" required placeholder="Descreva detalhadamente sua dúvida ou problema..."></textarea>
+                </div>
+                <button type="submit">
+                    <i class="fas fa-paper-plane"></i>
+                    Enviar Mensagem
+                </button>
+            </form>
+        </section>
+
+        <!-- INFORMAÇÕES DE CONTATO -->
+        <section class="help-info-cards">
+            <div class="info-card">
+                <i class="fas fa-clock"></i>
+                <h4>Horário de Atendimento</h4>
+                <p>Segunda a Sexta<br>8h às 18h (horário de Brasília)</p>
             </div>
-
-            <div class="help-section">
-                <h2>Perguntas Frequentes</h2>
-                <ul class="faq-list">
-                    <li class="faq-item">
-                        <div class="faq-question">
-                            Como usar a calculadora?
-                            <i class="fas fa-chevron-down faq-icon"></i>
-                        </div>
-                        <div class="faq-answer">
-                            Para usar a calculadora, siga estes passos:
-                            <ol>
-                                <li>Digite as dimensões da madeira (largura, espessura e comprimento)</li>
-                                <li>Informe a quantidade de peças</li>
-                                <li>Digite o preço por m³</li>
-                                <li>Clique em "Calcular" para ver o resultado</li>
-                            </ol>
-                        </div>
-                    </li>
-                    <li class="faq-item">
-                        <div class="faq-question">
-                            Como salvar uma lista de cálculos?
-                            <i class="fas fa-chevron-down faq-icon"></i>
-                        </div>
-                        <div class="faq-answer">
-                            Para salvar uma lista de cálculos:
-                            <ol>
-                                <li>Realize os cálculos desejados</li>
-                                <li>Clique em "Salvar Lista"</li>
-                                <li>Digite um nome para a lista</li>
-                                <li>Clique em "Confirmar"</li>
-                            </ol>
-                            A lista será salva e poderá ser acessada posteriormente na seção "Minhas Listas".
-                        </div>
-                    </li>
-                    <li class="faq-item">
-                        <div class="faq-question">
-                            Como alterar minhas informações pessoais?
-                            <i class="fas fa-chevron-down faq-icon"></i>
-                        </div>
-                        <div class="faq-answer">
-                            Para alterar suas informações pessoais:
-                            <ol>
-                                <li>Acesse a seção "Perfil"</li>
-                                <li>Clique em "Editar Perfil"</li>
-                                <li>Altere as informações desejadas</li>
-                                <li>Clique em "Salvar Alterações"</li>
-                            </ol>
-                        </div>
-                    </li>
-                    <li class="faq-item">
-                        <div class="faq-question">
-                            Como funciona o plano premium?
-                            <i class="fas fa-chevron-down faq-icon"></i>
-                        </div>
-                        <div class="faq-answer">
-                            O plano premium oferece recursos adicionais:
-                            <ul>
-                                <li>Listas ilimitadas de cálculos</li>
-                                <li>Exportação de relatórios em PDF</li>
-                                <li>Backup automático na nuvem</li>
-                                <li>Suporte prioritário</li>
-                            </ul>
-                            Para assinar o plano premium, acesse a seção "Planos" e escolha o plano desejado.
-                        </div>
-                    </li>
-                </ul>
+            
+            <div class="info-card">
+                <i class="fas fa-reply"></i>
+                <h4>Tempo de Resposta</h4>
+                <p>Respondemos em até<br>24 horas úteis</p>
             </div>
-
-            <div class="help-section">
-                <h2>Contato</h2>
-                <p>Precisa de mais ajuda? Entre em contato conosco através do formulário abaixo:</p>
-                <form class="contact-form">
-                    <div class="form-group">
-                        <label for="name">Nome</label>
-                        <input type="text" id="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">E-mail</label>
-                        <input type="email" id="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="subject">Assunto</label>
-                        <input type="text" id="subject" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="message">Mensagem</label>
-                        <textarea id="message" required></textarea>
-                    </div>
-                    <button type="submit">Enviar Mensagem</button>
-                </form>
+            
+            <div class="info-card">
+                <i class="fas fa-users"></i>
+                <h4>Suporte Especializado</h4>
+                <p>Equipe com conhecimento<br>em madeira e construção</p>
             </div>
-        </main>
-    </div>
+        </section>
 
-    <script>
-        // Verificar autenticação e plano ativo
-        if (!isUserLoggedIn()) {
-            window.location.href = 'index.html';
-        } else if (!isPlanActive()) {
-            window.location.href = 'planos.html';
-        }
+    </main>
 
-        // Toggle FAQ items
-        document.querySelectorAll('.faq-question').forEach(question => {
-            question.addEventListener('click', () => {
-                const item = question.parentElement;
-                const isActive = item.classList.contains('active');
-                
-                // Fechar todos os itens
-                document.querySelectorAll('.faq-item').forEach(faqItem => {
-                    faqItem.classList.remove('active');
-                });
-                
-                // Abrir o item clicado se não estiver ativo
-                if (!isActive) {
-                    item.classList.add('active');
-                }
-            });
-        });
+    <!-- SISTEMA DE FEEDBACK -->
+    <div id="feedbackContainer" class="feedback-container"></div>
 
-        // Enviar formulário de contato
-        document.querySelector('.contact-form').addEventListener('submit', (event) => {
-            event.preventDefault();
+    <!-- JavaScript Modular - Nova Arquitetura -->
+    <script type="module">
+        // Import da aplicação principal
+        import { initializeApp } from './js/core/app.js';
+        
+        // Import específico da página de ajuda
+        import './js/pages/help.js';
+        
+        // Event listener para confirmação de carregamento
+        document.addEventListener('calculadoraMadeiraReady', (event) => {
+            console.log('🎉 Central de Ajuda Carregada!', event.detail);
             
-            const formData = {
-                name: document.getElementById('name').value,
-                email: document.getElementById('email').value,
-                subject: document.getElementById('subject').value,
-                message: document.getElementById('message').value,
-                timestamp: new Date().toISOString()
-            };
-
-            // Aqui você implementaria a lógica de envio do formulário
-            console.log('Formulário enviado:', formData);
-            
-            // Limpar formulário
-            event.target.reset();
-            
-            // Mostrar feedback
-            showFeedback('Mensagem enviada com sucesso!');
-        });
-
-        // Mostrar feedback
-        // === FUNÇÃO SHOWFEEDBACK REMOVIDA ===
-        // Agora utiliza módulo js/components/feedback.js
-        // Via window.showFeedback() global
-        // SEGUINDO REFACTORING_PLAN.md - eliminação de duplicação
-
-        // Search functionality
-        document.getElementById('searchHelp').addEventListener('input', (e) => {
-            const searchTerm = e.target.value.toLowerCase();
-            
-            document.querySelectorAll('.help-section').forEach(section => {
-                const text = section.textContent.toLowerCase();
-                section.style.display = text.includes(searchTerm) ? 'block' : 'none';
-            });
+            // A aplicação e os módulos específicos da página já foram inicializados
+            // Todo o sistema de ajuda está funcionando
         });
     </script>
+    
+    <!-- Fallback para navegadores sem suporte a módulos ES6 -->
+    <script nomodule>
+        alert('Seu navegador não suporta módulos ES6. Por favor, use um navegador mais recente.');
+    </script>
+
+    <!-- Compatibilidade temporária com auth.js -->
+    <script src="auth.js"></script>
+
+    <!-- PWA Scripts -->
+    <script src="pwa-updater.js"></script>
+    <script src="update-checker.js"></script>
 </body>
 </html> 

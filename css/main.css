@@ -23,6 +23,9 @@
 @import 'pages/plans.css';
 @import 'pages/admin.css';
 @import 'pages/notifications.css';
+@import 'pages/settings.css';
+@import 'pages/payment-terms.css';
+@import 'pages/help.css';
 
 /**
  * ATENÇÃO: 

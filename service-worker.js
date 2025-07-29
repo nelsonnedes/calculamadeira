@@ -1,10 +1,10 @@
 /**
  * Service Worker - Calculadora de Madeira
  * Responsável pelo cache e funcionamento offline (PWA)
- * Versão atualizada para arquitetura modular
+ * Versão atualizada para arquitetura modular COMPLETA
  */
 
-const CACHE_NAME = 'calculadora-madeira-v2.3.0';
+const CACHE_NAME = 'calculadora-madeira-v2.4.0';
 const urlsToCache = [
     // Páginas principais
     '/',
@@ -19,7 +19,7 @@ const urlsToCache = [
     '/admin.html',
     '/condicoes-pagamento.html',
     
-    // CSS modular
+    // CSS modular - ARQUITETURA COMPLETA
     '/css/main.css',
     '/css/base/variables.css',
     '/css/base/reset.css',
@@ -31,8 +31,11 @@ const urlsToCache = [
     '/css/pages/plans.css',
     '/css/pages/admin.css',
     '/css/pages/notifications.css',
+    '/css/pages/settings.css',
+    '/css/pages/payment-terms.css',
+    '/css/pages/help.css',
     
-    // JavaScript modular
+    // JavaScript modular - ARQUITETURA COMPLETA
     '/js/core/app.js',
     '/js/modules/calculator.js',
     '/js/modules/storage.js',
@@ -48,180 +51,144 @@ const urlsToCache = [
     '/js/pages/plans.js',
     '/js/pages/admin.js',
     '/js/pages/notifications.js',
+    '/js/pages/settings.js',
+    '/js/pages/payment-terms.js',
+    '/js/pages/help.js',
     
-    // PWA e ícones
+    // PWA essentials
     '/manifest.json',
     '/icons/icon-192x192.png',
     '/icons/icon-512x512.png',
+    '/icons/icon-72x72.png',
+    '/icons/icon-96x96.png',
+    '/icons/icon-128x128.png',
+    '/icons/icon-144x144.png',
+    '/icons/icon-152x152.png',
+    '/icons/icon-384x384.png',
+    '/favicon.ico',
     
-    // Compatibilidade
-    '/auth.js'
+    // Compatibilidade (temporário)
+    '/auth.js',
+    '/pwa-updater.js',
+    '/update-checker.js'
 ];
 
-// Instalar Service Worker
 self.addEventListener('install', (event) => {
-    console.log('🔧 Service Worker: Instalando versão', CACHE_NAME);
-    
+    console.log('📦 Service Worker instalando v2.4.0 - Arquitetura Modular COMPLETA');
     event.waitUntil(
         caches.open(CACHE_NAME)
             .then((cache) => {
-                console.log('📦 Service Worker: Cache aberto, adicionando arquivos...');
-                
-                // Filtrar URLs válidas e adicionar ao cache
-                const validUrls = urlsToCache.filter(url => {
-                    // Verificar se é uma URL válida
-                    try {
-                        new URL(url, self.location);
-                        return true;
-                    } catch {
-                        // Se for um caminho relativo válido
-                        return url.startsWith('/') && !url.includes('..') && !url.includes('//');
-                    }
-                });
-                
-                return cache.addAll(validUrls);
+                console.log('📁 Cache aberto:', CACHE_NAME);
+                return cache.addAll(urlsToCache);
             })
             .then(() => {
-                console.log('✅ Service Worker: Todos os arquivos foram cached');
+                console.log('✅ Todos os arquivos foram cached com sucesso');
                 return self.skipWaiting();
             })
             .catch((error) => {
-                console.error('❌ Service Worker: Erro ao fazer cache:', error);
+                console.error('❌ Erro ao fazer cache dos arquivos:', error);
             })
     );
 });
 
-// Ativar Service Worker
 self.addEventListener('activate', (event) => {
-    console.log('🚀 Service Worker: Ativando versão', CACHE_NAME);
-    
+    console.log('🔄 Service Worker ativando v2.4.0');
     event.waitUntil(
         caches.keys().then((cacheNames) => {
             return Promise.all(
                 cacheNames.map((cacheName) => {
-                    // Deletar caches antigos
-                    if (cacheName !== CACHE_NAME && cacheName.startsWith('calculadora-madeira-')) {
-                        console.log('🗑️ Service Worker: Deletando cache antigo:', cacheName);
+                    if (cacheName !== CACHE_NAME) {
+                        console.log('🗑️ Removendo cache antigo:', cacheName);
                         return caches.delete(cacheName);
                     }
                 })
             );
         }).then(() => {
-            console.log('✅ Service Worker: Cache limpo, assumindo controle');
+            console.log('✅ Service Worker ativado - v2.4.0');
             return self.clients.claim();
         })
     );
 });
 
-// Interceptar requisições
 self.addEventListener('fetch', (event) => {
-    const request = event.request;
-    
-    // Ignorar requisições não GET ou com esquemas especiais
-    if (request.method !== 'GET' || 
-        !request.url.startsWith('http') ||
-        request.url.includes('chrome-extension') ||
-        request.url.includes('extension') ||
-        request.url.includes('moz-extension')) {
+    // Filtrar apenas requisições que devem ser cacheadas
+    if (event.request.method !== 'GET' || 
+        event.request.url.includes('chrome-extension://') ||
+        event.request.url.includes('moz-extension://') ||
+        event.request.url.includes('localhost:') ||
+        event.request.url.includes('127.0.0.1:') ||
+        event.request.url.includes('analytics') ||
+        event.request.url.includes('gtag') ||
+        event.request.url.includes('google') ||
+        event.request.url.includes('facebook') ||
+        event.request.url.includes('twitter') ||
+        event.request.url.includes('api.') ||
+        event.request.url.includes('/api/')) {
         return;
     }
     
     event.respondWith(
-        caches.match(request)
+        caches.match(event.request)
             .then((response) => {
-                // Retornar do cache se disponível
+                // Retorna o cache se encontrado
                 if (response) {
-                    console.log('📋 Service Worker: Servindo do cache:', request.url);
                     return response;
                 }
                 
-                // Senão, buscar da rede
-                console.log('🌐 Service Worker: Buscando da rede:', request.url);
-                return fetch(request).then((response) => {
-                    // Verificar se é uma resposta válida
+                // Senão, busca na rede
+                return fetch(event.request).then((response) => {
+                    // Verifica se é uma resposta válida
                     if (!response || response.status !== 200 || response.type !== 'basic') {
                         return response;
                     }
                     
-                    // Clonar a resposta pois ela pode ser consumida apenas uma vez
+                    // Clona a resposta
                     const responseToCache = response.clone();
                     
-                    // Adicionar ao cache se for um recurso da nossa aplicação
-                    if (request.url.startsWith(self.location.origin)) {
+                    // Adiciona ao cache apenas arquivos relevantes
+                    if (shouldCache(event.request.url)) {
                         caches.open(CACHE_NAME)
                             .then((cache) => {
-                                cache.put(request, responseToCache);
+                                cache.put(event.request, responseToCache);
                             });
                     }
                     
                     return response;
-                }).catch((error) => {
-                    console.warn('⚠️ Service Worker: Erro na rede:', error);
-                    
-                    // Para páginas HTML, retornar a página offline se disponível
-                    if (request.destination === 'document') {
-                        return caches.match('/offline.html').then((offlineResponse) => {
-                            return offlineResponse || new Response(
-                                '<h1>Sem conexão</h1><p>Verifique sua conexão com a internet.</p>',
-                                { headers: { 'Content-Type': 'text/html' } }
-                            );
-                        });
-                    }
-                    
-                    return new Response('Recurso não disponível offline', {
-                        status: 503,
-                        statusText: 'Service Unavailable'
-                    });
                 });
+            })
+            .catch(() => {
+                // Fallback para offline - retorna página principal se disponível
+                if (event.request.destination === 'document') {
+                    return caches.match('/index.html');
+                }
             })
     );
 });
 
-// Gerenciar mensagens do cliente
-self.addEventListener('message', (event) => {
-    console.log('💬 Service Worker: Mensagem recebida:', event.data);
+/**
+ * Determina se uma URL deve ser cacheada
+ */
+function shouldCache(url) {
+    const cacheableExtensions = ['.html', '.css', '.js', '.png', '.jpg', '.jpeg', '.svg', '.ico', '.json'];
+    const uncacheableStrings = ['analytics', 'gtag', 'facebook', 'twitter', 'google-analytics'];
     
-    if (event.data && event.data.type === 'SKIP_WAITING') {
-        console.log('⏭️ Service Worker: Pulando espera...');
-        self.skipWaiting();
-    }
-    
-    if (event.data && event.data.type === 'GET_VERSION') {
-        event.ports[0].postMessage({
-            type: 'VERSION',
-            version: CACHE_NAME
-        });
+    // Não cachear URLs que contêm strings problemáticas
+    if (uncacheableStrings.some(str => url.includes(str))) {
+        return false;
     }
     
-    if (event.data && event.data.type === 'CACHE_STATUS') {
-        caches.keys().then((cacheNames) => {
-            event.ports[0].postMessage({
-                type: 'CACHE_STATUS',
-                caches: cacheNames,
-                current: CACHE_NAME,
-                urlsCount: urlsToCache.length
-            });
-        });
-    }
-});
-
-// Sincronização em background (quando voltar online)
-self.addEventListener('sync', (event) => {
-    if (event.tag === 'background-sync') {
-        console.log('🔄 Service Worker: Sincronização em background');
-        event.waitUntil(doBackgroundSync());
-    }
-});
-
-// Função de sincronização
-async function doBackgroundSync() {
-    try {
-        // Aqui você pode implementar lógica para sincronizar dados
-        // quando a conexão voltar, como enviar cálculos salvos offline
-        console.log('✅ Service Worker: Sincronização concluída');
-    } catch (error) {
-        console.error('❌ Service Worker: Erro na sincronização:', error);
-    }
+    // Cachear URLs com extensões relevantes
+    return cacheableExtensions.some(ext => url.includes(ext));
 }
 
-console.log('📦 Service Worker carregado - Versão:', CACHE_NAME); 
+/**
+ * Mensagem de atualização disponível
+ */
+self.addEventListener('message', (event) => {
+    if (event.data && event.data.type === 'SKIP_WAITING') {
+        console.log('🔄 Forçando atualização do Service Worker');
+        self.skipWaiting();
+    }
+});
+
+console.log('🎉 Service Worker v2.4.0 carregado - Arquitetura Modular COMPLETA!'); 
