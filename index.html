@@ -64,16 +64,16 @@
                            required>
                 </div>
                 
-                <button class="auth-btn" id="loginButton" onclick="login()">
+                <button class="auth-btn" id="loginButton" onclick="window.login && window.login(); return false;">
                     <i class="fas fa-sign-in-alt"></i> Entrar
                 </button>
                 
                 <div class="auth-toggle">
-                    <a href="#" onclick="toggleForms()">
+                    <a href="#" onclick="window.toggleForms && window.toggleForms(); return false;">
                         <i class="fas fa-user-plus"></i> Não tem uma conta? Registre-se
                     </a>
                     <br>
-                    <a href="#" onclick="showResetPassword()" style="margin-top: 10px; display: inline-block;">
+                    <a href="#" onclick="window.showResetPassword && window.showResetPassword(); return false;" style="margin-top: 10px; display: inline-block;">
                         <i class="fas fa-key"></i> Esqueci minha senha
                     </a>
                 </div>
@@ -137,12 +137,12 @@
                     </div>
                 </div>
                 
-                <button class="auth-btn" id="resetButton" onclick="requestPasswordReset()">
+                <button class="auth-btn" id="resetButton" onclick="window.requestPasswordReset && window.requestPasswordReset(); return false;">
                     <i class="fas fa-paper-plane"></i> Enviar Código
                 </button>
                 
                 <div class="auth-toggle">
-                    <a href="#" onclick="showLogin()">
+                    <a href="#" onclick="window.showLogin && window.showLogin(); return false;">
                         <i class="fas fa-arrow-left"></i> Voltar ao Login
                     </a>
                 </div>
@@ -204,12 +204,12 @@
                            required>
                 </div>
                 
-                <button class="auth-btn" id="registerButton" onclick="register()">
+                <button class="auth-btn" id="registerButton" onclick="window.register && window.register(); return false;">
                     <i class="fas fa-user-plus"></i> Criar Conta
                 </button>
                 
                 <div class="auth-toggle">
-                    <a href="#" onclick="toggleForms()">
+                    <a href="#" onclick="window.toggleForms && window.toggleForms(); return false;">
                         <i class="fas fa-sign-in-alt"></i> Já tem uma conta? Faça login
                     </a>
                 </div>

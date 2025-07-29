@@ -4,6 +4,74 @@
  * Integrado com a arquitetura modular
  */
 
+// Definir funções globalmente IMEDIATAMENTE (compatibilidade)
+window.toggleForms = window.toggleForms || function() {
+    console.log('🔄 Alternando formulários...');
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+    
+    if (loginForm && registerForm) {
+        const isLoginVisible = loginForm.style.display !== 'none';
+        
+        loginForm.style.display = isLoginVisible ? 'none' : 'block';
+        registerForm.style.display = isLoginVisible ? 'block' : 'none';
+        
+        clearAllMessages();
+        
+        // Adicionar animação
+        const visibleForm = isLoginVisible ? registerForm : loginForm;
+        visibleForm.classList.add('auth-form-container', 'fade-in');
+    }
+};
+
+window.showResetPassword = window.showResetPassword || function() {
+    console.log('🔑 Mostrando formulário de recuperação...');
+    document.getElementById('loginForm').style.display = 'none';
+    document.getElementById('registerForm').style.display = 'none';
+    document.getElementById('resetPasswordForm').style.display = 'block';
+    document.getElementById('resetCodeSection').style.display = 'none';
+    
+    const resetButton = document.getElementById('resetButton');
+    resetButton.textContent = 'Enviar Código';
+    resetButton.onclick = window.requestPasswordReset;
+    
+    // Limpar formulário
+    ['resetEmail', 'resetCode', 'newPassword', 'confirmNewPassword'].forEach(fieldId => {
+        const field = document.getElementById(fieldId);
+        if (field) field.value = '';
+    });
+    
+    // Limpar mensagens
+    const resetError = document.getElementById('resetError');
+    const resetSuccess = document.getElementById('resetSuccess');
+    if (resetError) resetError.style.display = 'none';
+    if (resetSuccess) resetSuccess.style.display = 'none';
+    
+    // Focar email
+    setTimeout(() => {
+        document.getElementById('resetEmail')?.focus();
+    }, 100);
+};
+
+window.showLogin = window.showLogin || function() {
+    console.log('🏠 Voltando ao login...');
+    document.getElementById('loginForm').style.display = 'block';
+    document.getElementById('registerForm').style.display = 'none';
+    document.getElementById('resetPasswordForm').style.display = 'none';
+    
+    clearAllMessages();
+    
+    // Focar email
+    setTimeout(() => {
+        document.getElementById('loginEmail')?.focus();
+    }, 100);
+};
+
+window.login = window.login || function() { console.log('🔑 Login em andamento...'); };
+window.register = window.register || function() { console.log('👤 Registro em andamento...'); };
+window.requestPasswordReset = window.requestPasswordReset || function() { console.log('📧 Solicitando reset...'); };
+window.confirmPasswordReset = window.confirmPasswordReset || function() { console.log('🔒 Confirmando reset...'); };
+
 // Aguardar inicialização da aplicação principal
 document.addEventListener('calculadoraMadeiraReady', (event) => {
     console.log('🔑 Inicializando módulo de autenticação...');
@@ -56,36 +124,13 @@ function checkExistingLogin() {
  * Configurar eventos dos formulários
  */
 function setupFormEvents(app) {
-    // Eventos de navegação entre formulários
-    window.toggleForms = () => {
-        const loginForm = document.getElementById('loginForm');
-        const registerForm = document.getElementById('registerForm');
-        
-        if (loginForm && registerForm) {
-            const isLoginVisible = loginForm.style.display !== 'none';
-            
-            loginForm.style.display = isLoginVisible ? 'none' : 'block';
-            registerForm.style.display = isLoginVisible ? 'block' : 'none';
-            
-            clearAllMessages();
-            
-            // Adicionar animação
-            const visibleForm = isLoginVisible ? registerForm : loginForm;
-            visibleForm.classList.add('auth-form-container', 'fade-in');
-        }
-    };
-    
-    // Função de login
+    // Substituir funções globais placeholder pelas implementações reais
     window.login = () => handleLogin(app);
-    
-    // Função de registro
     window.register = () => handleRegister(app);
-    
-    // Funções de recuperação de senha
-    window.showResetPassword = () => showResetPasswordForm();
-    window.showLogin = () => showLoginForm();
     window.requestPasswordReset = () => handlePasswordResetRequest(app);
     window.confirmPasswordReset = () => handlePasswordResetConfirmation(app);
+    
+    console.log('✅ Funções de autenticação conectadas ao app');
     
     // Eventos de teclado para melhor UX
     setupKeyboardEvents();
@@ -509,6 +554,21 @@ function clearAllMessages() {
         element.style.display = 'none';
         element.textContent = '';
     });
+}
+
+// Funções de geração e gerenciamento de códigos de reset
+function generateResetCode() {
+    return Math.floor(100000 + Math.random() * 900000).toString();
+}
+
+function saveResetCode(email, code) {
+    const resetCodes = JSON.parse(localStorage.getItem('calc_madeira_reset_codes') || '{}');
+    resetCodes[email] = {
+        code: code,
+        timestamp: Date.now(),
+        attempts: 0
+    };
+    localStorage.setItem('calc_madeira_reset_codes', JSON.stringify(resetCodes));
 }
 
 function clearResetMessages() {
