@@ -507,13 +507,13 @@
 
     <script>
         // Configuração de versão e cache
-        const CODE_VERSION = '2.1.2';
-        const CACHE_NAME = 'calculadora-madeira-v2.1.2';
+        const CODE_VERSION = '2.1.3';
+        const CACHE_NAME = 'calculadora-madeira-v2.1.3';
         
-        // DETECÇÃO E LIMPEZA AUTOMÁTICA DE CACHE - VERSÃO MAIS AGRESSIVA
+        // DETECÇÃO E LIMPEZA AUTOMÁTICA DE CACHE - VERSÃO ULTRA AGRESSIVA
         (async function ultraForceCleanCache() {
             try {
-                console.log('=== LIMPEZA ULTRA FORÇADA DE CACHE V2.1.0 ===');
+                console.log('=== LIMPEZA ULTRA FORÇADA DE CACHE V2.1.3 ===');
                 
                 // Verificar se precisa limpar cache
                 const lastVersion = localStorage.getItem('code-version');
@@ -523,7 +523,7 @@
                 console.log(`URL atual: ${currentUrl}`);
                 
                 // Se for uma versão diferente OU se não tiver parâmetro de versão na URL
-                if (lastVersion !== CODE_VERSION || !currentUrl.includes('v=2.1.2')) {
+                if (lastVersion !== CODE_VERSION || !currentUrl.includes('v=2.1.3')) {
                     console.log('FORÇANDO LIMPEZA COMPLETA DE CACHE');
                     
                     // ETAPA 1: Limpar todos os caches
@@ -564,9 +564,10 @@
                     console.log('=== CACHE LIMPO - REDIRECIONANDO COM FORÇA ===');
                     
                     // ETAPA 6: Redirecionamento forçado com cache-busting
-                    const newUrl = window.location.pathname + '?v=' + CODE_VERSION + '&t=' + Date.now() + '&force=true&fix=pdf';
+                    const newUrl = window.location.pathname + '?v=' + CODE_VERSION + '&t=' + Date.now() + '&force=true&fix=pdf&clear=all&reload=hard';
                     console.log('Redirecionando para:', newUrl);
                     
+                    // ETAPA 7: Forçar recarga completa da página
                     setTimeout(() => {
                         window.location.replace(newUrl);
                     }, 1000);
@@ -1318,12 +1319,12 @@
                                 </thead>
                                 <tbody>
                                     ${quote.items ? quote.items.map((item, index) => {
-                                                                // Extrair informações do item
-                        let sizeText = String(item.size || '');
-                        
-                        // Calcular preço unitário
-                        let unitPrice = 0;
-                        let totalPrice = 0;
+                                        // Extrair informações do item - sempre garantir que é string
+                                        let sizeText = String(item.size || '');
+                                        
+                                        // Calcular preço unitário
+                                        let unitPrice = 0;
+                                        let totalPrice = 0;
                                         
                                         if (typeof item.price === 'string') {
                                             totalPrice = parseFloat(item.price.replace(/[^0-9,.]/g, '').replace('.', '').replace(',', '.'));
@@ -1335,9 +1336,9 @@
                                             totalPrice = item.price;
                                         }
                                         
-                                                                // Calcular preço unitário baseado no volume
-                        const volumeString = String(item.volume || '0');
-                        const volumeValue = parseFloat(volumeString.replace(/[^0-9,.]/g, '').replace(',', '.'));
+                                        // Calcular preço unitário baseado no volume - garantir que é string
+                                        const volumeString = String(item.volume || '0');
+                                        const volumeValue = parseFloat(volumeString.replace(/[^0-9,.]/g, '').replace(',', '.'));
                                         if (volumeValue > 0) {
                                             unitPrice = totalPrice / volumeValue;
                                         }
@@ -1766,16 +1767,17 @@
                                 </thead>
                                 <tbody>
                                     ${quote.items && quote.items.length > 0 ? quote.items.map((item, index) => {
-                                                                let sizeText = item.size || '';
-                        if (sizeText && typeof sizeText === 'string' && sizeText.indexOf('x') !== -1) {
-                            const parts = sizeText.split('x');
-                            sizeText = parts.join(' X ');
-                        }
+                                        // Sempre garantir que sizeText é string
+                                        let sizeText = String(item.size || '');
+                                        if (sizeText && typeof sizeText === 'string' && sizeText.indexOf('x') !== -1) {
+                                            const parts = sizeText.split('x');
+                                            sizeText = parts.join(' X ');
+                                        }
                                         
-                                                                const packageQuantity = parseInt(item.packageQuantity || 1);
-                        const quantity = String(item.quantity || '0');
-                        const volume = String(item.volume || '0,000m³');
-                        const priceText = String(item.price || 'R$ 0,00');
+                                        const packageQuantity = parseInt(item.packageQuantity || 1);
+                                        const quantity = String(item.quantity || '0');
+                                        const volume = String(item.volume || '0,000m³');
+                                        const priceText = String(item.price || 'R$ 0,00');
                                         
                                         let quantityDisplay = quantity;
                                         if (packageQuantity > 1) {

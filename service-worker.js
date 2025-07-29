@@ -1,5 +1,5 @@
-// Service Worker versão 2.1.2 - Fix PDF TypeError 
-const CACHE_NAME = 'calculadora-madeira-v2.1.2';
+// Service Worker versão 2.1.3 - Fix cache e PDF definitivo
+const CACHE_NAME = 'calculadora-madeira-v2.1.3';
 const urlsToCache = [
     '/',
     '/index.html',
@@ -120,7 +120,7 @@ self.addEventListener('fetch', event => {
     }
     
     // BLOQUEIO SECUNDÁRIO: Verificação extra para extensões
-    if (event.request.url.includes('extension')) {
+    if (event.request.url.includes('extension') || event.request.url.startsWith('chrome-extension://')) {
         console.log('Service Worker: BLOQUEANDO URL com extensão:', event.request.url);
         return; // Não processar
     }
@@ -154,16 +154,17 @@ self.addEventListener('fetch', event => {
                         // Cachear a resposta de forma segura
                         caches.open(CACHE_NAME)
                             .then(cache => {
-                                // VERIFICAÇÃO ULTRA FINAL: Última verificação antes de adicionar ao cache
-                                if (isCacheableRequest(event.request) && 
-                                    !event.request.url.includes('extension') &&
-                                    event.request.url.startsWith('http')) {
-                                    console.log('Service Worker: Adicionando ao cache:', event.request.url);
-                                    return cache.put(event.request, responseToCache);
-                                } else {
-                                    console.log('Service Worker: FINAL - Bloqueando cache para URL:', event.request.url);
-                                    return Promise.resolve();
-                                }
+                                                        // VERIFICAÇÃO ULTRA FINAL: Última verificação antes de adicionar ao cache
+                        if (isCacheableRequest(event.request) && 
+                            !event.request.url.includes('extension') &&
+                            !event.request.url.startsWith('chrome-extension://') &&
+                            event.request.url.startsWith('http')) {
+                            console.log('Service Worker: Adicionando ao cache:', event.request.url);
+                            return cache.put(event.request, responseToCache);
+                        } else {
+                            console.log('Service Worker: FINAL - Bloqueando cache para URL:', event.request.url);
+                            return Promise.resolve();
+                        }
                             })
                             .catch(error => {
                                 console.error('Service Worker: Erro ao cachear:', error, 'URL:', event.request.url);
