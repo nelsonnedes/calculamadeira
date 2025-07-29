@@ -1,6 +1,0 @@
-* [32mmaster[m
-[33med128b1[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m)[m Melhoria completa do sistema de recuperação de senha
-[33mb2e82f8[m Feat: Implementar sistema de atualização automática para PWA
-[33mff28bdd[m Feat: Melhorar fluxo de autenticação e informações de plano
-[33md26b61f[m Feat: Implementar melhorias na página de orçamentos
-[33m501da7d[m Adicionado PDF sem preço unitário e corrigido problemas de autocomplete

@@ -1,0 +1,265 @@
+/**
+ * Results Component - Calculadora de Madeira
+ * ATENÇÃO: Preservar EXATAMENTE o grid de resultados e formatação
+ * Baseado no ELEMENTOS_PRESERVAR.md - seção 4
+ */
+
+/* Container Principal dos Resultados */
+.results {
+    margin-top: 20px;                       /* ESPAÇAMENTO EXATO ATUAL */
+    padding: 15px;                          /* PADDING EXATO ATUAL */
+    background-color: var(--background-color);
+    border-radius: var(--border-radius-sm);
+    box-shadow: var(--shadow-sm);
+}
+
+/* Grid de Resultados - PRESERVAR ESTRUTURA EXATA */
+.results-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);  /* 3 COLUNAS IGUAIS - CRÍTICO */
+    gap: 10px;                              /* GAP EXATO ATUAL */
+    text-align: center;
+}
+
+/* Item Individual de Resultado */
+.result-item {
+    background-color: var(--white);
+    padding: 10px;                          /* PADDING EXATO ATUAL */
+    border-radius: var(--border-radius-sm);
+    box-shadow: var(--shadow-sm);
+    transition: transform var(--transition-fast);
+}
+
+.result-item:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+/* Títulos dos Resultados - MANTER MAIÚSCULO OBRIGATÓRIO */
+.result-item h3 {
+    font-size: 0.9rem;                      /* TAMANHO EXATO ATUAL */
+    color: var(--text-light);
+    margin: 0 0 5px 0;                      /* MARGIN EXATO ATUAL */
+    font-weight: var(--font-weight-medium);
+    text-transform: uppercase;              /* CRÍTICO - MAIÚSCULO */
+    letter-spacing: 0.5px;
+}
+
+/* Valores dos Resultados - PRESERVAR FORMATAÇÃO */
+.result-item p {
+    font-size: 1.1rem;                      /* TAMANHO EXATO ATUAL */
+    font-weight: var(--font-weight-bold);
+    margin-top: 5px;                        /* MARGIN EXATO ATUAL */
+    margin-bottom: 0;
+    color: var(--text-color);
+    font-family: var(--font-family-mono);   /* MONO PARA NÚMEROS */
+}
+
+/* IDs Específicos dos Resultados - PRESERVAR IDENTIFICADORES */
+#volume,
+#totalVolume,
+#cost {
+    color: var(--primary-color);
+    font-size: 1.2rem;
+    font-weight: var(--font-weight-bold);
+}
+
+/* Placeholder quando não há resultados */
+.results-placeholder {
+    text-align: center;
+    padding: var(--spacing-xl);
+    color: var(--text-light);
+}
+
+.results-placeholder i {
+    font-size: 2rem;
+    margin-bottom: var(--spacing-md);
+    color: var(--border-color);
+}
+
+.results-placeholder p {
+    margin: 0;
+    font-size: var(--font-size-base);
+}
+
+/* Botões de Ação dos Resultados */
+.action-buttons {
+    margin-top: var(--spacing-lg);
+    display: flex;
+    gap: var(--spacing-md);
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* Botão Principal - PRESERVAR ESTILO ATUAL */
+.add-button,
+.btn-primary {
+    background-color: var(--primary-color);  /* #8B0000 - COR CRÍTICA */
+    color: white;
+    width: 100%;                            /* LARGURA TOTAL ATUAL */
+    padding: 15px;                          /* PADDING EXATO ATUAL */
+    border: none;
+    border-radius: var(--border-radius-sm);
+    margin-top: 20px;                       /* MARGIN EXATO ATUAL */
+    font-size: 1rem;                        /* TAMANHO EXATO ATUAL */
+    font-weight: var(--font-weight-medium);
+    cursor: pointer;
+    transition: background-color var(--transition-base);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.add-button:hover,
+.btn-primary:hover {
+    background-color: var(--primary-dark);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+/* Botão Secundário - PRESERVAR ESTILO ATUAL */
+.btn-secondary {
+    background-color: var(--success-color);  /* #4CAF50 - VERDE ATUAL */
+    color: white;
+    padding: 15px var(--spacing-lg);
+    border: none;
+    border-radius: var(--border-radius-sm);
+    font-size: 1rem;
+    font-weight: var(--font-weight-medium);
+    cursor: pointer;
+    transition: background-color var(--transition-base);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    min-width: 200px;
+}
+
+.btn-secondary:hover {
+    background-color: var(--secondary-dark);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+/* Estados dos botões */
+.add-button:disabled,
+.btn-primary:disabled,
+.btn-secondary:disabled {
+    background-color: var(--border-color);
+    color: var(--text-light);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.add-button:active,
+.btn-primary:active,
+.btn-secondary:active {
+    transform: translateY(0);
+}
+
+/* RESPONSIVIDADE - MANTER LAYOUT ATUAL */
+@media (max-width: 480px) {
+    /* Grid em coluna única para mobile */
+    .results-grid {
+        grid-template-columns: 1fr;        /* UMA COLUNA MOBILE - ATUAL */
+        gap: 8px;
+    }
+    
+    .result-item {
+        padding: 12px;                      /* PADDING MOBILE ATUAL */
+    }
+    
+    .result-item h3 {
+        font-size: 0.8rem;                  /* AJUSTE MOBILE ATUAL */
+    }
+    
+    .result-item p {
+        font-size: 1rem;                    /* AJUSTE MOBILE ATUAL */
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+        gap: var(--spacing-sm);
+    }
+    
+    .add-button,
+    .btn-primary,
+    .btn-secondary {
+        width: 100%;
+        padding: 15px;                      /* MANTER ÁREA TOQUE MOBILE */
+        font-size: 16px;                    /* EVITAR ZOOM iOS */
+    }
+}
+
+@media (max-width: 600px) {
+    .results {
+        padding: 12px;                      /* PADDING MOBILE ATUAL */
+        margin-top: 15px;
+    }
+    
+    .results-grid {
+        gap: 8px;                           /* GAP MOBILE ATUAL */
+    }
+    
+    /* Melhorar visualização mobile */
+    .result-item {
+        padding: 15px 10px;                 /* PADDING OTIMIZADO MOBILE */
+        min-height: 70px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    
+    .result-item h3 {
+        margin-bottom: 8px;
+        font-size: 0.85rem;
+    }
+    
+    .result-item p {
+        font-size: 1.1rem;
+        line-height: 1.2;
+    }
+}
+
+/* Animações de entrada */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.result-item {
+    animation: fadeInUp 0.3s ease-out;
+}
+
+.result-item:nth-child(1) { animation-delay: 0.1s; }
+.result-item:nth-child(2) { animation-delay: 0.2s; }
+.result-item:nth-child(3) { animation-delay: 0.3s; }
+
+/* Estados de loading */
+.result-item.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.result-item.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--border-color);
+    border-top: 2px solid var(--primary-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    transform: translate(-50%, -50%);
+}
+
+@keyframes spin {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+} 

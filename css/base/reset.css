@@ -1,0 +1,178 @@
+/**
+ * Reset CSS - Calculadora de Madeira
+ * Baseado no reset utilizado atualmente no sistema
+ * PRESERVA comportamentos existentes
+ */
+
+/* Reset Universal - PRESERVAR EXATAMENTE */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: var(--font-family-base);
+}
+
+/* Body Base */
+body {
+    background-color: var(--background-color);
+    color: var(--text-color);
+    line-height: var(--line-height-base);
+    font-size: var(--font-size-base);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* HTML5 Display Role Reset */
+article, aside, details, figcaption, figure,
+footer, header, hgroup, menu, nav, section {
+    display: block;
+}
+
+/* Lists */
+ol, ul {
+    list-style: none;
+}
+
+/* Links */
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: none;
+}
+
+/* Tables */
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+/* Forms - PRESERVAR comportamentos mobile */
+button, input, optgroup, select, textarea {
+    margin: 0;
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+}
+
+button, input {
+    overflow: visible;
+}
+
+button, select {
+    text-transform: none;
+}
+
+/* Botões */
+button,
+[type="button"],
+[type="reset"],
+[type="submit"] {
+    -webkit-appearance: button;
+    cursor: pointer;
+}
+
+button::-moz-focus-inner,
+[type="button"]::-moz-focus-inner,
+[type="reset"]::-moz-focus-inner,
+[type="submit"]::-moz-focus-inner {
+    border-style: none;
+    padding: 0;
+}
+
+/* Inputs Number - CRÍTICO para mobile (evitar zoom iOS) */
+input[type="number"],
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+    -webkit-appearance: none;
+    appearance: none;
+    border-radius: 0;
+}
+
+/* Remove setas do input number - PRESERVAR COMPORTAMENTO */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+/* Textareas */
+textarea {
+    overflow: auto;
+    resize: vertical;
+}
+
+/* Fieldsets */
+fieldset {
+    min-width: 0;
+    padding: 0;
+    margin: 0;
+    border: 0;
+}
+
+legend {
+    display: table;
+    max-width: 100%;
+    padding: 0;
+    color: inherit;
+    white-space: normal;
+}
+
+/* Progress */
+progress {
+    vertical-align: baseline;
+}
+
+/* Hidden */
+[hidden] {
+    display: none !important;
+}
+
+/* Scrollbar personalizada - MANTER VISUAL ATUAL */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--background-color);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: var(--border-radius-sm);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-dark);
+}
+
+/* Selection */
+::selection {
+    background-color: var(--primary-light);
+    color: var(--primary-color);
+}
+
+::-moz-selection {
+    background-color: var(--primary-light);
+    color: var(--primary-color);
+}
+
+/* Focus outline personalizado */
+:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
+/* Remove outline padrão mas mantém acessibilidade */
+:focus:not(:focus-visible) {
+    outline: none;
+} 

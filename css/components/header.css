@@ -1,0 +1,168 @@
+/**
+ * Header Component - Calculadora de Madeira
+ * ATENÇÃO: Preservar EXATAMENTE a aparência atual
+ * Baseado no header do calc.html (linha ~30-80)
+ */
+
+/* Header Principal - MANTER COR OFICIAL #8B0000 */
+.header {
+    background-color: var(--primary-color);  /* #8B0000 - COR CRÍTICA */
+    color: white;
+    padding: 15px;                           /* VALOR EXATO ATUAL */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: var(--shadow-sm);
+    position: relative;
+    z-index: var(--z-fixed);
+}
+
+/* Conteúdo Central do Header */
+.header-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Nome do App - MANTER FORMATAÇÃO EXATA */
+.app-name {
+    font-size: 0.9rem;                      /* TAMANHO EXATO ATUAL */
+    margin-bottom: 5px;                     /* ESPAÇAMENTO EXATO */
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: white;
+}
+
+/* Título da Página - MANTER FORMATAÇÃO EXATA */
+.page-title {
+    font-size: 1.3rem;                      /* TAMANHO EXATO ATUAL */
+    margin: 0;
+    color: white;
+    font-weight: var(--font-weight-normal);
+}
+
+/* Botões do Header */
+.home-btn,
+.refresh-btn,
+.cache-btn {
+    color: white;
+    font-size: 1.2rem;                      /* TAMANHO EXATO ATUAL */
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px 10px;                      /* PADDING EXATO ATUAL */
+    border-radius: var(--border-radius-sm);
+    transition: background-color var(--transition-base);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.home-btn:hover,
+.refresh-btn:hover,
+.cache-btn:hover {
+    background-color: rgba(255, 255, 255, 0.2); /* TRANSPARÊNCIA EXATA ATUAL */
+}
+
+/* Ações do Header */
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;                              /* ESPAÇAMENTO EXATO ATUAL */
+}
+
+/* Botão Menu - PRESERVAR ESTILO EXATO */
+.menu-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;                      /* TAMANHO EXATO ATUAL */
+    cursor: pointer;
+    padding: 5px;
+    border-radius: var(--border-radius-sm);
+    transition: background-color var(--transition-base);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    min-height: 40px;
+}
+
+.menu-btn:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Responsividade - MANTER BREAKPOINTS ATUAIS */
+@media (max-width: 768px) {
+    .header {
+        padding: 10px 15px;                 /* AJUSTE MOBILE ATUAL */
+    }
+    
+    .app-name {
+        font-size: 0.8rem;                  /* AJUSTE MOBILE ATUAL */
+        margin-bottom: 3px;
+    }
+    
+    .page-title {
+        font-size: 1.1rem;                  /* AJUSTE MOBILE ATUAL */
+    }
+    
+    .header-actions {
+        gap: 8px;                           /* AJUSTE MOBILE ATUAL */
+    }
+    
+    .home-btn,
+    .refresh-btn,
+    .cache-btn {
+        font-size: 1rem;                    /* AJUSTE MOBILE ATUAL */
+        padding: 8px;
+        min-width: 36px;
+        min-height: 36px;
+    }
+    
+    .menu-btn {
+        font-size: 1.3rem;                  /* AJUSTE MOBILE ATUAL */
+        min-width: 36px;
+        min-height: 36px;
+    }
+}
+
+@media (max-width: 480px) {
+    .header {
+        padding: 8px 12px;                  /* AJUSTE MOBILE PEQUENO */
+    }
+    
+    .app-name {
+        font-size: 0.75rem;
+        display: none;                      /* OCULTAR EM TELAS MUITO PEQUENAS */
+    }
+    
+    .page-title {
+        font-size: 1rem;
+    }
+    
+    .header-actions {
+        gap: 5px;
+    }
+}
+
+/* Estados de Focus para Acessibilidade */
+.home-btn:focus-visible,
+.refresh-btn:focus-visible,
+.cache-btn:focus-visible,
+.menu-btn:focus-visible {
+    outline: 2px solid white;
+    outline-offset: 2px;
+}
+
+/* Animações suaves */
+.header-content {
+    transition: transform var(--transition-fast);
+}
+
+.header-content:hover {
+    transform: translateY(-1px);
+} 

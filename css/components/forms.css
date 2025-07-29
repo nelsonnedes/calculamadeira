@@ -1,0 +1,264 @@
+/**
+ * Forms Component - Calculadora de Madeira
+ * ATENÇÃO: Preservar ORDEM EXATA dos campos e formatação
+ * Baseado no ELEMENTOS_PRESERVAR.md - seção 3 e 4
+ */
+
+/* Seção de Informações do Cliente - PRESERVAR ORDEM */
+.client-info {
+    background: var(--white);
+    padding: var(--spacing-md);
+    border-radius: var(--border-radius);
+    margin-bottom: var(--spacing-md);
+    box-shadow: var(--shadow-sm);
+}
+
+.client-info h3 {
+    color: var(--primary-color);
+    margin-bottom: var(--spacing-md);
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-medium);
+}
+
+/* Seção da Calculadora */
+.calculator-form {
+    background: var(--white);
+    padding: var(--spacing-md);
+    border-radius: var(--border-radius);
+    margin-bottom: var(--spacing-md);
+    box-shadow: var(--shadow-sm);
+}
+
+/* Grupos de Input - PRESERVAR ESTRUTURA EXATA */
+.input-group {
+    display: flex;
+    margin-bottom: 10px;                    /* VALOR EXATO ATUAL */
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.form-group {
+    margin-bottom: var(--spacing-md);
+    position: relative;
+}
+
+/* Labels - MANTER TEXTOS EXATOS */
+.input-group label,
+.form-group label {
+    width: 120px;                           /* LARGURA EXATA ATUAL */
+    color: var(--text-color);
+    font-weight: var(--font-weight-medium);
+    font-size: var(--font-size-base);
+    flex-shrink: 0;
+}
+
+/* Inputs Base - CRÍTICO PARA MOBILE */
+.input-group input,
+.form-group input {
+    flex: 1;
+    padding: 8px;                           /* PADDING EXATO ATUAL */
+    border: var(--border-width) solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    font-size: var(--font-size-base);
+    color: var(--text-color);
+    background-color: var(--white);
+    transition: border-color var(--transition-fast);
+}
+
+/* Focus State */
+.input-group input:focus,
+.form-group input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px var(--primary-light);
+}
+
+/* Unidades - PRESERVAR ESTILO EXATO */
+.input-group .unit {
+    width: 50px;                            /* LARGURA EXATA ATUAL */
+    padding-left: 10px;                     /* PADDING EXATO ATUAL */
+    color: var(--text-light);
+    font-size: var(--font-size-sm);
+    flex-shrink: 0;
+}
+
+/* Campos Específicos por ID - PRESERVAR FUNCIONALIDADES */
+
+/* Cliente */
+#clientName {
+    text-transform: capitalize;
+}
+
+/* Contato - formatação de telefone preservada via JS */
+#clientContact {
+    font-family: var(--font-family-mono);
+}
+
+/* Preço - formatação de moeda preservada via JS */
+#price,
+.currency-input {
+    text-align: right;
+    font-family: var(--font-family-mono);
+}
+
+/* Campos numéricos */
+#thickness,
+#width,
+#length,
+#quantity,
+#packageQuantity {
+    text-align: right;
+}
+
+/* Placeholders */
+input::placeholder {
+    color: var(--text-light);
+    opacity: 0.7;
+}
+
+/* Autocomplete containers - PRESERVAR FUNCIONALIDADE */
+.autocomplete-container {
+    position: relative;
+}
+
+.autocomplete-items {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--white);
+    border: var(--border-width) solid var(--border-color);
+    border-top: none;
+    border-radius: 0 0 var(--border-radius-sm) var(--border-radius-sm);
+    max-height: 200px;                      /* ALTURA EXATA ATUAL */
+    overflow-y: auto;
+    z-index: var(--z-dropdown);
+    box-shadow: var(--shadow-md);
+    display: none;
+}
+
+.autocomplete-items.show {
+    display: block;
+}
+
+.autocomplete-item {
+    padding: 10px;                          /* PADDING EXATO ATUAL */
+    cursor: pointer;
+    border-bottom: var(--border-width) solid #eee;
+    transition: background-color var(--transition-fast);
+}
+
+.autocomplete-item:hover {
+    background-color: var(--background-color);
+}
+
+.autocomplete-item:last-child {
+    border-bottom: none;
+}
+
+/* Autocomplete de cliente com telefone */
+.autocomplete-item .client-name {
+    font-weight: var(--font-weight-medium);
+    color: var(--text-color);
+    margin-bottom: 2px;
+}
+
+.autocomplete-item .client-phone {
+    font-size: var(--font-size-sm);
+    color: var(--text-light);
+    font-family: var(--font-family-mono);
+}
+
+/* Estados de erro */
+.input-group input.error,
+.form-group input.error {
+    border-color: var(--error-color);
+    box-shadow: 0 0 0 2px rgba(244, 67, 54, 0.1);
+}
+
+/* Estados de sucesso */
+.input-group input.valid,
+.form-group input.valid {
+    border-color: var(--success-color);
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.1);
+}
+
+/* RESPONSIVIDADE MÓVEL - CRÍTICA PARA EVITAR ZOOM iOS */
+@media (max-width: 768px) {
+    .input-group {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-xs);
+    }
+    
+    .input-group label,
+    .form-group label {
+        width: 100%;
+        margin-bottom: var(--spacing-xs);
+    }
+    
+    .input-group input,
+    .form-group input {
+        width: 100%;
+    }
+}
+
+/* Mobile - VALORES CRÍTICOS PARA iOS */
+@media (max-width: 600px) {
+    .input-group input[type="number"],
+    .input-group input[type="text"],
+    .input-group input[type="email"],
+    .form-group input[type="number"],
+    .form-group input[type="text"],
+    .form-group input[type="email"] {
+        font-size: 16px;                    /* CRÍTICO - EVITA ZOOM iOS */
+        padding: 12px;                      /* ÁREA TOQUE MAIOR MOBILE */
+        width: 100%;
+        -webkit-appearance: none;           /* REMOVE ESTILO PADRÃO iOS */
+        appearance: none;
+        border-radius: var(--border-radius-sm);
+    }
+
+    /* Ajuste do campo de preço para mobile */
+    .currency-input {
+        font-size: 16px;                    /* CRÍTICO - EVITA ZOOM iOS */
+        padding: 12px;
+        width: 100%;
+    }
+    
+    /* Ajuste das unidades para mobile */
+    .input-group .unit {
+        width: auto;
+        padding-left: var(--spacing-sm);
+        font-size: var(--font-size-base);
+    }
+    
+    /* Autocomplete para mobile */
+    .autocomplete-items {
+        max-height: 150px;                  /* ALTURA REDUZIDA MOBILE */
+    }
+    
+    .autocomplete-item {
+        padding: 12px;                      /* ÁREA TOQUE MAIOR */
+    }
+}
+
+/* Validação visual em tempo real */
+.input-group input:invalid:not(:placeholder-shown),
+.form-group input:invalid:not(:placeholder-shown) {
+    border-color: var(--error-color);
+}
+
+.input-group input:valid:not(:placeholder-shown),
+.form-group input:valid:not(:placeholder-shown) {
+    border-color: var(--success-color);
+}
+
+/* Loading state para campos */
+.input-group input:disabled,
+.form-group input:disabled {
+    background-color: var(--background-color);
+    color: var(--text-light);
+    cursor: not-allowed;
+    opacity: 0.6;
+} 

@@ -1,0 +1,28 @@
+/**
+ * Main CSS - Calculadora de Madeira
+ * Arquivo principal que importa todos os módulos CSS
+ * Baseado na nova arquitetura modular da refatoração
+ */
+
+/* BASE STYLES - Importações fundamentais na ordem correta */
+@import 'base/variables.css';
+@import 'base/reset.css';
+
+/* COMPONENTES - Módulos reutilizáveis */
+@import 'components/header.css';
+@import 'components/forms.css';
+@import 'components/results.css';
+
+/* PÁGINAS - Estilos específicos por página */
+/* Estes arquivos serão criados nas próximas fases */
+
+/**
+ * ATENÇÃO: 
+ * - NÃO alterar a ordem de importação
+ * - Variáveis devem vir primeiro
+ * - Reset deve vir antes dos componentes
+ * - Componentes antes das páginas específicas
+ * 
+ * Esta ordem garante que as variáveis CSS sejam
+ * disponibilizadas para todos os outros arquivos
+ */ 

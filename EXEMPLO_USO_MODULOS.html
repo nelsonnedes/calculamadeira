@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exemplo de Uso - Calculadora de Madeira Modular</title>
+    
+    <!-- CSS MODULAR - Nova Arquitetura -->
+    <link rel="stylesheet" href="css/main.css">
+    
+    <!-- Font Awesome (se necessário) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- HEADER com nova estrutura -->
+    <header class="header">
+        <button class="menu-btn" aria-label="Abrir menu">
+            <i class="fas fa-bars"></i>
+        </button>
+        
+        <div class="header-content">
+            <div class="app-name">Calculadora de Madeira</div>
+            <h1 class="page-title">Exemplo Modular</h1>
+        </div>
+        
+        <div class="header-actions">
+            <button class="home-btn" aria-label="Início" title="Ir para a página inicial">
+                <i class="fas fa-home"></i>
+            </button>
+            <button class="refresh-btn" aria-label="Recarregar" title="Recarregar página">
+                <i class="fas fa-sync-alt"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- CONTAINER PRINCIPAL -->
+    <main class="container">
+        
+        <!-- INFORMAÇÕES DO CLIENTE -->
+        <section class="client-info">
+            <h3>Informações do Cliente</h3>
+            
+            <div class="form-group">
+                <label for="clientName">Cliente:</label>
+                <div class="autocomplete-container">
+                    <input type="text" id="clientName" placeholder="Nome do cliente">
+                    <div id="clientAutocomplete" class="autocomplete-items"></div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="clientContact">Contato:</label>
+                <input type="text" id="clientContact" placeholder="(00) 00000-0000">
+            </div>
+            
+            <div class="form-group">
+                <label for="paymentTerms">Condições:</label>
+                <div class="autocomplete-container">
+                    <input type="text" id="paymentTerms" placeholder="50% entrada, 50% na entrega">
+                    <div id="paymentTermsAutocomplete" class="autocomplete-items"></div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="species">Espécie:</label>
+                <div class="autocomplete-container">
+                    <input type="text" id="species" placeholder="Pinus, Eucalipto, etc.">
+                    <div id="speciesAutocomplete" class="autocomplete-items"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CALCULADORA -->
+        <section class="calculator-form">
+            <h3>Calculadora</h3>
+            
+            <div class="input-group">
+                <label for="thickness">Espessura:</label>
+                <input type="number" id="thickness" step="0.1" min="0" placeholder="0.0">
+                <span class="unit">cm</span>
+            </div>
+            
+            <div class="input-group">
+                <label for="width">Largura:</label>
+                <input type="number" id="width" step="0.1" min="0" placeholder="0.0">
+                <span class="unit">cm</span>
+            </div>
+            
+            <div class="input-group">
+                <label for="length">Comprimento:</label>
+                <input type="number" id="length" step="0.1" min="0" placeholder="0.0">
+                <span class="unit">cm</span>
+            </div>
+            
+            <div class="input-group">
+                <label for="quantity" id="quantityLabel">Quantidade:</label>
+                <input type="number" id="quantity" min="1" placeholder="1">
+                <span class="unit" id="quantityUnit">Peças</span>
+            </div>
+            
+            <div class="input-group">
+                <label for="packageQuantity">Qtd por Pacote:</label>
+                <input type="number" id="packageQuantity" min="1" value="1" placeholder="1">
+                <span class="unit">Peças</span>
+            </div>
+            
+            <div class="input-group">
+                <label for="price">Preço por m³:</label>
+                <input type="text" id="price" placeholder="R$ 0,00">
+                <span class="unit">R$/m³</span>
+            </div>
+        </section>
+
+        <!-- RESULTADOS -->
+        <section class="results">
+            <div class="results-grid">
+                <div class="result-item">
+                    <h3>Volume Unit.</h3>
+                    <p id="volume">0,000m³</p>
+                </div>
+                <div class="result-item">
+                    <h3>Volume Total</h3>
+                    <p id="totalVolume">0,000m³</p>
+                </div>
+                <div class="result-item">
+                    <h3>Custo Total</h3>
+                    <p id="cost">R$ 0,00</p>
+                </div>
+            </div>
+            
+            <div class="action-buttons">
+                <button class="add-button">ADICIONAR À LISTA</button>
+                <button class="btn-secondary" id="saveQuoteButton">SALVAR ORÇAMENTO</button>
+            </div>
+        </section>
+
+        <!-- DEMONSTRAÇÃO DOS MÓDULOS -->
+        <section style="margin-top: 40px; padding: 20px; background: #f9f9f9; border-radius: 8px;">
+            <h3>Demonstração dos Módulos</h3>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 20px;">
+                
+                <button onclick="testarCalculadora()" class="btn-secondary">
+                    <i class="fas fa-calculator"></i> Testar Calculadora
+                </button>
+                
+                <button onclick="testarFeedback()" class="btn-secondary">
+                    <i class="fas fa-bell"></i> Testar Feedback
+                </button>
+                
+                <button onclick="testarFormatadores()" class="btn-secondary">
+                    <i class="fas fa-edit"></i> Testar Formatadores
+                </button>
+                
+                <button onclick="testarStorage()" class="btn-secondary">
+                    <i class="fas fa-database"></i> Testar Storage
+                </button>
+                
+                <button onclick="mostrarDados()" class="btn-secondary">
+                    <i class="fas fa-info-circle"></i> Mostrar Dados
+                </button>
+                
+                <button onclick="limparDados()" style="background: #f44336;">
+                    <i class="fas fa-trash"></i> Limpar Dados
+                </button>
+            </div>
+            
+            <div id="demoOutput" style="margin-top: 20px; padding: 15px; background: white; border-radius: 4px; font-family: monospace; font-size: 12px; max-height: 200px; overflow-y: auto; display: none;">
+                <!-- Saída dos testes aparecerá aqui -->
+            </div>
+        </section>
+    </main>
+
+    <!-- JavaScript Modular - Nova Arquitetura -->
+    <script type="module">
+        // Import da aplicação principal
+        import { initializeApp } from './js/core/app.js';
+        
+        // Aguardar inicialização da aplicação
+        document.addEventListener('calculadoraMadeiraReady', (event) => {
+            console.log('🎉 Aplicação Modular Carregada!', event.detail);
+            setupDemoFunctions(event.detail.app);
+        });
+        
+        // Configurar funções de demonstração
+        function setupDemoFunctions(app) {
+            // Disponibilizar funções globalmente para os botões
+            window.testarCalculadora = () => {
+                try {
+                    // Preencher campos de exemplo
+                    document.getElementById('thickness').value = '2.5';
+                    document.getElementById('width').value = '10';
+                    document.getElementById('length').value = '300';
+                    document.getElementById('quantity').value = '100';
+                    document.getElementById('packageQuantity').value = '5';
+                    document.getElementById('price').value = 'R$ 800,00';
+                    
+                    // Executar cálculo
+                    const result = app.getModule('calculator').calculate();
+                    
+                    showOutput('Calculadora testada com sucesso!', {
+                        volume: result.volumeUnit + 'm³',
+                        volumeTotal: result.volumeTotal + 'm³',
+                        custo: 'R$ ' + result.cost.toFixed(2)
+                    });
+                    
+                    app.getModule('feedback').success('Cálculo realizado com dados de exemplo!');
+                } catch (error) {
+                    console.error('Erro ao testar calculadora:', error);
+                    app.getModule('feedback').error('Erro ao testar calculadora.');
+                }
+            };
+            
+            window.testarFeedback = () => {
+                const messages = [
+                    { type: 'success', text: 'Operação realizada com sucesso!' },
+                    { type: 'info', text: 'Esta é uma informação importante.' },
+                    { type: 'warning', text: 'Atenção: verifique os dados inseridos.' },
+                    { type: 'error', text: 'Erro simulado para demonstração.' }
+                ];
+                
+                messages.forEach((msg, index) => {
+                    setTimeout(() => {
+                        app.getModule('feedback').show(msg.text, msg.type);
+                    }, index * 800);
+                });
+                
+                showOutput('Sistema de feedback testado!', { 
+                    tiposTestados: ['success', 'info', 'warning', 'error'] 
+                });
+            };
+            
+            window.testarFormatadores = () => {
+                const formatters = app.getModule('formatters');
+                
+                const tests = {
+                    telefone: formatters.formatPhoneNumber('11987654321'),
+                    preco: formatters.formatPrice('80000'),
+                    volume: formatters.formatVolume(0.075),
+                    data: formatters.formatDate(new Date()),
+                    cep: formatters.formatCEP('01310100')
+                };
+                
+                showOutput('Formatadores testados!', tests);
+                app.getModule('feedback').info('Formatadores funcionando corretamente!');
+            };
+            
+            window.testarStorage = () => {
+                const storage = app.getModule('storage');
+                
+                // Teste de salvar/carregar
+                const testData = { teste: 'dados de exemplo', timestamp: Date.now() };
+                storage.set('teste_modular', testData);
+                const loadedData = storage.get('teste_modular');
+                
+                const stats = storage.getStorageStats();
+                
+                showOutput('Storage testado!', {
+                    dadosSalvos: testData,
+                    dadosCarregados: loadedData,
+                    estatisticas: {
+                        totalChaves: stats.totalKeys,
+                        tamanhoTotal: stats.totalSizeFormatted
+                    }
+                });
+                
+                app.getModule('feedback').success('Sistema de storage funcionando!');
+            };
+            
+            window.mostrarDados = () => {
+                const storage = app.getModule('storage');
+                
+                const dados = {
+                    listaMAdeir: storage.loadWoodList(),
+                    clientes: storage.get('clientsWithPhone', []),
+                    especies: storage.getSpecies(),
+                    condicoesPagamento: storage.getPaymentTerms(),
+                    usuarioAtual: storage.getCurrentUserId(),
+                    estatisticas: storage.getStorageStats()
+                };
+                
+                showOutput('Dados do sistema:', dados);
+            };
+            
+            window.limparDados = () => {
+                if (confirm('Tem certeza que deseja limpar todos os dados de teste?')) {
+                    const storage = app.getModule('storage');
+                    
+                    // Limpar apenas dados de teste
+                    storage.remove('teste_modular');
+                    
+                    showOutput('Dados de teste limpos!', { status: 'limpo' });
+                    app.getModule('feedback').info('Dados de teste removidos.');
+                }
+            };
+        }
+        
+        // Função para mostrar saída dos testes
+        function showOutput(title, data) {
+            const output = document.getElementById('demoOutput');
+            output.style.display = 'block';
+            
+            const timestamp = new Date().toLocaleTimeString();
+            output.innerHTML += `
+                <div style="border-bottom: 1px solid #eee; padding: 10px 0;">
+                    <strong>[${timestamp}] ${title}</strong><br>
+                    <pre style="margin: 5px 0; font-size: 11px;">${JSON.stringify(data, null, 2)}</pre>
+                </div>
+            `;
+            
+            // Scroll para o final
+            output.scrollTop = output.scrollHeight;
+        }
+    </script>
+    
+    <!-- Feedback de compatibilidade para navegadores sem ES6 modules -->
+    <script nomodule>
+        alert('Seu navegador não suporta módulos ES6. Por favor, use um navegador mais recente.');
+    </script>
+</body>
+</html> 
