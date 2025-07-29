@@ -570,4 +570,4 @@ if (document.readyState === 'loading') {
 }
 
 // Export para uso como módulo
-export { CalculadoraMadeiraApp, initializeApp }; 
+export { initializeApp }; 
