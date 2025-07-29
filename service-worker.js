@@ -1,5 +1,5 @@
-// Service Worker versão 2.1.1 - Ultra-robusto contra chrome-extension
-const CACHE_NAME = 'calculadora-madeira-v2.1.1';
+// Service Worker versão 2.1.2 - Fix PDF TypeError 
+const CACHE_NAME = 'calculadora-madeira-v2.1.2';
 const urlsToCache = [
     '/',
     '/index.html',
