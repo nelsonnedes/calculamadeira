@@ -1,6 +1,12 @@
-// Service Worker versão 2.2.0 - Arquitetura Modular Completa
-const CACHE_NAME = 'calculadora-madeira-v2.2.0';
+/**
+ * Service Worker - Calculadora de Madeira
+ * Responsável pelo cache e funcionamento offline (PWA)
+ * Versão atualizada para arquitetura modular
+ */
+
+const CACHE_NAME = 'calculadora-madeira-v2.3.0';
 const urlsToCache = [
+    // Páginas principais
     '/',
     '/index.html',
     '/calc.html',
@@ -12,6 +18,8 @@ const urlsToCache = [
     '/ajuda.html',
     '/admin.html',
     '/condicoes-pagamento.html',
+    
+    // CSS modular
     '/css/main.css',
     '/css/base/variables.css',
     '/css/base/reset.css',
@@ -20,6 +28,11 @@ const urlsToCache = [
     '/css/components/results.css',
     '/css/pages/auth.css',
     '/css/pages/profile.css',
+    '/css/pages/plans.css',
+    '/css/pages/admin.css',
+    '/css/pages/notifications.css',
+    
+    // JavaScript modular
     '/js/core/app.js',
     '/js/modules/calculator.js',
     '/js/modules/storage.js',
@@ -32,226 +45,183 @@ const urlsToCache = [
     '/js/pages/calc.js',
     '/js/pages/orcamentos.js',
     '/js/pages/perfil.js',
+    '/js/pages/plans.js',
+    '/js/pages/admin.js',
+    '/js/pages/notifications.js',
+    
+    // PWA e ícones
     '/manifest.json',
     '/icons/icon-192x192.png',
     '/icons/icon-512x512.png',
-    '/auth.js'  // Mantido para compatibilidade
+    
+    // Compatibilidade
+    '/auth.js'
 ];
 
-// Função para verificar se a URL é cacheable - VERSÃO ULTRA ROBUSTA
-function isCacheableRequest(request) {
-    const url = request.url;
+// Instalar Service Worker
+self.addEventListener('install', (event) => {
+    console.log('🔧 Service Worker: Instalando versão', CACHE_NAME);
     
-    // PRIMEIRA BARREIRA: Verificar esquemas não cacheáveis
-    const nonCacheableSchemes = [
-        'chrome-extension',
-        'chrome:',
-        'moz-extension',
-        'safari-extension',
-        'edge-extension',
-        'about:',
-        'blob:',
-        'data:',
-        'file:',
-        'ftp:',
-        'ws:',
-        'wss:'
-    ];
-    
-    // Verificar se a URL tem esquema não cacheável
-    for (const scheme of nonCacheableSchemes) {
-        if (url.startsWith(scheme)) {
-            console.log('SW: Request bloqueado por esquema:', scheme);
-            return false;
-        }
-    }
-    
-    // SEGUNDA BARREIRA: Verificar domínios não cacheáveis
-    const nonCacheableDomains = [
-        'chrome.google.com',
-        'clients2.google.com',
-        'safebrowsing.googleapis.com',
-        'update.googleapis.com',
-        'accounts.google.com',
-        'fonts.gstatic.com', // Exceção: permitir Google Fonts
-        'cdnjs.cloudflare.com', // Exceção: permitir CDNJs
-        'analytics.google.com',
-        'googletagmanager.com',
-        'doubleclick.net',
-        'googlesyndication.com'
-    ];
-    
-    // Verificar se é um domínio permitido especificamente
-    const allowedDomains = [
-        'fonts.gstatic.com',
-        'cdnjs.cloudflare.com',
-        'fonts.googleapis.com'
-    ];
-    
-    try {
-        const urlObj = new URL(url);
-        const hostname = urlObj.hostname;
-        
-        // Se for um domínio permitido, cachear
-        if (allowedDomains.some(domain => hostname.includes(domain))) {
-            return true;
-        }
-        
-        // Se for um domínio não cacheável, não cachear
-        if (nonCacheableDomains.some(domain => hostname.includes(domain))) {
-            console.log('SW: Request bloqueado por domínio:', hostname);
-            return false;
-        }
-        
-        // Se for localhost ou origem local, cachear
-        if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname.includes('.local')) {
-            return true;
-        }
-        
-        // Se for o mesmo origin, cachear
-        if (urlObj.origin === self.location.origin) {
-            return true;
-        }
-        
-    } catch (e) {
-        console.log('SW: Erro ao analisar URL:', e);
-        return false;
-    }
-    
-    // TERCEIRA BARREIRA: Verificar métodos HTTP
-    if (request.method !== 'GET') {
-        console.log('SW: Request bloqueado por método:', request.method);
-        return false;
-    }
-    
-    // QUARTA BARREIRA: Verificar tipos de recursos não cacheáveis
-    const nonCacheableTypes = [
-        '/api/',
-        '/socket.',
-        '.websocket',
-        '/realtime',
-        '/live',
-        '/stream'
-    ];
-    
-    if (nonCacheableTypes.some(type => url.includes(type))) {
-        console.log('SW: Request bloqueado por tipo de recurso');
-        return false;
-    }
-    
-    return true;
-}
-
-// Event listener para instalação
-self.addEventListener('install', event => {
-    console.log('SW 2.2.0: Instalando service worker');
     event.waitUntil(
         caches.open(CACHE_NAME)
-            .then(cache => {
-                console.log('SW 2.2.0: Cache aberto, adicionando recursos');
-                return cache.addAll(urlsToCache.filter(url => {
-                    // Filtrar URLs que podem falhar
-                    return !url.includes('chrome-extension') && !url.includes('moz-extension');
-                }));
+            .then((cache) => {
+                console.log('📦 Service Worker: Cache aberto, adicionando arquivos...');
+                
+                // Filtrar URLs válidas e adicionar ao cache
+                const validUrls = urlsToCache.filter(url => {
+                    // Verificar se é uma URL válida
+                    try {
+                        new URL(url, self.location);
+                        return true;
+                    } catch {
+                        // Se for um caminho relativo válido
+                        return url.startsWith('/') && !url.includes('..') && !url.includes('//');
+                    }
+                });
+                
+                return cache.addAll(validUrls);
             })
-            .catch(error => {
-                console.error('SW 2.2.0: Erro ao cachear recursos:', error);
+            .then(() => {
+                console.log('✅ Service Worker: Todos os arquivos foram cached');
+                return self.skipWaiting();
+            })
+            .catch((error) => {
+                console.error('❌ Service Worker: Erro ao fazer cache:', error);
             })
     );
-    
-    // Forçar ativação imediata
-    self.skipWaiting();
 });
 
-// Event listener para ativação
-self.addEventListener('activate', event => {
-    console.log('SW 2.2.0: Ativando service worker');
+// Ativar Service Worker
+self.addEventListener('activate', (event) => {
+    console.log('🚀 Service Worker: Ativando versão', CACHE_NAME);
+    
     event.waitUntil(
-        caches.keys().then(cacheNames => {
+        caches.keys().then((cacheNames) => {
             return Promise.all(
-                cacheNames.map(cacheName => {
-                    // Remover caches antigos
-                    if (cacheName !== CACHE_NAME) {
-                        console.log('SW 2.2.0: Removendo cache antigo:', cacheName);
+                cacheNames.map((cacheName) => {
+                    // Deletar caches antigos
+                    if (cacheName !== CACHE_NAME && cacheName.startsWith('calculadora-madeira-')) {
+                        console.log('🗑️ Service Worker: Deletando cache antigo:', cacheName);
                         return caches.delete(cacheName);
                     }
                 })
             );
         }).then(() => {
-            console.log('SW 2.2.0: Service worker ativado');
+            console.log('✅ Service Worker: Cache limpo, assumindo controle');
             return self.clients.claim();
         })
     );
 });
 
-// Event listener para fetch
-self.addEventListener('fetch', event => {
-    // Verificar se a request é cacheável
-    if (!isCacheableRequest(event.request)) {
-        return; // Não interceptar requests não cacheáveis
+// Interceptar requisições
+self.addEventListener('fetch', (event) => {
+    const request = event.request;
+    
+    // Ignorar requisições não GET ou com esquemas especiais
+    if (request.method !== 'GET' || 
+        !request.url.startsWith('http') ||
+        request.url.includes('chrome-extension') ||
+        request.url.includes('extension') ||
+        request.url.includes('moz-extension')) {
+        return;
     }
     
     event.respondWith(
-        caches.match(event.request)
-            .then(response => {
+        caches.match(request)
+            .then((response) => {
                 // Retornar do cache se disponível
                 if (response) {
-                    console.log('SW 2.2.0: Servindo do cache:', event.request.url);
+                    console.log('📋 Service Worker: Servindo do cache:', request.url);
                     return response;
                 }
                 
-                // Fazer fetch da rede
-                console.log('SW 2.2.0: Buscando da rede:', event.request.url);
-                return fetch(event.request).then(response => {
-                    // Verificar se a response é válida
+                // Senão, buscar da rede
+                console.log('🌐 Service Worker: Buscando da rede:', request.url);
+                return fetch(request).then((response) => {
+                    // Verificar se é uma resposta válida
                     if (!response || response.status !== 200 || response.type !== 'basic') {
                         return response;
                     }
                     
-                    // Clonar response para cachear
+                    // Clonar a resposta pois ela pode ser consumida apenas uma vez
                     const responseToCache = response.clone();
                     
-                    caches.open(CACHE_NAME)
-                        .then(cache => {
-                            cache.put(event.request, responseToCache);
-                        });
-                    
-                    return response;
-                }).catch(error => {
-                    console.log('SW 2.2.0: Erro na rede:', error);
-                    
-                    // Para arquivos HTML, retornar página offline se disponível
-                    if (event.request.destination === 'document') {
-                        return caches.match('/index.html');
+                    // Adicionar ao cache se for um recurso da nossa aplicação
+                    if (request.url.startsWith(self.location.origin)) {
+                        caches.open(CACHE_NAME)
+                            .then((cache) => {
+                                cache.put(request, responseToCache);
+                            });
                     }
                     
-                    throw error;
+                    return response;
+                }).catch((error) => {
+                    console.warn('⚠️ Service Worker: Erro na rede:', error);
+                    
+                    // Para páginas HTML, retornar a página offline se disponível
+                    if (request.destination === 'document') {
+                        return caches.match('/offline.html').then((offlineResponse) => {
+                            return offlineResponse || new Response(
+                                '<h1>Sem conexão</h1><p>Verifique sua conexão com a internet.</p>',
+                                { headers: { 'Content-Type': 'text/html' } }
+                            );
+                        });
+                    }
+                    
+                    return new Response('Recurso não disponível offline', {
+                        status: 503,
+                        statusText: 'Service Unavailable'
+                    });
                 });
             })
     );
 });
 
-// Event listener para mensagens
-self.addEventListener('message', event => {
+// Gerenciar mensagens do cliente
+self.addEventListener('message', (event) => {
+    console.log('💬 Service Worker: Mensagem recebida:', event.data);
+    
     if (event.data && event.data.type === 'SKIP_WAITING') {
-        console.log('SW 2.2.0: Recebido comando SKIP_WAITING');
+        console.log('⏭️ Service Worker: Pulando espera...');
         self.skipWaiting();
     }
     
     if (event.data && event.data.type === 'GET_VERSION') {
         event.ports[0].postMessage({
-            version: '2.2.0',
-            cacheName: CACHE_NAME
+            type: 'VERSION',
+            version: CACHE_NAME
         });
     }
     
-    if (event.data && event.data.type === 'CLEAR_CACHE') {
-        console.log('SW 2.2.0: Limpando cache');
-        caches.delete(CACHE_NAME).then(() => {
-            event.ports[0].postMessage({ success: true });
+    if (event.data && event.data.type === 'CACHE_STATUS') {
+        caches.keys().then((cacheNames) => {
+            event.ports[0].postMessage({
+                type: 'CACHE_STATUS',
+                caches: cacheNames,
+                current: CACHE_NAME,
+                urlsCount: urlsToCache.length
+            });
         });
     }
 });
 
-// Notificação para debugging
-console.log('SW 2.2.0: Service Worker registrado - Arquitetura Modular Completa'); 
+// Sincronização em background (quando voltar online)
+self.addEventListener('sync', (event) => {
+    if (event.tag === 'background-sync') {
+        console.log('🔄 Service Worker: Sincronização em background');
+        event.waitUntil(doBackgroundSync());
+    }
+});
+
+// Função de sincronização
+async function doBackgroundSync() {
+    try {
+        // Aqui você pode implementar lógica para sincronizar dados
+        // quando a conexão voltar, como enviar cálculos salvos offline
+        console.log('✅ Service Worker: Sincronização concluída');
+    } catch (error) {
+        console.error('❌ Service Worker: Erro na sincronização:', error);
+    }
+}
+
+console.log('📦 Service Worker carregado - Versão:', CACHE_NAME); 

@@ -3,534 +3,173 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Notificações - Calculadora de Madeira</title>
-    <link rel="stylesheet" href="styles.css">
-    <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#8B0000">
-    <link rel="apple-touch-icon" href="icon-192x192.png">
-    <!-- CSS MODULAR CENTRALIZADO - Seguindo REFACTORING_PLAN.md -->
+    <meta name="description" content="Sistema de notificações - Calculadora de Madeira">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="CalcMadeira">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+    <title>Notificações - Calculadora de Madeira</title>
+    
+    <!-- CSS MODULAR - Nova Arquitetura -->
     <link rel="stylesheet" href="css/main.css">
-    <style>
-        /* Estilos do header e navegação */
-        header {
-            background: #8B0000;
-            padding: 15px 0;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .header-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 20px;
-        }
-
-        .logo {
-            color: white;
-            text-decoration: none;
-            font-size: 24px;
-            display: flex;
-            align-items: center;
-            padding: 5px;
-        }
-
-        .page-title {
-            color: white;
-            font-size: 1.2rem;
-            margin: 0;
-            flex: 1;
-            text-align: center;
-        }
-
-        nav ul {
-            list-style: none;
-            display: flex;
-            margin: 0;
-            padding: 0;
-        }
-
-        nav ul li {
-            margin: 0 15px;
-        }
-
-        nav ul li a {
-            color: white;
-            text-decoration: none;
-            font-size: 16px;
-            transition: opacity 0.3s;
-        }
-
-        nav ul li a:hover {
-            opacity: 0.8;
-        }
-
-        .user-menu {
-            position: relative;
-        }
-
-        .user-menu-button {
-            background: none;
-            border: none;
-            color: white;
-            cursor: pointer;
-            font-size: 20px;
-            padding: 5px;
-        }
-
-        .user-menu-panel {
-            position: absolute;
-            top: 100%;
-            right: 0;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            min-width: 200px;
-            display: none;
-            z-index: 1001;
-        }
-
-        .user-menu-button:focus + .user-menu-panel,
-        .user-menu-panel:hover {
-            display: block;
-        }
-
-        .user-info {
-            padding: 15px;
-            border-bottom: 1px solid #eee;
-        }
-
-        .user-info span {
-            display: block;
-            color: #333;
-        }
-
-        .user-info span:first-child {
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-
-        .user-menu-panel ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .user-menu-panel ul li a {
-            padding: 12px 15px;
-            display: flex;
-            align-items: center;
-            color: #333;
-            text-decoration: none;
-            transition: background-color 0.3s;
-        }
-
-        .user-menu-panel ul li a:hover {
-            background-color: #f5f5f5;
-        }
-
-        .user-menu-panel ul li a i {
-            margin-right: 10px;
-            color: #8B0000;
-        }
-
-        /* Ajuste para o conteúdo principal */
-        .container {
-            padding-top: 80px; /* Espaço para o header fixo */
-        }
-
-        @media (max-width: 768px) {
-            .header-content {
-                flex-direction: column;
-                text-align: center;
-            }
-
-            .page-title {
-                margin-top: 10px;
-            }
-
-            nav ul {
-                flex-direction: column;
-                margin: 15px 0;
-            }
-
-            nav ul li {
-                margin: 10px 0;
-            }
-
-            .user-menu {
-                margin-top: 15px;
-            }
-
-            .container {
-                padding-top: 120px; /* Mais espaço para o header em modo mobile */
-            }
-        }
-
-        .notifications-container {
-            max-width: 800px;
-            margin: 20px auto;
-            padding: 20px;
-        }
-
-        .notification-item {
-            background: white;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 15px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            display: flex;
-            align-items: flex-start;
-            position: relative;
-        }
-
-        .notification-item.unread {
-            border-left: 4px solid #4CAF50;
-        }
-
-        .notification-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: #e8f5e9;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 15px;
-            flex-shrink: 0;
-        }
-
-        .notification-icon i {
-            color: #4CAF50;
-            font-size: 20px;
-        }
-
-        .notification-content {
-            flex-grow: 1;
-        }
-
-        .notification-title {
-            font-weight: 500;
-            margin-bottom: 5px;
-            color: #333;
-        }
-
-        .notification-message {
-            color: #666;
-            font-size: 0.9em;
-            margin-bottom: 10px;
-        }
-
-        .notification-time {
-            color: #999;
-            font-size: 0.8em;
-        }
-
-        .notification-actions {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-        }
-
-        .notification-actions button {
-            background: none;
-            border: none;
-            color: #999;
-            cursor: pointer;
-            padding: 5px;
-            font-size: 1.2em;
-        }
-
-        .notification-actions button:hover {
-            color: #4CAF50;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .empty-state i {
-            font-size: 48px;
-            color: #ccc;
-            margin-bottom: 20px;
-        }
-
-        .empty-state p {
-            color: #666;
-            margin-bottom: 20px;
-        }
-
-        .notification-filters {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-
-        .filter-btn {
-            padding: 8px 16px;
-            border: 1px solid #ddd;
-            border-radius: 20px;
-            background: white;
-            color: #666;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .filter-btn.active {
-            background: #4CAF50;
-            color: white;
-            border-color: #4CAF50;
-        }
-
-        .filter-btn:hover {
-            border-color: #4CAF50;
-            color: #4CAF50;
-        }
-
-        .filter-btn.active:hover {
-            color: white;
-        }
-
-        .mark-all-read {
-            text-align: right;
-            margin-bottom: 20px;
-        }
-
-        .mark-all-read button {
-            background: none;
-            border: none;
-            color: #4CAF50;
-            cursor: pointer;
-            font-size: 0.9em;
-        }
-
-        .mark-all-read button:hover {
-            text-decoration: underline;
-        }
-    </style>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <header>
+    <!-- HEADER com nova estrutura modular -->
+    <header class="header">
+        <button class="menu-btn" aria-label="Abrir menu">
+            <i class="fas fa-bars"></i>
+        </button>
+        
         <div class="header-content">
-            <a href="calc.html" class="logo">
+            <div class="app-name">Calculadora de Madeira</div>
+            <h1 class="page-title">Notificações</h1>
+        </div>
+        
+        <div class="header-actions">
+            <a href="calc.html" class="home-btn" aria-label="Início" title="Ir para a calculadora">
                 <i class="fas fa-home"></i>
             </a>
-            <h1 class="page-title">Notificações</h1>
+            <button class="refresh-btn" aria-label="Recarregar" title="Recarregar página">
+                <i class="fas fa-sync-alt"></i>
+            </button>
         </div>
     </header>
 
-    <div class="container">
-        <main class="notifications-container">
-            <div class="notification-filters">
-                <button class="filter-btn active" data-filter="all">Todas</button>
-                <button class="filter-btn" data-filter="unread">Não lidas</button>
-                <button class="filter-btn" data-filter="system">Sistema</button>
-                <button class="filter-btn" data-filter="updates">Atualizações</button>
-            </div>
+    <!-- MENU LATERAL -->
+    <nav class="side-menu" id="sideMenu">
+        <div class="menu-header">
+            <h3>Menu</h3>
+            <button class="close-menu" aria-label="Fechar menu">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <ul class="menu-items">
+            <li><a href="calc.html"><i class="fas fa-calculator"></i> Calculadora</a></li>
+            <li><a href="orcamentos.html"><i class="fas fa-file-invoice"></i> Orçamentos</a></li>
+            <li><a href="perfil.html"><i class="fas fa-user"></i> Perfil</a></li>
+            <li><a href="planos.html"><i class="fas fa-crown"></i> Planos</a></li>
+            <li><a href="notificacoes.html" class="active"><i class="fas fa-bell"></i> Notificações</a></li>
+            <li><a href="configuracoes.html"><i class="fas fa-cog"></i> Configurações</a></li>
+            <li><a href="ajuda.html"><i class="fas fa-question-circle"></i> Ajuda</a></li>
+            <li><a href="index.html"><i class="fas fa-sign-out-alt"></i> Sair</a></li>
+        </ul>
+    </nav>
 
-            <div class="mark-all-read">
-                <button id="markAllRead">Marcar todas como lidas</button>
-            </div>
+    <!-- OVERLAY do menu -->
+    <div class="menu-overlay" id="menuOverlay"></div>
 
-            <div id="notificationsList">
-                <!-- As notificações serão inseridas aqui via JavaScript -->
-            </div>
-
-            <div id="emptyState" class="empty-state" style="display: none;">
-                <i class="fas fa-bell-slash"></i>
-                <p>Nenhuma notificação encontrada</p>
-            </div>
-        </main>
-    </div>
-
-    <script>
-        // Tipos de notificações
-        const NOTIFICATION_TYPES = {
-            SYSTEM: 'system',
-            UPDATE: 'update',
-            CALCULATION: 'calculation',
-            PROFILE: 'profile'
-        };
-
-        // Exemplo de notificações (em um sistema real, isso viria do backend)
-        const sampleNotifications = [
-            {
-                id: 1,
-                type: NOTIFICATION_TYPES.SYSTEM,
-                title: 'Bem-vindo!',
-                message: 'Obrigado por usar a Calculadora de Madeira. Comece a calcular agora!',
-                time: new Date(Date.now() - 1000 * 60 * 5), // 5 minutos atrás
-                read: false
-            },
-            {
-                id: 2,
-                type: NOTIFICATION_TYPES.UPDATE,
-                title: 'Nova versão disponível',
-                message: 'Uma nova versão da Calculadora de Madeira está disponível com melhorias de performance.',
-                time: new Date(Date.now() - 1000 * 60 * 60), // 1 hora atrás
-                read: true
-            },
-            {
-                id: 3,
-                type: NOTIFICATION_TYPES.CALCULATION,
-                title: 'Cálculo salvo',
-                message: 'Seu último cálculo foi salvo com sucesso.',
-                time: new Date(Date.now() - 1000 * 60 * 60 * 24), // 1 dia atrás
-                read: false
-            }
-        ];
-
-        // Carregar notificações
-        function loadNotifications() {
-            const notifications = JSON.parse(localStorage.getItem('notifications') || JSON.stringify(sampleNotifications));
-            displayNotifications(notifications);
-        }
-
-        // Exibir notificações
-        function displayNotifications(notifications, filter = 'all') {
-            const container = document.getElementById('notificationsList');
-            const emptyState = document.getElementById('emptyState');
+    <!-- CONTAINER PRINCIPAL -->
+    <main class="notifications-container">
+        
+        <!-- CABEÇALHO DAS NOTIFICAÇÕES -->
+        <section class="notifications-header">
+            <h2 class="notifications-title">
+                <i class="fas fa-bell"></i>
+                Notificações
+            </h2>
             
-            // Filtrar notificações
-            let filteredNotifications = notifications;
-            if (filter !== 'all') {
-                filteredNotifications = notifications.filter(n => {
-                    if (filter === 'unread') return !n.read;
-                    if (filter === 'system') return n.type === NOTIFICATION_TYPES.SYSTEM;
-                    if (filter === 'updates') return n.type === NOTIFICATION_TYPES.UPDATE;
-                    return true;
-                });
-            }
-
-            // Limpar container
-            container.innerHTML = '';
-
-            // Exibir notificações
-            filteredNotifications.forEach(notification => {
-                const notificationElement = createNotificationElement(notification);
-                container.appendChild(notificationElement);
-            });
-
-            // Mostrar estado vazio se necessário
-            emptyState.style.display = filteredNotifications.length === 0 ? 'block' : 'none';
-        }
-
-        // Criar elemento de notificação
-        function createNotificationElement(notification) {
-            const div = document.createElement('div');
-            div.className = `notification-item ${notification.read ? '' : 'unread'}`;
-            div.dataset.id = notification.id;
-
-            const icon = getNotificationIcon(notification.type);
-            const time = formatTime(notification.time);
-
-            div.innerHTML = `
-                <div class="notification-icon">
-                    <i class="fas ${icon}"></i>
+            <div class="notifications-stats">
+                <div class="stat-item">
+                    <span class="stat-number" id="totalNotifications">0</span>
+                    <span class="stat-label">Total</span>
                 </div>
-                <div class="notification-content">
-                    <div class="notification-title">${notification.title}</div>
-                    <div class="notification-message">${notification.message}</div>
-                    <div class="notification-time">${time}</div>
+                <div class="stat-item">
+                    <span class="stat-number" id="unreadNotifications">0</span>
+                    <span class="stat-label">Não Lidas</span>
                 </div>
-                <div class="notification-actions">
-                    <button class="mark-read" title="Marcar como lida">
-                        <i class="fas fa-check"></i>
-                    </button>
-                    <button class="delete-notification" title="Excluir">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </div>
-            `;
+            </div>
+        </section>
 
-            // Adicionar event listeners
-            div.querySelector('.mark-read').addEventListener('click', () => markAsRead(notification.id));
-            div.querySelector('.delete-notification').addEventListener('click', () => deleteNotification(notification.id));
+        <!-- FILTROS DE NOTIFICAÇÕES -->
+        <section class="notification-filters">
+            <button class="filter-btn active" data-filter="all">
+                <i class="fas fa-list"></i> Todas
+            </button>
+            <button class="filter-btn" data-filter="unread">
+                <i class="fas fa-envelope"></i> Não lidas
+            </button>
+            <button class="filter-btn" data-filter="system">
+                <i class="fas fa-cogs"></i> Sistema
+            </button>
+            <button class="filter-btn" data-filter="updates">
+                <i class="fas fa-sync-alt"></i> Atualizações
+            </button>
+            <button class="filter-btn" data-filter="calculations">
+                <i class="fas fa-calculator"></i> Cálculos
+            </button>
+            <button class="filter-btn" data-filter="plans">
+                <i class="fas fa-crown"></i> Planos
+            </button>
+        </section>
 
-            return div;
-        }
+        <!-- AÇÃO MARCAR TODAS COMO LIDAS -->
+        <section class="mark-all-read">
+            <button id="markAllRead">
+                <i class="fas fa-check-double"></i>
+                Marcar todas como lidas
+            </button>
+        </section>
 
-        // Obter ícone baseado no tipo de notificação
-        function getNotificationIcon(type) {
-            const icons = {
-                [NOTIFICATION_TYPES.SYSTEM]: 'fa-info-circle',
-                [NOTIFICATION_TYPES.UPDATE]: 'fa-sync',
-                [NOTIFICATION_TYPES.CALCULATION]: 'fa-calculator',
-                [NOTIFICATION_TYPES.PROFILE]: 'fa-user'
-            };
-            return icons[type] || 'fa-bell';
-        }
+        <!-- LISTA DE NOTIFICAÇÕES -->
+        <section id="notificationsList" class="notifications-list">
+            <!-- As notificações serão inseridas aqui via JavaScript -->
+        </section>
 
-        // Formatar tempo
-        function formatTime(date) {
-            const now = new Date();
-            const diff = now - date;
+        <!-- ESTADO VAZIO -->
+        <section id="emptyState" class="empty-state" style="display: none;">
+            <i class="fas fa-bell-slash"></i>
+            <p><strong>Nenhuma notificação encontrada</strong></p>
+            <p>Suas notificações aparecerão aqui quando disponíveis.</p>
+        </section>
+
+        <!-- INFORMAÇÕES ADICIONAIS -->
+        <section class="notifications-info" style="margin-top: 40px; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+            <h3 style="margin: 0 0 15px 0; color: #333; display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-info-circle" style="color: #4CAF50;"></i>
+                Sobre as Notificações
+            </h3>
+            <ul style="margin: 0; padding-left: 20px; color: #666; line-height: 1.6;">
+                <li><strong>Sistema:</strong> Informações importantes sobre o funcionamento da aplicação</li>
+                <li><strong>Atualizações:</strong> Novas versões e melhorias disponíveis</li>
+                <li><strong>Cálculos:</strong> Confirmações e avisos sobre seus cálculos salvos</li>
+                <li><strong>Planos:</strong> Informações sobre assinaturas e upgrades disponíveis</li>
+            </ul>
+        </section>
+
+    </main>
+
+    <!-- SISTEMA DE FEEDBACK -->
+    <div id="feedbackContainer" class="feedback-container"></div>
+
+    <!-- JavaScript Modular - Nova Arquitetura -->
+    <script type="module">
+        // Import da aplicação principal
+        import { initializeApp } from './js/core/app.js';
+        
+        // Import específico da página de notificações
+        import './js/pages/notifications.js';
+        
+        // Event listener para confirmação de carregamento
+        document.addEventListener('calculadoraMadeiraReady', (event) => {
+            console.log('🎉 Sistema de Notificações Carregado!', event.detail);
             
-            if (diff < 60000) return 'Agora mesmo';
-            if (diff < 3600000) return `${Math.floor(diff / 60000)} minutos atrás`;
-            if (diff < 86400000) return `${Math.floor(diff / 3600000)} horas atrás`;
-            if (diff < 2592000000) return `${Math.floor(diff / 86400000)} dias atrás`;
-            return date.toLocaleDateString();
-        }
-
-        // Marcar notificação como lida
-        function markAsRead(id) {
-            const notifications = JSON.parse(localStorage.getItem('notifications') || JSON.stringify(sampleNotifications));
-            const notification = notifications.find(n => n.id === id);
-            
-            if (notification) {
-                notification.read = true;
-                localStorage.setItem('notifications', JSON.stringify(notifications));
-                loadNotifications();
-            }
-        }
-
-        // Excluir notificação
-        function deleteNotification(id) {
-            if (confirm('Tem certeza que deseja excluir esta notificação?')) {
-                const notifications = JSON.parse(localStorage.getItem('notifications') || JSON.stringify(sampleNotifications));
-                const filtered = notifications.filter(n => n.id !== id);
-                localStorage.setItem('notifications', JSON.stringify(filtered));
-                loadNotifications();
-            }
-        }
-
-        // Marcar todas como lidas
-        function markAllAsRead() {
-            const notifications = JSON.parse(localStorage.getItem('notifications') || JSON.stringify(sampleNotifications));
-            notifications.forEach(n => n.read = true);
-            localStorage.setItem('notifications', JSON.stringify(notifications));
-            loadNotifications();
-        }
-
-        // Event Listeners
-        document.addEventListener('DOMContentLoaded', () => {
-            loadNotifications();
-
-            // Filtros
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
-                    displayNotifications(JSON.parse(localStorage.getItem('notifications') || JSON.stringify(sampleNotifications)), btn.dataset.filter);
-                });
-            });
-
-            // Marcar todas como lidas
-            document.getElementById('markAllRead').addEventListener('click', markAllAsRead);
+            // A aplicação e os módulos específicos da página já foram inicializados
+            // Todo o sistema de notificações está funcionando
         });
     </script>
+    
+    <!-- Fallback para navegadores sem suporte a módulos ES6 -->
+    <script nomodule>
+        alert('Seu navegador não suporta módulos ES6. Por favor, use um navegador mais recente.');
+    </script>
+
+    <!-- PWA Scripts -->
+    <script src="pwa-updater.js"></script>
+    <script src="update-checker.js"></script>
 </body>
 </html> 
