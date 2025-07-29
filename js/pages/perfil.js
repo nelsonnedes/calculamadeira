@@ -1,355 +1,425 @@
 /**
- * Página Perfil - Calculadora de Madeira
- * Seguindo o padrão modular do REFACTORING_PLAN.md
- * Substitui JavaScript inline em perfil.html
- * ATENÇÃO: Preservar EXATAMENTE toda funcionalidade atual
+ * Profile Page Module - Calculadora de Madeira
+ * Módulo responsável pela página de perfil do usuário
+ * Integrado com a arquitetura modular
  */
 
-import { StorageModule } from '../modules/storage.js';
+// Aguardar inicialização da aplicação principal
+document.addEventListener('calculadoraMadeiraReady', (event) => {
+    console.log('👤 Inicializando módulo de perfil...');
+    
+    const app = event.detail.app;
+    initializeProfilePage(app);
+});
 
-class PerfilPage {
-    constructor() {
-        this.storage = new StorageModule();
-        this.feedback = null;
+/**
+ * Inicializar página de perfil
+ */
+function initializeProfilePage(app) {
+    console.log('📝 Configurando página de perfil...');
+    
+    // Verificar autenticação
+    if (!checkAuthentication(app)) return;
+    
+    // Configurar eventos
+    setupProfileEvents(app);
+    
+    // Carregar dados do perfil
+    loadProfileData(app);
+    
+    // Carregar dados do plano
+    loadPlanData(app);
+    
+    // Aplicar formatações se necessário
+    if (app.getModule('formatters')) {
+        applyFormattingToProfileForms(app.getModule('formatters'));
+    }
+    
+    console.log('✅ Página de perfil inicializada');
+}
+
+/**
+ * Verificar autenticação
+ */
+function checkAuthentication(app) {
+    try {
+        const storage = app.getModule('storage');
+        if (!storage) {
+            console.error('❌ Módulo de storage não disponível');
+            return false;
+        }
         
-        console.log('🏗️ Página Perfil inicializada');
-        this.init();
-    }
-
-    async init() {
-        try {
-            // Aguardar app global estar pronto
-            await this.waitForApp();
-            
-            // Obter módulos do app global
-            this.feedback = window.app?.getModule('feedback');
-            
-            // Expor funções globalmente para compatibilidade
-            this.exposeFunctionsGlobally();
-            
-            console.log('✅ Página Perfil carregada com módulos');
-            
-        } catch (error) {
-            console.error('❌ Erro ao inicializar página Perfil:', error);
-        }
-    }
-
-    /**
-     * Aguardar aplicação principal estar pronta
-     */
-    async waitForApp() {
-        let attempts = 0;
-        while (!window.app?.isInitialized && attempts < 50) {
-            await new Promise(resolve => setTimeout(resolve, 100));
-            attempts++;
+        const currentUserId = storage.getCurrentUserId();
+        if (!currentUserId) {
+            console.log('🔒 Usuário não autenticado, redirecionando...');
+            window.location.href = 'index.html';
+            return false;
         }
         
-        if (!window.app?.isInitialized) {
-            console.warn('⚠️ App global não inicializou, usando fallback');
-        }
+        return true;
+    } catch (error) {
+        console.error('❌ Erro ao verificar autenticação:', error);
+        window.location.href = 'index.html';
+        return false;
     }
+}
 
-    /**
-     * Carregar dados do perfil do localStorage
-     */
-    loadProfileData() {
-        try {
-            const user = this.storage.get('user', {});
-            
-            // Preencher campos do formulário
-            const fields = {
-                'name': user.name || '',
-                'email': user.email || '',
-                'phone': user.phone || '',
-                'company': user.company || '',
-                'address': user.address || '',
-                'cnpj': user.cnpj || ''
-            };
-
-            Object.entries(fields).forEach(([fieldId, value]) => {
-                const field = document.getElementById(fieldId);
-                if (field) {
-                    field.value = value;
-                }
-            });
-
-            console.log('✅ Dados do perfil carregados');
-            
-        } catch (error) {
-            console.error('❌ Erro ao carregar dados do perfil:', error);
-            this.showFeedback('Erro ao carregar dados do perfil', 'error');
-        }
+/**
+ * Configurar eventos da página
+ */
+function setupProfileEvents(app) {
+    // Evento de salvar perfil
+    const saveButton = document.getElementById('saveProfile');
+    if (saveButton) {
+        saveButton.addEventListener('click', () => saveProfile(app));
     }
-
-    /**
-     * Salvar dados do perfil no localStorage
-     */
-    saveProfile() {
-        try {
-            // Obter dados do formulário
-            const formData = {
-                name: document.getElementById('name')?.value?.trim() || '',
-                email: document.getElementById('email')?.value?.trim() || '',
-                phone: document.getElementById('phone')?.value?.trim() || '',
-                company: document.getElementById('company')?.value?.trim() || '',
-                address: document.getElementById('address')?.value?.trim() || '',
-                cnpj: document.getElementById('cnpj')?.value?.trim() || ''
-            };
-
-            // Validar dados básicos
-            if (!formData.name) {
-                this.showFeedback('Nome é obrigatório', 'error');
-                return;
-            }
-
-            if (!formData.email) {
-                this.showFeedback('Email é obrigatório', 'error');
-                return;
-            }
-
-            // Validar formato do email
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(formData.email)) {
-                this.showFeedback('Email em formato inválido', 'error');
-                return;
-            }
-
-            // Salvar no storage
-            const currentUser = this.storage.get('user', {});
-            const updatedUser = { ...currentUser, ...formData };
-            
-            this.storage.set('user', updatedUser);
-            
-            // Atualizar informações em outros locais se necessário
-            this.updateUserDisplay(updatedUser);
-            
-            this.showFeedback('Perfil atualizado com sucesso!', 'success');
-            
-            console.log('✅ Perfil salvo com sucesso');
-            
-        } catch (error) {
-            console.error('❌ Erro ao salvar perfil:', error);
-            this.showFeedback('Erro ao salvar perfil', 'error');
-        }
+    
+    // Evento de exportar dados
+    const exportButton = document.getElementById('exportData');
+    if (exportButton) {
+        exportButton.addEventListener('click', () => exportUserData(app));
     }
-
-    /**
-     * Atualizar display do usuário em outros elementos
-     */
-    updateUserDisplay(user) {
-        // Atualizar nome do usuário se existir elemento userName
-        const userNameElements = document.querySelectorAll('#userName, .user-name');
-        userNameElements.forEach(element => {
-            if (element && user.name) {
-                element.textContent = user.name;
-            }
-        });
+    
+    // Evento de excluir conta
+    const deleteButton = document.getElementById('deleteAccount');
+    if (deleteButton) {
+        deleteButton.addEventListener('click', () => deleteAccount(app));
     }
+    
+    // Evento de upload de logo
+    const logoInput = document.getElementById('logoInput');
+    if (logoInput) {
+        logoInput.addEventListener('change', (event) => handleLogoUpload(event, app));
+    }
+    
+    // Evento de remover logo
+    const removeLogoButton = document.getElementById('removeLogo');
+    if (removeLogoButton) {
+        removeLogoButton.addEventListener('click', () => removeLogo(app));
+    }
+    
+    console.log('⌨️ Eventos do perfil configurados');
+}
 
-    /**
-     * Fazer upload do logo da empresa
-     */
-    uploadLogo() {
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.accept = 'image/*';
+/**
+ * Carregar dados do perfil
+ */
+function loadProfileData(app) {
+    try {
+        const storage = app.getModule('storage');
+        const userData = storage.getUserData();
         
-        input.onchange = (event) => {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            // Validar tipo de arquivo
-            if (!file.type.startsWith('image/')) {
-                this.showFeedback('Selecione apenas arquivos de imagem', 'error');
-                return;
-            }
-
-            // Validar tamanho (máximo 5MB)
-            if (file.size > 5 * 1024 * 1024) {
-                this.showFeedback('Imagem muito grande. Máximo 5MB', 'error');
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                try {
-                    const logoData = e.target.result;
-                    
-                    // Salvar no localStorage
-                    this.storage.set('companyLogo', logoData);
-                    
-                    // Atualizar preview se existir
-                    const logoPreview = document.getElementById('logoPreview');
-                    if (logoPreview) {
-                        logoPreview.src = logoData;
-                        logoPreview.style.display = 'block';
-                    }
-                    
-                    this.showFeedback('Logo carregado com sucesso!', 'success');
-                    
-                } catch (error) {
-                    console.error('❌ Erro ao processar logo:', error);
-                    this.showFeedback('Erro ao processar imagem', 'error');
-                }
-            };
-
-            reader.onerror = () => {
-                this.showFeedback('Erro ao ler arquivo', 'error');
-            };
-
-            reader.readAsDataURL(file);
-        };
-
-        input.click();
-    }
-
-    /**
-     * Remover logo da empresa
-     */
-    removeLogo() {
-        if (confirm('Deseja remover o logo da empresa?')) {
-            try {
-                this.storage.remove('companyLogo');
-                
-                // Limpar preview se existir
-                const logoPreview = document.getElementById('logoPreview');
-                if (logoPreview) {
-                    logoPreview.src = '';
-                    logoPreview.style.display = 'none';
-                }
-                
-                this.showFeedback('Logo removido com sucesso!', 'success');
-                
-            } catch (error) {
-                console.error('❌ Erro ao remover logo:', error);
-                this.showFeedback('Erro ao remover logo', 'error');
-            }
-        }
-    }
-
-    /**
-     * Carregar preview do logo se existir
-     */
-    loadLogoPreview() {
-        try {
-            const logoData = this.storage.get('companyLogo');
+        if (userData) {
+            // Preencher campos pessoais
+            document.getElementById('userName').value = userData.name || '';
+            document.getElementById('userEmail').value = userData.email || '';
+            document.getElementById('userPhone').value = userData.phone || '';
+            
+            // Preencher dados da empresa
+            document.getElementById('companyName').value = userData.company || '';
+            document.getElementById('companyCNPJ').value = userData.cnpj || '';
+            document.getElementById('companyAddress').value = userData.address || '';
+            document.getElementById('companyPhone').value = userData.companyPhone || '';
+            
+            // Carregar logo se existir
+            const logoData = localStorage.getItem('companyLogo');
             if (logoData) {
-                const logoPreview = document.getElementById('logoPreview');
-                if (logoPreview) {
-                    logoPreview.src = logoData;
-                    logoPreview.style.display = 'block';
-                }
+                displayLogo(logoData);
             }
-        } catch (error) {
-            console.error('❌ Erro ao carregar preview do logo:', error);
+            
+            console.log('✅ Dados do perfil carregados');
         }
-    }
-
-    /**
-     * Exportar dados do perfil
-     */
-    exportProfileData() {
-        try {
-            const user = this.storage.get('user', {});
-            const dataStr = JSON.stringify(user, null, 2);
-            const dataBlob = new Blob([dataStr], { type: 'application/json' });
-            
-            const url = URL.createObjectURL(dataBlob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = `perfil_${user.name || 'usuario'}_${new Date().toISOString().split('T')[0]}.json`;
-            
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            
-            URL.revokeObjectURL(url);
-            
-            this.showFeedback('Dados exportados com sucesso!', 'success');
-            
-        } catch (error) {
-            console.error('❌ Erro ao exportar dados:', error);
-            this.showFeedback('Erro ao exportar dados', 'error');
-        }
-    }
-
-    /**
-     * Importar dados do perfil
-     */
-    importProfileData() {
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.accept = '.json';
-        
-        input.onchange = (event) => {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                try {
-                    const importedData = JSON.parse(e.target.result);
-                    
-                    // Validar estrutura básica
-                    if (typeof importedData !== 'object') {
-                        throw new Error('Formato de arquivo inválido');
-                    }
-                    
-                    // Confirmar importação
-                    if (confirm('Deseja importar estes dados? Os dados atuais serão substituídos.')) {
-                        this.storage.set('user', importedData);
-                        this.loadProfileData();
-                        this.showFeedback('Dados importados com sucesso!', 'success');
-                    }
-                    
-                } catch (error) {
-                    console.error('❌ Erro ao importar dados:', error);
-                    this.showFeedback('Erro ao importar dados: ' + error.message, 'error');
-                }
-            };
-
-            reader.onerror = () => {
-                this.showFeedback('Erro ao ler arquivo', 'error');
-            };
-
-            reader.readAsText(file);
-        };
-
-        input.click();
-    }
-
-    /**
-     * Expor funções globalmente para compatibilidade
-     */
-    exposeFunctionsGlobally() {
-        window.loadProfileData = () => this.loadProfileData();
-        window.saveProfile = () => this.saveProfile();
-        window.uploadLogo = () => this.uploadLogo();
-        window.removeLogo = () => this.removeLogo();
-        window.exportProfileData = () => this.exportProfileData();
-        window.importProfileData = () => this.importProfileData();
-        
-        console.log('🔗 Funções perfil.html expostas globalmente para compatibilidade');
-    }
-
-    /**
-     * Mostrar feedback usando módulo feedback ou fallback
-     */
-    showFeedback(message, type) {
-        if (this.feedback) {
-            this.feedback.show(message, type);
-        } else if (window.showFeedback) {
-            window.showFeedback(message, type);
-        } else {
-            console.log(`${type.toUpperCase()}: ${message}`);
+    } catch (error) {
+        console.error('❌ Erro ao carregar dados do perfil:', error);
+        if (app.getModule('feedback')) {
+            app.getModule('feedback').error('Erro ao carregar dados do perfil');
         }
     }
 }
 
-// Inicializar página quando DOM estiver pronto
-document.addEventListener('DOMContentLoaded', () => {
-    window.perfilPage = new PerfilPage();
-});
+/**
+ * Carregar dados do plano
+ */
+function loadPlanData(app) {
+    try {
+        const storage = app.getModule('storage');
+        const currentUserId = storage.getCurrentUserId();
+        
+        // Verificar plano atual
+        const planData = localStorage.getItem(`user_plan_${currentUserId}`);
+        const currentPlanElement = document.getElementById('currentPlan');
+        const planStatusElement = document.getElementById('planStatus');
+        const planExpiryElement = document.getElementById('planExpiry');
+        
+        if (planData) {
+            const plan = JSON.parse(planData);
+            
+            currentPlanElement.textContent = plan.name || 'Plano Básico';
+            planStatusElement.textContent = plan.active ? 'Ativo' : 'Inativo';
+            
+            if (plan.expiryDate) {
+                const expiryDate = new Date(plan.expiryDate);
+                planExpiryElement.textContent = `Válido até: ${expiryDate.toLocaleDateString('pt-BR')}`;
+            } else {
+                planExpiryElement.textContent = 'Sem data de expiração';
+            }
+        } else {
+            currentPlanElement.textContent = 'Plano Gratuito';
+            planStatusElement.textContent = 'Ativo';
+            planExpiryElement.textContent = 'Sem limitações';
+        }
+        
+        console.log('✅ Dados do plano carregados');
+    } catch (error) {
+        console.error('❌ Erro ao carregar dados do plano:', error);
+    }
+}
 
-// Exportar para uso em outros módulos se necessário
-export { PerfilPage }; 
+/**
+ * Salvar perfil
+ */
+function saveProfile(app) {
+    try {
+        const storage = app.getModule('storage');
+        const feedback = app.getModule('feedback');
+        
+        // Coletar dados do formulário
+        const profileData = {
+            name: document.getElementById('userName').value.trim(),
+            email: document.getElementById('userEmail').value.trim(),
+            phone: document.getElementById('userPhone').value.trim(),
+            company: document.getElementById('companyName').value.trim(),
+            cnpj: document.getElementById('companyCNPJ').value.trim(),
+            address: document.getElementById('companyAddress').value.trim(),
+            companyPhone: document.getElementById('companyPhone').value.trim()
+        };
+        
+        // Validar dados essenciais
+        if (!profileData.name) {
+            feedback.error('Nome é obrigatório');
+            document.getElementById('userName').focus();
+            return;
+        }
+        
+        if (!profileData.email) {
+            feedback.error('Email é obrigatório');
+            document.getElementById('userEmail').focus();
+            return;
+        }
+        
+        // Salvar dados
+        const currentUserId = storage.getCurrentUserId();
+        const existingData = storage.getUserData() || {};
+        const updatedData = { ...existingData, ...profileData };
+        
+        localStorage.setItem('user', JSON.stringify(updatedData));
+        
+        // Atualizar dados de autenticação se necessário
+        const authData = JSON.parse(localStorage.getItem('calc_madeira_auth') || '[]');
+        const userIndex = authData.findIndex(u => u.id === currentUserId);
+        if (userIndex !== -1) {
+            authData[userIndex] = { ...authData[userIndex], ...profileData };
+            localStorage.setItem('calc_madeira_auth', JSON.stringify(authData));
+        }
+        
+        feedback.success('Perfil salvo com sucesso!');
+        console.log('✅ Perfil salvo:', profileData);
+        
+    } catch (error) {
+        console.error('❌ Erro ao salvar perfil:', error);
+        if (app.getModule('feedback')) {
+            app.getModule('feedback').error('Erro ao salvar perfil');
+        }
+    }
+}
+
+/**
+ * Handle upload de logo
+ */
+function handleLogoUpload(event, app) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    // Verificar tipo de arquivo
+    if (!file.type.startsWith('image/')) {
+        app.getModule('feedback').error('Por favor, selecione uma imagem válida');
+        return;
+    }
+    
+    // Verificar tamanho (máximo 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+        app.getModule('feedback').error('Imagem muito grande. Máximo 2MB');
+        return;
+    }
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const logoData = e.target.result;
+        
+        // Salvar logo no localStorage
+        localStorage.setItem('companyLogo', logoData);
+        
+        // Exibir logo
+        displayLogo(logoData);
+        
+        app.getModule('feedback').success('Logo carregada com sucesso!');
+    };
+    
+    reader.readAsDataURL(file);
+}
+
+/**
+ * Exibir logo
+ */
+function displayLogo(logoData) {
+    const logoPreview = document.getElementById('logoPreview');
+    const noLogo = document.getElementById('noLogo');
+    const removeButton = document.getElementById('removeLogo');
+    
+    if (logoPreview && noLogo && removeButton) {
+        logoPreview.src = logoData;
+        logoPreview.style.display = 'block';
+        noLogo.style.display = 'none';
+        removeButton.style.display = 'inline-flex';
+    }
+}
+
+/**
+ * Remover logo
+ */
+function removeLogo(app) {
+    localStorage.removeItem('companyLogo');
+    
+    const logoPreview = document.getElementById('logoPreview');
+    const noLogo = document.getElementById('noLogo');
+    const removeButton = document.getElementById('removeLogo');
+    const logoInput = document.getElementById('logoInput');
+    
+    if (logoPreview && noLogo && removeButton && logoInput) {
+        logoPreview.style.display = 'none';
+        noLogo.style.display = 'block';
+        removeButton.style.display = 'none';
+        logoInput.value = '';
+    }
+    
+    app.getModule('feedback').success('Logo removida');
+}
+
+/**
+ * Exportar dados do usuário
+ */
+function exportUserData(app) {
+    try {
+        const storage = app.getModule('storage');
+        const userData = storage.getUserData();
+        const currentUserId = storage.getCurrentUserId();
+        
+        // Coletar todos os dados do usuário
+        const exportData = {
+            perfil: userData,
+            orçamentos: JSON.parse(localStorage.getItem(`quotes_${currentUserId}`) || '[]'),
+            listaItens: storage.loadWoodList(),
+            configurações: {
+                version: '2.0.0',
+                exportDate: new Date().toISOString()
+            }
+        };
+        
+        // Criar e baixar arquivo JSON
+        const dataStr = JSON.stringify(exportData, null, 2);
+        const dataBlob = new Blob([dataStr], { type: 'application/json' });
+        
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(dataBlob);
+        link.download = `calculadora-madeira-backup-${new Date().toISOString().split('T')[0]}.json`;
+        link.click();
+        
+        app.getModule('feedback').success('Dados exportados com sucesso!');
+        
+    } catch (error) {
+        console.error('❌ Erro ao exportar dados:', error);
+        app.getModule('feedback').error('Erro ao exportar dados');
+    }
+}
+
+/**
+ * Excluir conta
+ */
+function deleteAccount(app) {
+    if (!confirm('⚠️ ATENÇÃO: Esta ação é irreversível!\n\nTem certeza que deseja excluir sua conta e todos os dados?')) {
+        return;
+    }
+    
+    if (!confirm('Esta é sua última chance! Todos os orçamentos, configurações e dados serão perdidos permanentemente.\n\nConfirma a exclusão?')) {
+        return;
+    }
+    
+    try {
+        const storage = app.getModule('storage');
+        const currentUserId = storage.getCurrentUserId();
+        
+        // Remover todos os dados do usuário
+        const keysToRemove = [
+            'user',
+            'isLoggedIn',
+            'currentUserId',
+            'woodList',
+            'companyLogo',
+            `quotes_${currentUserId}`,
+            `user_plan_${currentUserId}`
+        ];
+        
+        keysToRemove.forEach(key => {
+            localStorage.removeItem(key);
+        });
+        
+        // Remover da lista de usuários autenticados
+        const authData = JSON.parse(localStorage.getItem('calc_madeira_auth') || '[]');
+        const updatedAuthData = authData.filter(u => u.id !== currentUserId);
+        localStorage.setItem('calc_madeira_auth', JSON.stringify(updatedAuthData));
+        
+        app.getModule('feedback').success('Conta excluída com sucesso');
+        
+        // Redirecionar após 2 segundos
+        setTimeout(() => {
+            window.location.href = 'index.html';
+        }, 2000);
+        
+    } catch (error) {
+        console.error('❌ Erro ao excluir conta:', error);
+        app.getModule('feedback').error('Erro ao excluir conta');
+    }
+}
+
+/**
+ * Aplicar formatações aos formulários
+ */
+function applyFormattingToProfileForms(formatters) {
+    // Aplicar máscara de telefone
+    const phoneInputs = ['userPhone', 'companyPhone'];
+    phoneInputs.forEach(id => {
+        const input = document.getElementById(id);
+        if (input && formatters.applyPhoneMask) {
+            formatters.applyPhoneMask(input);
+        }
+    });
+    
+    // Aplicar máscara de CNPJ
+    const cnpjInput = document.getElementById('companyCNPJ');
+    if (cnpjInput && formatters.applyCNPJMask) {
+        formatters.applyCNPJMask(cnpjInput);
+    }
+    
+    console.log('🎨 Formatações aplicadas aos formulários de perfil');
+}
+
+// Disponibilizar funções globalmente para compatibilidade
+window.ProfilePageModule = {
+    loadProfileData,
+    saveProfile,
+    handleLogoUpload,
+    exportUserData,
+    deleteAccount
+};
+
+console.log('📦 Módulo de perfil carregado'); 

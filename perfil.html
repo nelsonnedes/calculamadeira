@@ -3,862 +3,208 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meu Perfil - Calculadora de Madeira</title>
-    <link rel="stylesheet" href="styles.css">
-    <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#8B0000">
-    <link rel="apple-touch-icon" href="icon-192x192.png">
-    <!-- CSS MODULAR CENTRALIZADO - Seguindo REFACTORING_PLAN.md -->
+    <meta name="description" content="Perfil do usuário - Calculadora de Madeira">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="CalcMadeira">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+    <title>Meu Perfil - Calculadora de Madeira</title>
+    
+    <!-- CSS MODULAR - Nova Arquitetura -->
     <link rel="stylesheet" href="css/main.css">
-    <style>
-        /* Estilos do header e navegação */
-        header {
-            background: #8B0000;
-            padding: 15px 0;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .header-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 20px;
-        }
-
-        .logo {
-            color: white;
-            text-decoration: none;
-            font-size: 24px;
-            display: flex;
-            align-items: center;
-            padding: 5px;
-        }
-
-        .page-title {
-            color: white;
-            font-size: 1.2rem;
-            margin: 0;
-            flex: 1;
-            text-align: center;
-        }
-
-        nav ul {
-            list-style: none;
-            display: flex;
-            margin: 0;
-            padding: 0;
-        }
-
-        nav ul li {
-            margin: 0 15px;
-        }
-
-        nav ul li a {
-            color: white;
-            text-decoration: none;
-            font-size: 16px;
-            transition: opacity 0.3s;
-        }
-
-        nav ul li a:hover {
-            opacity: 0.8;
-        }
-
-        .user-menu {
-            position: relative;
-        }
-
-        .user-menu-button {
-            background: none;
-            border: none;
-            color: white;
-            cursor: pointer;
-            font-size: 20px;
-            padding: 5px;
-        }
-
-        .user-menu-panel {
-            position: absolute;
-            top: 100%;
-            right: 0;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            min-width: 200px;
-            display: none;
-            z-index: 1001;
-        }
-
-        .user-menu-button:focus + .user-menu-panel,
-        .user-menu-panel:hover {
-            display: block;
-        }
-
-        .user-info {
-            padding: 15px;
-            border-bottom: 1px solid #eee;
-        }
-
-        .user-info span {
-            display: block;
-            color: #333;
-        }
-
-        .user-info span:first-child {
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-
-        .user-menu-panel ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .user-menu-panel ul li a {
-            padding: 12px 15px;
-            display: flex;
-            align-items: center;
-            color: #333;
-            text-decoration: none;
-            transition: background-color 0.3s;
-        }
-
-        .user-menu-panel ul li a:hover {
-            background-color: #f5f5f5;
-        }
-
-        .user-menu-panel ul li a i {
-            margin-right: 10px;
-            color: #8B0000;
-        }
-
-        /* Ajuste para o conteúdo principal */
-        .container {
-            padding-top: 80px; /* Espaço para o header fixo */
-        }
-
-        .profile-container {
-            max-width: 800px;
-            margin: 20px auto;
-            padding: 20px;
-        }
-
-        .profile-section {
-            background: white;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .profile-section h2 {
-            color: #4CAF50;
-            margin-bottom: 20px;
-            font-size: 1.5em;
-        }
-
-        .profile-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid #eee;
-        }
-
-        .profile-avatar {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            background: #e8f5e9;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 20px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .profile-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .profile-avatar i {
-            font-size: 48px;
-            color: #4CAF50;
-        }
-
-        .profile-avatar .change-avatar {
-            position: absolute;
-            bottom: 0;
-            right: 0;
-            background: #4CAF50;
-            color: white;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        .profile-info {
-            flex-grow: 1;
-        }
-
-        .profile-name {
-            font-size: 1.5em;
-            color: #333;
-            margin-bottom: 5px;
-        }
-
-        .profile-email {
-            color: #666;
-            margin-bottom: 10px;
-        }
-
-        .profile-plan {
-            display: inline-block;
-            background: #e8f5e9;
-            color: #4CAF50;
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 0.9em;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            color: #333;
-            font-weight: 500;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 16px;
-        }
-
-        .form-group input:focus {
-            outline: none;
-            border-color: #4CAF50;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .stat-card {
-            background: #f5f5f5;
-            padding: 15px;
-            border-radius: 8px;
-            text-align: center;
-        }
-
-        .stat-value {
-            font-size: 1.8em;
-            color: #4CAF50;
-            margin-bottom: 5px;
-        }
-
-        .stat-label {
-            color: #666;
-            font-size: 0.9em;
-        }
-
-        .danger-zone {
-            border: 1px solid #ffcdd2;
-            background: #ffebee;
-            padding: 20px;
-            border-radius: 8px;
-            margin-top: 30px;
-        }
-
-        .danger-zone h3 {
-            color: #d32f2f;
-            margin-bottom: 15px;
-        }
-
-        .danger-zone p {
-            color: #666;
-            margin-bottom: 15px;
-        }
-
-        .danger-zone button {
-            background: #d32f2f;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        .danger-zone button:hover {
-            background: #b71c1c;
-        }
-
-        /* Estilos da seção de planos */
-        .plan-info-container {
-            margin-bottom: 20px;
-        }
-
-        .current-plan-card {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            border: 1px solid #dee2e6;
-            border-radius: 12px;
-            padding: 24px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .plan-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid #dee2e6;
-        }
-
-        .plan-header h3 {
-            margin: 0;
-            color: #495057;
-            font-size: 1.4em;
-        }
-
-        .plan-status {
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.85em;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .plan-status.active {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .plan-status.expired {
-            background: #f8d7da;
-            color: #721c24;
-        }
-
-        .plan-status.pending {
-            background: #fff3cd;
-            color: #856404;
-        }
-
-        .plan-details {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-
-        .plan-dates p {
-            margin: 8px 0;
-            color: #6c757d;
-        }
-
-        .plan-dates strong {
-            color: #495057;
-        }
-
-        .plan-features h4 {
-            margin: 0 0 12px 0;
-            color: #495057;
-            font-size: 1.1em;
-        }
-
-        .plan-features ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .plan-features li {
-            padding: 6px 0;
-            color: #6c757d;
-            position: relative;
-            padding-left: 20px;
-        }
-
-        .plan-features li::before {
-            content: '✓';
-            position: absolute;
-            left: 0;
-            color: #28a745;
-            font-weight: bold;
-        }
-
-        .plan-actions {
-            text-align: center;
-            padding-top: 15px;
-            border-top: 1px solid #dee2e6;
-        }
-
-        .btn-upgrade {
-            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1em;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .btn-upgrade:hover {
-            background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
-        }
-
-        @media (max-width: 768px) {
-            .header-content {
-                flex-direction: column;
-                text-align: center;
-            }
-
-            .page-title {
-                margin-top: 10px;
-            }
-
-            nav ul {
-                flex-direction: column;
-                margin: 15px 0;
-            }
-
-            nav ul li {
-                margin: 10px 0;
-            }
-
-            .user-menu {
-                margin-top: 15px;
-            }
-
-            .container {
-                padding-top: 120px; /* Mais espaço para o header em modo mobile */
-            }
-
-            .plan-details {
-                grid-template-columns: 1fr;
-                gap: 15px;
-            }
-        }
-
-        .feedback {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 12px 24px;
-            border-radius: 8px;
-            background-color: #4CAF50;
-            color: white;
-            font-size: 16px;
-            z-index: 1000;
-            animation: fadeInOut 3s ease-in-out;
-        }
-
-        .feedback.error {
-            background-color: #f44336;
-        }
-
-        @keyframes fadeInOut {
-            0% { opacity: 0; transform: translate(-50%, 20px); }
-            10% { opacity: 1; transform: translate(-50%, 0); }
-            90% { opacity: 1; transform: translate(-50%, 0); }
-            100% { opacity: 0; transform: translate(-50%, -20px); }
-        }
-    </style>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <header>
+    <!-- HEADER com nova estrutura modular -->
+    <header class="header">
+        <button class="menu-btn" aria-label="Abrir menu">
+            <i class="fas fa-bars"></i>
+        </button>
+        
         <div class="header-content">
-            <a href="calc.html" class="logo">
+            <div class="app-name">Calculadora de Madeira</div>
+            <h1 class="page-title">Meu Perfil</h1>
+        </div>
+        
+        <div class="header-actions">
+            <button class="home-btn" aria-label="Início" title="Ir para a página inicial">
                 <i class="fas fa-home"></i>
-            </a>
-            <h1 class="page-title">Perfil</h1>
+            </button>
+            <button class="refresh-btn" aria-label="Recarregar" title="Recarregar página">
+                <i class="fas fa-sync-alt"></i>
+            </button>
         </div>
     </header>
 
-    <div class="container">
-        <main class="profile-container">
-            <div class="profile-section">
-                <div class="profile-header">
-                    <div class="profile-avatar">
-                        <img id="companyLogo" src="logo.png" alt="Logo da Empresa">
-                        <div class="change-avatar" onclick="document.getElementById('logoInput').click()">
-                            <i class="fas fa-camera"></i>
-                        </div>
-                        <input type="file" id="logoInput" accept="image/*" style="display: none" onchange="handleLogoUpload(event)">
-                    </div>
-                    <div class="profile-info">
-                        <div class="profile-name">Nome do Usuário</div>
-                        <div class="profile-email">usuario@email.com</div>
-                        <div class="profile-plan" id="profilePlanBadge">Plano Gratuito</div>
-                    </div>
+    <!-- MENU LATERAL -->
+    <nav class="side-menu" id="sideMenu">
+        <div class="menu-header">
+            <h3>Menu</h3>
+            <button class="close-menu" aria-label="Fechar menu">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <ul class="menu-items">
+            <li><a href="calc.html"><i class="fas fa-calculator"></i> Calculadora</a></li>
+            <li><a href="orcamentos.html"><i class="fas fa-file-invoice"></i> Orçamentos</a></li>
+            <li><a href="perfil.html" class="active"><i class="fas fa-user"></i> Perfil</a></li>
+            <li><a href="configuracoes.html"><i class="fas fa-cog"></i> Configurações</a></li>
+            <li><a href="ajuda.html"><i class="fas fa-question-circle"></i> Ajuda</a></li>
+            <li><a href="index.html"><i class="fas fa-sign-out-alt"></i> Sair</a></li>
+        </ul>
+    </nav>
+
+    <!-- OVERLAY do menu -->
+    <div class="menu-overlay" id="menuOverlay"></div>
+
+    <!-- CONTAINER PRINCIPAL -->
+    <main class="container profile-container">
+        
+        <!-- INFORMAÇÕES DO USUÁRIO -->
+        <section class="profile-section">
+            <h3><i class="fas fa-user"></i> Informações Pessoais</h3>
+            
+            <div class="profile-form">
+                <div class="form-group">
+                    <label for="userName"><i class="fas fa-user"></i> Nome:</label>
+                    <input type="text" id="userName" placeholder="Seu nome completo">
                 </div>
-
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-value">150</div>
-                        <div class="stat-label">Cálculos Realizados</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value">12</div>
-                        <div class="stat-label">Listas Salvas</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value">98%</div>
-                        <div class="stat-label">Precisão</div>
-                    </div>
+                
+                <div class="form-group">
+                    <label for="userEmail"><i class="fas fa-envelope"></i> Email:</label>
+                    <input type="email" id="userEmail" placeholder="seu@email.com" readonly>
                 </div>
-
-                <h2>Informações Pessoais</h2>
-                <form id="profileForm">
-                    <div class="form-group">
-                        <label for="name">Nome Completo</label>
-                        <input type="text" id="name" value="Nome do Usuário" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">E-mail</label>
-                        <input type="email" id="email" value="usuario@email.com" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Telefone</label>
-                        <input type="tel" id="phone" value="(11) 99999-9999">
-                    </div>
-                    <div class="form-group">
-                        <label for="company">Empresa</label>
-                        <input type="text" id="company" value="Nome da Empresa">
-                    </div>
-                    <div class="form-group">
-                        <label for="cnpj">CNPJ</label>
-                        <input type="text" id="cnpj" placeholder="00.000.000/0000-00">
-                    </div>
-                    <button type="submit" class="btn-primary">Salvar Alterações</button>
-                </form>
-            </div>
-
-            <div class="profile-section">
-                <h2>Informações do Plano</h2>
-                <div class="plan-info-container">
-                    <div class="current-plan-card">
-                        <div class="plan-header">
-                            <h3 id="currentPlanName">Plano Gratuito</h3>
-                            <span class="plan-status" id="planStatus">Ativo</span>
-                        </div>
-                        <div class="plan-details">
-                            <div class="plan-dates">
-                                <p><strong>Data de Início:</strong> <span id="planStartDate">--</span></p>
-                                <p><strong>Data de Término:</strong> <span id="planEndDate">--</span></p>
-                            </div>
-                            <div class="plan-features">
-                                <h4>Benefícios inclusos:</h4>
-                                <ul id="planFeaturesList">
-                                    <li>Cálculos básicos</li>
-                                    <li>Relatórios simples</li>
-                                    <li>Suporte por email</li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div class="plan-actions">
-                            <button class="btn-upgrade" onclick="window.location.href='planos.html'">
-                                <i class="fas fa-arrow-up"></i> Fazer Upgrade
-                            </button>
-                        </div>
-                    </div>
+                
+                <div class="form-group">
+                    <label for="userPhone"><i class="fas fa-phone"></i> Telefone:</label>
+                    <input type="tel" id="userPhone" placeholder="(00) 00000-0000">
                 </div>
             </div>
+        </section>
 
-            <div class="profile-section">
-                <h2>Alterar Senha</h2>
-                <form id="passwordForm">
-                    <div class="form-group">
-                        <label for="currentPassword">Senha Atual</label>
-                        <input type="password" id="currentPassword" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="newPassword">Nova Senha</label>
-                        <input type="password" id="newPassword" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="confirmPassword">Confirmar Nova Senha</label>
-                        <input type="password" id="confirmPassword" required>
-                    </div>
-                    <button type="submit" class="btn-primary">Alterar Senha</button>
-                </form>
+        <!-- DADOS DA EMPRESA -->
+        <section class="profile-section">
+            <h3><i class="fas fa-building"></i> Dados da Empresa</h3>
+            
+            <div class="profile-form">
+                <div class="form-group">
+                    <label for="companyName"><i class="fas fa-building"></i> Nome da Empresa:</label>
+                    <input type="text" id="companyName" placeholder="Nome da sua empresa">
+                </div>
+                
+                <div class="form-group">
+                    <label for="companyCNPJ"><i class="fas fa-id-card"></i> CNPJ:</label>
+                    <input type="text" id="companyCNPJ" placeholder="00.000.000/0000-00">
+                </div>
+                
+                <div class="form-group">
+                    <label for="companyAddress"><i class="fas fa-map-marker-alt"></i> Endereço:</label>
+                    <input type="text" id="companyAddress" placeholder="Endereço completo">
+                </div>
+                
+                <div class="form-group">
+                    <label for="companyPhone"><i class="fas fa-phone-office"></i> Telefone da Empresa:</label>
+                    <input type="tel" id="companyPhone" placeholder="(00) 0000-0000">
+                </div>
             </div>
+        </section>
 
-            <div class="danger-zone">
-                <h3>Zona de Perigo</h3>
-                <p>Ao excluir sua conta, todos os seus dados serão permanentemente removidos e não poderão ser recuperados.</p>
-                <button onclick="deleteAccount()">Excluir Conta</button>
+        <!-- LOGO DA EMPRESA -->
+        <section class="profile-section">
+            <h3><i class="fas fa-image"></i> Logo da Empresa</h3>
+            
+            <div class="logo-upload-section">
+                <div class="current-logo" id="currentLogo">
+                    <img id="logoPreview" src="" alt="Logo atual" style="display: none;">
+                    <div class="no-logo" id="noLogo">
+                        <i class="fas fa-image"></i>
+                        <p>Nenhuma logo carregada</p>
+                    </div>
+                </div>
+                
+                <div class="logo-controls">
+                    <input type="file" id="logoInput" accept="image/*" style="display: none;">
+                    <button class="btn-primary" onclick="document.getElementById('logoInput').click()">
+                        <i class="fas fa-upload"></i> Carregar Logo
+                    </button>
+                    <button class="btn-secondary" id="removeLogo" style="display: none;">
+                        <i class="fas fa-trash"></i> Remover Logo
+                    </button>
+                </div>
             </div>
-        </main>
-    </div>
+        </section>
 
-    <script src="auth.js"></script>
-    
-    <!-- SISTEMA MODULAR - Seguindo REFACTORING_PLAN.md -->
-    <script type="module" src="js/core/app.js"></script>
-    <script src="pwa-updater.js"></script>
-    <script src="update-checker.js"></script>
-    <script>
-        // Verificar autenticação
-        if (!isUserLoggedIn()) {
-            window.location.href = 'index.html';
-        }
-
-        // Carregar dados do perfil
-        function loadProfileData() {
-            try {
-                // Carregar dados do usuário
-                const user = JSON.parse(localStorage.getItem('user') || '{}');
-                
-                // Preencher campos
-                document.getElementById('name').value = user.name || '';
-                document.getElementById('email').value = user.email || '';
-                document.getElementById('phone').value = user.phone || '';
-                document.getElementById('company').value = user.company || '';
-                document.getElementById('cnpj').value = user.cnpj || '';
-                
-                // Atualizar exibição do perfil
-                document.querySelector('.profile-name').textContent = user.name || 'Nome do Usuário';
-                document.querySelector('.profile-email').textContent = user.email || 'usuario@email.com';
-                
-                // Carregar logo da empresa se existir
-                const logoData = localStorage.getItem('companyLogo');
-                if (logoData) {
-                    document.getElementById('companyLogo').src = logoData;
-                }
-                
-                // Carregar dados do plano
-                loadPlanData();
-                
-            } catch (error) {
-                console.error('Erro ao carregar dados do perfil:', error);
-            }
-        }
-
-        // Carregar dados do plano
-        function loadPlanData() {
-            try {
-                // Obter dados do plano do usuário
-                const planData = JSON.parse(localStorage.getItem('userPlan') || '{}');
-                
-                // Definições dos planos
-                const planDefinitions = {
-                    free: {
-                        name: 'Plano Gratuito',
-                        features: [
-                            'Cálculos básicos de volume',
-                            'Até 10 itens por lista',
-                            'Relatórios simples',
-                            'Suporte por email'
-                        ]
-                    },
-                    basic: {
-                        name: 'Plano Básico',
-                        features: [
-                            'Cálculos avançados',
-                            'Listas ilimitadas',
-                            'Relatórios em PDF',
-                            'Histórico de cálculos',
-                            'Suporte prioritário'
-                        ]
-                    },
-                    premium: {
-                        name: 'Plano Premium',
-                        features: [
-                            'Todos os recursos básicos',
-                            'Relatórios personalizados',
-                            'Integração com sistemas',
-                            'Backup automático',
-                            'Suporte 24/7',
-                            'Análises avançadas'
-                        ]
-                    },
-                    enterprise: {
-                        name: 'Plano Enterprise',
-                        features: [
-                            'Todos os recursos premium',
-                            'Multi-usuários',
-                            'API personalizada',
-                            'Treinamento dedicado',
-                            'Gerente de conta',
-                            'SLA garantido'
-                        ]
-                    }
-                };
-                
-                // Determinar plano atual (padrão: gratuito)
-                const currentPlanType = planData.type || 'free';
-                const planDefinition = planDefinitions[currentPlanType] || planDefinitions.free;
-                
-                // Atualizar nome do plano
-                document.getElementById('currentPlanName').textContent = planDefinition.name;
-                
-                // Atualizar badge do plano no cabeçalho
-                document.getElementById('profilePlanBadge').textContent = planDefinition.name;
-                
-                // Verificar status do plano
-                const now = new Date();
-                const endDate = planData.endDate ? new Date(planData.endDate) : null;
-                const statusElement = document.getElementById('planStatus');
-                
-                if (!endDate) {
-                    statusElement.textContent = 'Ativo';
-                    statusElement.className = 'plan-status active';
-                } else if (now <= endDate) {
-                    statusElement.textContent = 'Ativo';
-                    statusElement.className = 'plan-status active';
-                } else {
-                    statusElement.textContent = 'Expirado';
-                    statusElement.className = 'plan-status expired';
-                }
-
-                // Atualizar datas
-                if (planData.startDate) {
-                    const startDate = new Date(planData.startDate);
-                    document.getElementById('planStartDate').textContent = startDate.toLocaleDateString('pt-BR');
-                } else {
-                    document.getElementById('planStartDate').textContent = '--';
-                }
-
-                if (planData.endDate) {
-                    const endDate = new Date(planData.endDate);
-                    document.getElementById('planEndDate').textContent = endDate.toLocaleDateString('pt-BR');
-                } else {
-                    document.getElementById('planEndDate').textContent = 'Sem expiração';
-                }
-
-                // Atualizar lista de benefícios
-                const featuresList = document.getElementById('planFeaturesList');
-                featuresList.innerHTML = '';
-                planDefinition.features.forEach(feature => {
-                    const li = document.createElement('li');
-                    li.textContent = feature;
-                    featuresList.appendChild(li);
-                });
-
-                console.log('Dados do plano carregados:', planData);
-            } catch (error) {
-                console.error('Erro ao carregar dados do plano:', error);
-                // Usar valores padrão em caso de erro
-                document.getElementById('currentPlanName').textContent = 'Plano Gratuito';
-                document.getElementById('profilePlanBadge').textContent = 'Plano Gratuito';
-                document.getElementById('planStatus').textContent = 'Ativo';
-                document.getElementById('planStatus').className = 'plan-status active';
-            }
-        }
-
-        // Manipular upload da logo
-        function handleLogoUpload(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const logoData = e.target.result;
-                    localStorage.setItem('companyLogo', logoData);
-                    document.getElementById('companyLogo').src = logoData;
-                    showFeedback('Logo atualizada com sucesso!');
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-
-        // Salvar alterações do perfil
-        document.getElementById('profileForm').addEventListener('submit', (e) => {
-            e.preventDefault();
+        <!-- PLANO ATUAL -->
+        <section class="profile-section">
+            <h3><i class="fas fa-crown"></i> Plano Atual</h3>
             
-            const user = JSON.parse(localStorage.getItem('user') || '{}');
-            user.name = document.getElementById('name').value;
-            user.email = document.getElementById('email').value;
-            user.phone = document.getElementById('phone').value;
-            user.company = document.getElementById('company').value;
-            user.cnpj = document.getElementById('cnpj').value;
-            
-            localStorage.setItem('user', JSON.stringify(user));
-            
-            // Atualizar também o menuInfo para manter consistência
-            const menuInfo = {
-                name: user.name,
-                email: user.email
-            };
-            localStorage.setItem('menuInfo', JSON.stringify(menuInfo));
-            
-            showFeedback('Perfil atualizado com sucesso!');
-            
-            // Atualizar a exibição na página
-            document.querySelector('.profile-name').textContent = user.name || 'Nome do Usuário';
-            document.querySelector('.profile-email').textContent = user.email || 'usuario@email.com';
-        });
+            <div class="plan-info">
+                <div class="plan-card">
+                    <div class="plan-name" id="currentPlan">Carregando...</div>
+                    <div class="plan-status" id="planStatus">Verificando status...</div>
+                    <div class="plan-expiry" id="planExpiry"></div>
+                </div>
+                
+                <div class="plan-actions">
+                    <a href="planos.html" class="btn-primary">
+                        <i class="fas fa-upgrade"></i> Gerenciar Plano
+                    </a>
+                </div>
+            </div>
+        </section>
 
-        // Alterar senha
-        document.getElementById('passwordForm').addEventListener('submit', (e) => {
-            e.preventDefault();
+        <!-- AÇÕES DO PERFIL -->
+        <section class="profile-section">
+            <h3><i class="fas fa-cogs"></i> Ações</h3>
             
-            const currentPassword = document.getElementById('currentPassword').value;
-            const newPassword = document.getElementById('newPassword').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
+            <div class="profile-actions">
+                <button class="btn-primary" id="saveProfile">
+                    <i class="fas fa-save"></i> Salvar Alterações
+                </button>
+                
+                <button class="btn-secondary" id="exportData">
+                    <i class="fas fa-download"></i> Exportar Dados
+                </button>
+                
+                <button class="btn-danger" id="deleteAccount">
+                    <i class="fas fa-trash"></i> Excluir Conta
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- SISTEMA DE FEEDBACK -->
+    <div id="feedbackContainer" class="feedback-container"></div>
+
+    <!-- JavaScript Modular - Nova Arquitetura -->
+    <script type="module">
+        // Import da aplicação principal
+        import { initializeApp } from './js/core/app.js';
+        
+        // Import específico da página de perfil
+        import './js/pages/perfil.js';
+        
+        // Event listener para confirmação de carregamento
+        document.addEventListener('calculadoraMadeiraReady', (event) => {
+            console.log('🎉 Página de Perfil Carregada!', event.detail);
             
-            if (newPassword !== confirmPassword) {
-                showFeedback('As senhas não coincidem!', 'error');
-                return;
-            }
-            
-            // Aqui você implementaria a lógica de alteração de senha
-            showFeedback('Senha alterada com sucesso!');
-            e.target.reset();
-        });
-
-        // Excluir conta
-        function deleteAccount() {
-            if (confirm('Tem certeza que deseja excluir sua conta? Esta ação não pode ser desfeita.')) {
-                localStorage.clear();
-                window.location.href = 'index.html';
-            }
-        }
-
-        // === FUNÇÃO SHOWFEEDBACK REMOVIDA ===
-        // Agora utiliza módulo js/components/feedback.js
-        // Via window.showFeedback() global
-        // SEGUINDO REFACTORING_PLAN.md - eliminação de duplicação
-
-        // Chamar loadProfileData quando a página carregar
-        document.addEventListener('DOMContentLoaded', function() {
-            loadProfileData();
+            // A aplicação e os módulos específicos da página já foram inicializados
+            // Toda a funcionalidade de perfil está disponível
         });
     </script>
+    
+    <!-- Fallback para navegadores sem suporte a módulos ES6 -->
+    <script nomodule>
+        alert('Seu navegador não suporta módulos ES6. Por favor, use um navegador mais recente.');
+    </script>
+
+    <!-- PWA Scripts -->
+    <script src="pwa-updater.js"></script>
+    <script src="update-checker.js"></script>
 </body>
 </html> 
