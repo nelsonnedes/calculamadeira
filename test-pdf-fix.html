@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste de Correção PDF - Versão 2.1.3</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .header {
+            background-color: #8B0000;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .step {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .step h3 {
+            color: #8B0000;
+            margin-top: 0;
+        }
+        .success {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        .error {
+            color: #f44336;
+            font-weight: bold;
+        }
+        .info {
+            background-color: #e7f3ff;
+            padding: 15px;
+            border-radius: 4px;
+            border-left: 4px solid #2196F3;
+        }
+        .warning {
+            background-color: #fff3cd;
+            padding: 15px;
+            border-radius: 4px;
+            border-left: 4px solid #ffc107;
+        }
+        button {
+            background-color: #8B0000;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #660000;
+        }
+        .code {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            border: 1px solid #e9ecef;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🔧 Teste de Correção PDF v2.1.3</h1>
+        <p>Verificação das correções aplicadas no sistema</p>
+    </div>
+
+    <div class="step">
+        <h3>📋 Status das Correções</h3>
+        <div id="statusCorrections"></div>
+    </div>
+
+    <div class="step">
+        <h3>🧹 Limpeza de Cache</h3>
+        <div class="warning">
+            <strong>⚠️ IMPORTANTE:</strong> Para aplicar as correções, você deve limpar o cache do navegador:
+        </div>
+        <br>
+        <div class="info">
+            <strong>Como limpar o cache:</strong><br>
+            • <strong>Chrome/Edge:</strong> Ctrl + Shift + Delete → Selecionar "Imagens e arquivos em cache" → Limpar<br>
+            • <strong>Firefox:</strong> Ctrl + Shift + Delete → Selecionar "Cache" → Limpar<br>
+            • <strong>Ou simplesmente:</strong> Pressione <code>Ctrl + F5</code> para recarregar forçado
+        </div>
+        <br>
+        <button onclick="clearCacheAndReload()">🔄 Limpar Cache e Recarregar</button>
+        <button onclick="forceReload()">⚡ Recarga Forçada (Ctrl+F5)</button>
+    </div>
+
+    <div class="step">
+        <h3>🔍 Teste das Funções PDF</h3>
+        <p>Após limpar o cache, teste os botões PDF em <a href="orcamentos.html" target="_blank">orcamentos.html</a></p>
+        <div class="info">
+            <strong>Teste esperado:</strong><br>
+            ✅ Botão "PDF C/Preço" - deve abrir PDF com preços unitários<br>
+            ✅ Botão "PDF S/Preço" - deve abrir PDF sem preços unitários<br>
+            ✅ Sem erros no console do navegador
+        </div>
+    </div>
+
+    <div class="step">
+        <h3>🐛 Verificação de Erros</h3>
+        <div id="errorCheck"></div>
+        <button onclick="checkConsoleErrors()">🔍 Verificar Erros no Console</button>
+    </div>
+
+    <div class="step">
+        <h3>📄 Informações Técnicas</h3>
+        <div class="code">
+            <strong>Versão do Sistema:</strong> 2.1.3<br>
+            <strong>Cache Name:</strong> calculadora-madeira-v2.1.3<br>
+            <strong>Correções Aplicadas:</strong><br>
+            • TypeError volumeText.includes corrigido<br>
+            • Service Worker chrome-extension fix<br>
+            • Padronização de strings nas funções PDF<br>
+            • Limpeza automática de cache
+        </div>
+    </div>
+
+    <script>
+        // Verificar status das correções
+        function checkCorrections() {
+            const corrections = [
+                { name: 'Versão do código', status: localStorage.getItem('code-version') === '2.1.3' },
+                { name: 'Service Worker registrado', status: 'serviceWorker' in navigator },
+                { name: 'HTML2Canvas disponível', status: typeof html2canvas !== 'undefined' },
+                { name: 'Cache limpo', status: !localStorage.getItem('old-cache-version') }
+            ];
+
+            const statusDiv = document.getElementById('statusCorrections');
+            statusDiv.innerHTML = corrections.map(correction => 
+                `<div style="margin: 5px 0;">
+                    ${correction.status ? '✅' : '❌'} ${correction.name}: 
+                    <span class="${correction.status ? 'success' : 'error'}">
+                        ${correction.status ? 'OK' : 'Erro'}
+                    </span>
+                </div>`
+            ).join('');
+        }
+
+        // Limpar cache e recarregar
+        async function clearCacheAndReload() {
+            try {
+                // Limpar todos os caches
+                if ('caches' in window) {
+                    const cacheNames = await caches.keys();
+                    for (const cacheName of cacheNames) {
+                        await caches.delete(cacheName);
+                    }
+                }
+                
+                // Limpar localStorage relacionado ao cache
+                const keysToRemove = Object.keys(localStorage).filter(key => 
+                    key.includes('cache') || key.includes('sw-')
+                );
+                keysToRemove.forEach(key => localStorage.removeItem(key));
+                
+                // Limpar sessionStorage
+                sessionStorage.clear();
+                
+                alert('Cache limpo! A página será recarregada.');
+                window.location.reload(true);
+            } catch (error) {
+                console.error('Erro ao limpar cache:', error);
+                alert('Erro ao limpar cache. Use Ctrl+F5 para recarga forçada.');
+            }
+        }
+
+        // Recarga forçada
+        function forceReload() {
+            window.location.reload(true);
+        }
+
+        // Verificar erros no console
+        function checkConsoleErrors() {
+            const errorDiv = document.getElementById('errorCheck');
+            errorDiv.innerHTML = `
+                <div class="info">
+                    <strong>Como verificar erros:</strong><br>
+                    1. Pressione F12 para abrir Developer Tools<br>
+                    2. Vá para a aba "Console"<br>
+                    3. Acesse orcamentos.html e teste os botões PDF<br>
+                    4. Verifique se há erros vermelhos no console<br><br>
+                    <strong>Erros que devem ter sido corrigidos:</strong><br>
+                    ❌ TypeError: volumeText.includes is not a function<br>
+                    ❌ Failed to execute 'put' on 'Cache': Request scheme 'chrome-extension'<br>
+                    ❌ initializeAutocomplete is not defined
+                </div>
+            `;
+        }
+
+        // Executar verificações ao carregar
+        document.addEventListener('DOMContentLoaded', function() {
+            checkCorrections();
+        });
+    </script>
+</body>
+</html> 
